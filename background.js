@@ -6,8 +6,8 @@ chrome.action.onClicked.addListener(() => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "analizar-protocolo") {
-    handleStart(request, sendResponse);
-    return true; 
+    handleStart(request, sender, sendResponse);
+    return true;
   }
 
   if (request.type === "NBLM_REPORT_FINAL") {
@@ -16,16 +16,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-async function handleStart(request, sendResponse) {
+async function handleStart(request, sender, sendResponse) {
   const tabs = await chrome.tabs.query({ url: "*://notebooklm.google.com/*" });
+  
   if (tabs.length === 0) {
-    sendResponse({ ok: false, error: "Abre NotebookLM primero." });
+    sendResponse({ ok: false, error: "Cargar motor de análisis" });
     return;
   }
 
   const draftId = "D" + Date.now();
+  const formTabId = sender.tab.id;
+
+  // Guardar el tabId del formulario para enviarle el resultado después
   await chrome.storage.local.set({
-    ["draft:" + draftId]: { protocoloText: request.protocoloText, finalReady: false }
+    ["draft:" + draftId]: { 
+      protocoloText: request.protocoloText, 
+      formTabId: formTabId,
+      finalReady: false 
+    }
   });
 
   chrome.tabs.sendMessage(tabs[0].id, {
@@ -33,21 +41,31 @@ async function handleStart(request, sendResponse) {
     draftId,
     protocoloText: request.protocoloText
   });
-  
+
   sendResponse({ ok: true, draftId });
 }
 
 async function handleFinish(draftId, text) {
   const key = "draft:" + draftId;
   const data = await chrome.storage.local.get(key);
-  
-  const formattedText = text + "\n\n---\n[INFORME GENERADO AUTOMÁTICAMENTE]";
-  
-  await chrome.storage.local.set({
-    [key]: { ...(data[key] || {}), reportText: formattedText, finalReady: true }
-  });
 
-  // Abrir pestaña de resultados
-  const url = chrome.runtime.getURL(`result.html?draftId=${draftId}`);
-  chrome.tabs.create({ url, active: true });
+  if (!data[key]) {
+    console.error("No se encontró el draft:", draftId);
+    return;
+  }
+
+  const formTabId = data[key].formTabId;
+
+  // Enviar el reporte al formulario original
+  try {
+    await chrome.tabs.sendMessage(formTabId, {
+      type: "NBLM_REPORT_FINAL",
+      reportText: text
+    });
+  } catch (error) {
+    console.error("Error enviando mensaje al formulario:", error);
+  }
+
+  // Limpiar storage
+  await chrome.storage.local.remove(key);
 }
