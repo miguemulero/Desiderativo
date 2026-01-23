@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "NotebookLM Cuestionario Desiderativo",
+  "version": "1.7.1",
+  "permissions": ["tabs", "storage", "activeTab"],
+  "host_permissions": ["https://notebooklm.google.com/*"],
+  "action": {
+    "default_title": "Abrir formulario"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://notebooklm.google.com/*"],
+      "js": ["notebooklm-content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

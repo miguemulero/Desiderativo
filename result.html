@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Informe Clínico</title>
+  <link rel="stylesheet" href="result.css"/>
+</head>
+<body>
+  <main class="wrap">
+    <header class="no-print">
+      <h1>Informe Clínico</h1>
+      <p class="subtitle">Edite el contenido si es necesario antes de imprimir o guardar. </p>
+    </header>
+
+    <section class="card">
+      <h2 class="no-print">Texto del informe (editable)</h2>
+      <textarea id="report"></textarea>
+    </section>
+
+    <section class="print-only">
+      <div id="rendered"></div>
+    </section>
+
+    <footer class="no-print footer">
+      <button id="printPdf" type="button">Imprimir / Guardar como PDF</button>
+    </footer>
+  </main>
+
+  <script src="result.js"></script>
+</body>
+</html>

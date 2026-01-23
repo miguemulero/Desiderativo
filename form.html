@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Cuestionario Desiderativo — Análisis Integral</title>
+  <link rel="stylesheet" href="form.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Cuestionario Desiderativo</h1>
+      <p class="subtitle">Análisis Integral</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Datos Generales</h2>
+
+      <div class="field">
+        <label for="nombre">Nombre/ID</label>
+        <input type="text" id="nombre" placeholder="Ej: Caso-001" required/>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="edad">Edad</label>
+          <input type="number" id="edad" min="4" max="100" required/>
+        </div>
+
+        <div class="field">
+          <label for="genero">Género</label>
+          <select id="genero" required>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+            <option value="otro">Otro/No binario</option>
+            <option value="no_consignado">No consignado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="nivel_educativo">Nivel educativo</label>
+          <select id="nivel_educativo" required>
+            <option value="primario">Primario/Básico</option>
+            <option value="secundario">Secundario/Obligatorio</option>
+            <option value="universitario">Universitario/Superior</option>
+            <option value="postgrado">Postgrado/Especialización</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="fecha">Fecha</label>
+          <input type="date" id="fecha" required/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="modalidad">Modalidad</label>
+        <select id="modalidad" required>
+          <option value="estandar">Estándar</option>
+          <option value="guiada_abreviada">Guiada Abreviada</option>
+          <option value="guiada_extendida">Guiada Extendida</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="informacion">Información relevante</label>
+        <textarea id="informacion" rows="3" placeholder="Contexto clínico, condiciones, observaciones..."></textarea>
+      </div>
+    </section>
+
+    <div class="catexias-grid">
+      <section class="card">
+        <h2>Catexias Positivas</h2>
+        <div id="positivas-container"></div>
+      </section>
+
+      <section class="card">
+        <h2>Catexias Negativas</h2>
+        <div id="negativas-container"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="row">
+        <div class="field">
+          <label for="asociaciones">Asociaciones</label>
+          <textarea id="asociaciones" rows="3" placeholder="Asociaciones verbales... "></textarea>
+        </div>
+
+        <div class="field">
+          <label for="recuerdo">Recuerdo positivo</label>
+          <textarea id="recuerdo" rows="3" placeholder="Recuerdo positivo del evaluado..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card actions">
+      <div class="actions-row">
+        <button type="button" id="analizar" class="primary">Analizar</button>
+        <button type="button" id="limpiar" class="secondary">Limpiar respuestas</button>
+
+        <div id="status" class="status" aria-live="polite">
+          <span id="spinner" class="spinner" hidden></span>
+          <span id="statusText"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="form.js"></script>
+</body>
+</html>
