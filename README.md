@@ -110,6 +110,7 @@ Desiderativo/
 La extensión requiere los siguientes permisos:
 - `activeTab`: Para interactuar con la pestaña activa
 - `storage`: Para guardar preferencias localmente
+- `tabs`: Para detectar pestañas de NotebookLM abiertas
 - `host_permissions` para `notebooklm.google.com`: Para integración con NotebookLM
 
 ## 📝 Uso profesional
