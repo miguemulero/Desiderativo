@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desiderativo Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Cuestionario Desiderativo</h1>
+      <p class="subtitle">Asistente de Interpretación</p>
+    </header>
+
+    <main>
+      <section class="info-section">
+        <h2>¿Qué es el Cuestionario Desiderativo?</h2>
+        <p>El Cuestionario Desiderativo es una técnica proyectiva que explora los mecanismos de defensa y la identidad del individuo a través de preguntas sobre qué le gustaría y qué no le gustaría ser.</p>
+      </section>
+
+      <section class="action-section">
+        <h2>Plantillas de Análisis</h2>
+        <button id="btn-template-basic" class="btn btn-primary">
+          📝 Plantilla Básica
+        </button>
+        <button id="btn-template-detailed" class="btn btn-primary">
+          📊 Análisis Detallado
+        </button>
+        <button id="btn-template-interpretation" class="btn btn-primary">
+          🔍 Guía de Interpretación
+        </button>
+      </section>
+
+      <section class="notebook-section">
+        <h2>Trabajar con NotebookLM</h2>
+        <button id="btn-send-to-notebook" class="btn btn-secondary">
+          📤 Enviar a NotebookLM
+        </button>
+        <p class="help-text">Abre NotebookLM para trabajar con las plantillas y respuestas del cuestionario.</p>
+      </section>
+
+      <section class="resources-section">
+        <h2>Recursos</h2>
+        <ul class="resource-list">
+          <li><a href="#" id="link-guide" target="_blank">📚 Guía de Administración</a></li>
+          <li><a href="#" id="link-interpretation" target="_blank">🎯 Criterios de Interpretación</a></li>
+          <li><a href="#" id="link-examples" target="_blank">💡 Ejemplos de Casos</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p class="version">v1.0.0</p>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
