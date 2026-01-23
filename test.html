@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Extension Popup</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+    .instructions {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .popup-container {
+      display: inline-block;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    iframe {
+      border: none;
+      width: 400px;
+      height: 600px;
+    }
+    ol {
+      line-height: 2;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Test: Desiderativo Extension Popup</h1>
+    
+    <div class="instructions">
+      <h2>Instrucciones para probar la extensión:</h2>
+      <ol>
+        <li>Abre Chrome y ve a <code>chrome://extensions/</code></li>
+        <li>Activa el "Modo de desarrollador" en la esquina superior derecha</li>
+        <li>Haz clic en "Cargar extensión sin empaquetar"</li>
+        <li>Selecciona la carpeta: <code>/home/runner/work/Desiderativo/Desiderativo</code></li>
+        <li>La extensión aparecerá en tu barra de herramientas</li>
+        <li>Haz clic en el icono de la extensión para abrir el popup</li>
+        <li>Prueba los botones de plantillas (se copiarán al portapapeles)</li>
+        <li>Haz clic en "Enviar a NotebookLM" para abrir NotebookLM</li>
+      </ol>
+
+      <h3>Vista previa del popup:</h3>
+      <p>Aquí puedes ver cómo se verá el popup de la extensión:</p>
+    </div>
+
+    <div class="popup-container">
+      <iframe src="popup.html"></iframe>
+    </div>
+  </div>
+</body>
+</html>
