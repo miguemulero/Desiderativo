@@ -36,11 +36,32 @@ body{
   box-shadow:0 2px 4px rgba(0,0,0,0.2);
 }
 
+.header-content{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.header-icon{
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.header-text{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 h1{
   margin:0 0 2px;
-  font-size:20px;
+  font-size:28px;
   font-weight:700;
   color:var(--text);
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.5px;
 }
 
 .subtitle{
@@ -391,5 +412,15 @@ button:disabled{
   }
   .row{
     grid-template-columns:1fr;
+  }
+  
+  .header-content{
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .header-icon{
+    width: 40px;
+    height: 40px;
   }
 }

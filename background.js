@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.type === "NBLM_REPORT_FINAL") {
     handleFinish(request.draftId, request.reportText);
-    sendResponse({ ok: true }); // AGREGADO: responder al content script
+    sendResponse({ ok: true });
     return false;
   }
 });
@@ -76,24 +76,28 @@ async function handleFinish(draftId, text) {
       // Verificar que la pestaña existe
       await chrome.tabs.get(formTabId);
       
-      // Enviar el reporte al formulario
-      await chrome.tabs.sendMessage(formTabId, {
+      // Enviar el reporte al formulario SIN esperar respuesta
+      chrome.tabs.sendMessage(formTabId, {
         type: "NBLM_REPORT_FINAL",
         reportText: text
+      }).catch(err => {
+        console.warn("Error enviando mensaje al formulario:", err.message);
       });
       
       console.log("✅ Reporte enviado correctamente al formulario");
       
     } catch (tabError) {
-      console.warn("La pestaña del formulario original no responde, buscando alternativa...");
+      console.warn("La pestaña del formulario original no existe, buscando alternativa...");
       
       // Buscar otra pestaña del formulario abierta
       const formTabs = await chrome.tabs.query({ url: chrome.runtime.getURL("form.html") });
       
       if (formTabs.length > 0) {
-        await chrome.tabs.sendMessage(formTabs[0].id, {
+        chrome.tabs.sendMessage(formTabs[0].id, {
           type: "NBLM_REPORT_FINAL",
           reportText: text
+        }).catch(err => {
+          console.warn("Error enviando mensaje a pestaña alternativa:", err.message);
         });
         console.log("✅ Reporte enviado a otra pestaña del formulario");
       } else {
