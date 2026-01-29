@@ -194,6 +194,7 @@ ${protocolo}`;
       setBusy(false);
       showResult(msg.reportText);
     }
+    return true; // ✅ CAMBIO: Añadido para evitar errores
   });
 
   // Botón Analizar

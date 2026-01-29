@@ -48,7 +48,7 @@ async function enviarPromptNotebookLM(text, draftId) {
   console.log("Chatbox encontrado:", box.tagName, box);
 
   // Guarda una marca del prompt enviado para NO capturarlo después
-  const promptSent = text.substring(0, 100); // Primeros 100 caracteres del prompt
+  const promptSent = text.substring(0, 100);
   
   // Limpia y pega el texto
   if (box.tagName === "TEXTAREA" || box.tagName === "INPUT") {
@@ -80,7 +80,7 @@ async function enviarPromptNotebookLM(text, draftId) {
     cancelable: true
   }));
 
-  // Esperar 2 segundos antes de empezar a monitorear (para que NotebookLM empiece a responder)
+  // Esperar 2 segundos antes de empezar a monitorear
   await new Promise(r => setTimeout(r, 2000));
   
   console.log("Iniciando monitoreo de respuesta...");
@@ -95,7 +95,7 @@ function iniciarMonitoreo(draftId, promptSent) {
   const interval = setInterval(() => {
     iterationCount++;
     
-    // Timeout después de 5 minutos (300 segundos / 1.1 seg por iteración ≈ 272 iteraciones)
+    // Timeout después de 5 minutos
     if (iterationCount > 272) {
       clearInterval(interval);
       console.error("Timeout: No se detectó 'FIN DEL INFORME' después de 5 minutos");
@@ -103,7 +103,7 @@ function iniciarMonitoreo(draftId, promptSent) {
       return;
     }
 
-    // Selectores actualizados para NotebookLM (2024-2026)
+    // Selectores actualizados para NotebookLM
     const blocks = document.querySelectorAll([
       'div[data-message-author-role="model"]',
       'div[class*="response"]',
@@ -120,7 +120,6 @@ function iniciarMonitoreo(draftId, promptSent) {
     console.log(`[Monitoreo #${iterationCount}] Bloques encontrados:`, blocks.length);
 
     let matchBlock = null;
-    let matchBlockIndex = -1;
 
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
@@ -128,7 +127,7 @@ function iniciarMonitoreo(draftId, promptSent) {
       
       const txt = block.innerText.trim();
       
-      // IMPORTANTE: Ignorar bloques que contengan el prompt original
+      // Ignorar bloques que contengan el prompt original
       if (txt.includes(promptSent)) {
         console.log(`[Monitoreo #${iterationCount}] Bloque ${i} ignorado: contiene el prompt enviado`);
         continue;
@@ -140,14 +139,12 @@ function iniciarMonitoreo(draftId, promptSent) {
         txt.toUpperCase().includes("FIN DEL ANÁLISIS")
       ) {
         matchBlock = block;
-        matchBlockIndex = i;
         console.log(`[Monitoreo #${iterationCount}] ¡Bloque ${i} contiene "FIN DEL INFORME"!`);
         break;
       }
     }
 
     if (!matchBlock) {
-      // Resetear si no encontramos nada
       if (iterationCount % 10 === 0) {
         console.log(`[Monitoreo #${iterationCount}] No se encontró "FIN DEL INFORME" aún...`);
       }
@@ -186,11 +183,6 @@ function comunicarFinal(draftId, text) {
     type: "NBLM_REPORT_FINAL",
     draftId: draftId,
     reportText: text
-  }, (response) => {
-    if (chrome.runtime.lastError) {
-      console.error("Error enviando mensaje:", chrome.runtime.lastError);
-    } else {
-      console.log("✅ Reporte enviado correctamente");
-    }
   });
+  console.log("✅ Mensaje enviado a background.js");
 }
