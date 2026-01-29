@@ -1,11 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "NotebookLM Cuestionario Desiderativo",
-  "version": "1.8.1",
-  "permissions": ["tabs", "storage", "activeTab"],
-  "host_permissions": ["https://notebooklm.google.com/*"],
+  "name": "Cuestionario Desiderativo",
+  "version": "2.0",
+  "description": "Análisis integral del Cuestionario Desiderativo",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://notebooklm.google.com/*"
+  ],
   "action": {
-    "default_title": "Abrir formulario"
+    "default_title": "Abrir Cuestionario Desiderativo"
   },
   "background": {
     "service_worker": "background.js"
@@ -15,6 +21,15 @@
       "matches": ["https://notebooklm.google.com/*"],
       "js": ["notebooklm-content.js"],
       "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["form.html", "form.css", "form.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

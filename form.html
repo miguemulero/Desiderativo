@@ -9,66 +9,69 @@
 <body>
   <header class="topbar">
     <div>
-      <h1>Cuestionario Desiderativo</h1>
+      <h1 style="text-align: center; font-size: 28px;">Cuestionario Desiderativo</h1>
       <p class="subtitle">Análisis Integral</p>
     </div>
   </header>
 
   <main class="container">
-    <section class="card">
+    <section class="card compact-card">
       <h2>Datos Generales</h2>
+      
+      <div class="datos-generales-grid">
+        <!-- Columna izquierda -->
+        <div>
+          <div class="field compact-field">
+            <label for="nombre">Nombre/ID</label>
+            <input type="text" id="nombre" placeholder="Ej: Caso-001" required/>
+          </div>
 
-      <div class="field">
-        <label for="nombre">Nombre/ID</label>
-        <input type="text" id="nombre" placeholder="Ej: Caso-001" required/>
-      </div>
+          <div class="field compact-field">
+            <label for="edad">Edad</label>
+            <input type="number" id="edad" min="4" max="100" required/>
+          </div>
 
-      <div class="row">
-        <div class="field">
-          <label for="edad">Edad</label>
-          <input type="number" id="edad" min="4" max="100" required/>
+          <div class="field compact-field">
+            <label for="genero">Género</label>
+            <select id="genero" required>
+              <option value="masculino">Masculino</option>
+              <option value="femenino">Femenino</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="field compact-field">
+            <label for="nivel_educativo">Nivel educativo</label>
+            <select id="nivel_educativo" required>
+              <option value="primario">Primario/Básico</option>
+              <option value="secundario">Secundario/Obligatorio</option>
+              <option value="universitario">Universitario/Superior</option>
+              <option value="postgrado">Postgrado/Especialización</option>
+            </select>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="genero">Género</label>
-          <select id="genero" required>
-            <option value="masculino">Masculino</option>
-            <option value="femenino">Femenino</option>
-            <option value="otro">Otro/No binario</option>
-            <option value="no_consignado">No consignado</option>
-          </select>
+        <!-- Columna derecha -->
+        <div>
+          <div class="field compact-field">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required/>
+          </div>
+
+          <div class="field compact-field">
+            <label for="modalidad">Modalidad</label>
+            <select id="modalidad" required>
+              <option value="estandar">Estándar</option>
+              <option value="guiada_abreviada">Guiada Abreviada</option>
+              <option value="guiada_extendida">Guiada Extendida</option>
+            </select>
+          </div>
+
+          <div class="field compact-field">
+            <label for="informacion">Información relevante</label>
+            <textarea id="informacion" rows="3" placeholder="Contexto clínico, condiciones, observaciones..."></textarea>
+          </div>
         </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label for="nivel_educativo">Nivel educativo</label>
-          <select id="nivel_educativo" required>
-            <option value="primario">Primario/Básico</option>
-            <option value="secundario">Secundario/Obligatorio</option>
-            <option value="universitario">Universitario/Superior</option>
-            <option value="postgrado">Postgrado/Especialización</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="fecha">Fecha</label>
-          <input type="date" id="fecha" required/>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="modalidad">Modalidad</label>
-        <select id="modalidad" required>
-          <option value="estandar">Estándar</option>
-          <option value="guiada_abreviada">Guiada Abreviada</option>
-          <option value="guiada_extendida">Guiada Extendida</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="informacion">Información relevante</label>
-        <textarea id="informacion" rows="3" placeholder="Contexto clínico, condiciones, observaciones..."></textarea>
       </div>
     </section>
 
@@ -113,7 +116,7 @@
     <!-- Sección de resultado (oculta inicialmente) -->
     <section class="card" id="result-section" style="display:none;">
       <h2>Informe Generado (editable)</h2>
-      <textarea id="result-text" rows="20"></textarea>
+      <div id="result-text" contenteditable="true" class="result-editable"></div>
       <div style="margin-top: 12px;">
         <button type="button" id="guardar-imprimir" class="primary">Guardar / Imprimir</button>
       </div>

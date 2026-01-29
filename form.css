@@ -48,6 +48,7 @@ h1{
   color:var(--text-muted);
   font-size:12px;
   font-weight:500;
+  text-align: center;
 }
 
 .container{
@@ -63,6 +64,43 @@ h1{
   padding:14px;
   margin-bottom:12px;
   box-shadow:0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Estilo MUY compacto para Datos Generales */
+.compact-card {
+  padding: 6px 10px;
+}
+
+.compact-card h2 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  padding-bottom: 3px;
+}
+
+.datos-generales-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.compact-field {
+  margin-bottom: 2px;
+}
+
+.compact-field label {
+  margin-bottom: 1px;
+  font-size: 10px;
+}
+
+.compact-field input,
+.compact-field select,
+.compact-field textarea {
+  padding: 3px 5px;
+  font-size: 11px;
+}
+
+.compact-field textarea {
+  resize: none;
 }
 
 h2{
@@ -292,12 +330,31 @@ button:disabled{
   to{transform:rotate(360deg);}
 }
 
-/* Estilos para el resultado */
-#result-text{
+/* Estilos para el resultado - div editable con auto-expansión */
+.result-editable{
   min-height:400px;
   font-size:13px;
   line-height:1.6;
-  resize:vertical;
+  text-align: justify;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text);
+  overflow-y: visible;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.result-editable:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 2px rgba(59,130,246,0.1);
+}
+
+.result-editable strong{
+  font-weight: 700;
+  color: var(--primary);
 }
 
 /* Estilos de impresión */
@@ -306,12 +363,11 @@ button:disabled{
     display:none !important;
   }
   
-  #result-text{
+  .result-editable{
     border:none;
     background:white;
     color:black;
     padding:0;
-    white-space:pre-wrap;
   }
   
   body{
@@ -327,6 +383,9 @@ button:disabled{
 }
 
 @media(max-width:1024px){
+  .datos-generales-grid{
+    grid-template-columns:1fr;
+  }
   .catexias-grid{
     grid-template-columns:1fr;
   }

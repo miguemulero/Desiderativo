@@ -138,11 +138,10 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
-    return `Analiza integralmente este protocolo sin modificar ni alterar los títulos de los epígrafes bajo ningún concepto mediante el esquema de la fuente "Análisis integral". Al finalizar el apartado VII, escribe en una línea aparte: FIN DEL INFORME. 
+    return `Analiza este protocolo con la fuente "Análisis integral". MANTÉN EXACTAMENTE los títulos de los epígrafes de la fuente sin modificarlos. Inicia con: "Se presenta el análisis estructural y dinámico del protocolo." Títulos en **negrita**. NO incluyas citas ni referencias. Finaliza con "**DISCLAIMER**" seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional" + "FIN DEL INFORME"
 
-PROTOCOLO A ANALIZAR: 
-Nombre/ID: ${p.nombre}
-
+PROTOCOLO: 
+${p.nombre}
 ${protocolo}`;
   }
 
@@ -165,14 +164,82 @@ ${protocolo}`;
     analizarBtn.disabled = isBusy;
   }
 
+  function processText(rawText) {
+    let processed = rawText;
+    
+    // 1. Eliminar cualquier texto antes de "Se presenta el análisis"
+    const startPhrase = "Se presenta el análisis estructural y dinámico del protocolo.";
+    const startIndex = processed.indexOf(startPhrase);
+    if (startIndex > 0) {
+      processed = processed.substring(startIndex);
+    }
+    
+    // 2. Lista exacta de títulos que deben estar en negrita
+    const titulos = [
+      'I. Encuadre e Implementación',
+      'II. Mecanismos Instrumentales',
+      'II. Mecanismos Instrumentales.',
+      '1. Represión Fundante y 1° Disociación Instrumental',
+      '1. Represión Fundante y 1º Disociación Instrumental',
+      'Represión Fundante y Primera Disociación Instrumental',
+      'Represión Fundante y Primera Disociación Instrumental.',
+      '2. 2° Disociación Instrumental',
+      '2. 2º Disociación Instrumental',
+      'Segunda Disociación Instrumental',
+      'Segunda Disociación Instrumental.',
+      'Identificación Proyectiva',
+      'Racionalización',
+      'III. Manejo y Tipos de Ansiedad',
+      'III. Manejo y Tipos de Ansiedad.',
+      'IV. Secuencia de Reinos y Fantasías de Muerte',
+      'V. Análisis Estructural (Ello, Yo y Superyó)',
+      'VI. Perspectiva ADL',
+      'VII. Hipótesis Diagnóstica y Pronóstico',
+      'DISCLAIMER'
+    ];
+    
+    // 3. Aplicar negrita a cada título de la lista
+    titulos.forEach(titulo => {
+      // Escapar caracteres especiales de regex
+      const escapedTitulo = titulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedTitulo, 'g');
+      processed = processed.replace(regex, '<strong>' + titulo + '</strong>');
+    });
+    
+    // 4. Detectar y formatear títulos de epígrafes principales (I., II., III., etc.)
+    // Agregar espacios antes y después
+    processed = processed.replace(/\n(<strong>(?:I|II|III|IV|V|VI|VII)\.\s+[^<]+<\/strong>)/g, '<br><br><br>$1<br><br>');
+    
+    // 5. Agregar salto de párrafo DESPUÉS de "II. Mecanismos Instrumentales"
+    processed = processed.replace(/(<strong>II\. Mecanismos Instrumentales\.?<\/strong>)/g, '$1<br>');
+    
+    // 6. Agregar salto de párrafo DESPUÉS de "III. Manejo y Tipos de Ansiedad"
+    processed = processed.replace(/(<strong>III\. Manejo y Tipos de Ansiedad\.?<\/strong>)/g, '$1<br>');
+    
+    // 7. Formatear el DISCLAIMER especialmente
+    processed = processed.replace(/\n?<strong>DISCLAIMER<\/strong>/g, '<br><br><br><strong>DISCLAIMER</strong><br><br>');
+    
+    // 8. Convertir saltos de línea simples restantes a <br>
+    processed = processed.replace(/\n/g, '<br>');
+    
+    // 9. Limpiar <br> múltiples al inicio
+    processed = processed.replace(/^(<br>\s*)+/, '');
+    
+    // 10. Limpiar más de 4 <br> consecutivos
+    processed = processed.replace(/(<br>\s*){5,}/g, '<br><br><br>');
+    
+    return processed;
+  }
+
   function showResult(reportText) {
-    resultText.value = reportText;
+    const processed = processText(reportText);
+    resultText.innerHTML = processed;
     resultSection.style.display = "block";
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function hideResult() {
-    resultText.value = "";
+    resultText.innerHTML = "";
     resultSection.style.display = "none";
   }
 
@@ -194,7 +261,7 @@ ${protocolo}`;
       setBusy(false);
       showResult(msg.reportText);
     }
-    return true; // ✅ CAMBIO: Añadido para evitar errores
+    return true;
   });
 
   // Botón Analizar

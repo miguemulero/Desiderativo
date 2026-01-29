@@ -1,15 +1,25 @@
 // notebooklm-content.js
-console.log("notebooklm-content.js INYECTADO", window.location.href);
+console.log("✅ notebooklm-content.js INYECTADO", window.location.href);
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("📩 Mensaje recibido en notebooklm-content.js:", request.type);
+  
   if (request.type === "NBLM_START") {
-    enviarPromptNotebookLM(request.protocoloText, request.draftId);
+    console.log("🚀 Iniciando envío a NotebookLM");
+    
+    // Responder inmediatamente
     sendResponse({ ok: true });
+    
+    // Ejecutar de forma asíncrona
+    enviarPromptNotebookLM(request.protocoloText, request.draftId);
   }
+  
   return true;
 });
 
 async function enviarPromptNotebookLM(text, draftId) {
+  console.log("🔍 Buscando chatbox en NotebookLM...");
+  
   const selectors = [
     'div[contenteditable="true"]',
     'textarea[placeholder*="Ask"]',
@@ -40,12 +50,12 @@ async function enviarPromptNotebookLM(text, draftId) {
   }
   
   if (!box) {
-    alert("No se encontró el chatbox de NotebookLM. ¿Seguro que la página está completamente cargada?");
-    console.error("No se encontró chatbox después de", retries, "intentos");
+    alert("❌ No se encontró el chatbox de NotebookLM. ¿Seguro que la página está completamente cargada?");
+    console.error("❌ No se encontró chatbox después de", retries, "intentos");
     return;
   }
 
-  console.log("Chatbox encontrado:", box.tagName, box);
+  console.log("✅ Chatbox encontrado:", box.tagName, box);
 
   // Guarda una marca del prompt enviado para NO capturarlo después
   const promptSent = text.substring(0, 100);
@@ -68,7 +78,7 @@ async function enviarPromptNotebookLM(text, draftId) {
   box.focus();
   await new Promise(r => setTimeout(r, 300));
 
-  console.log("Enviando prompt a NotebookLM...");
+  console.log("📤 Enviando prompt a NotebookLM...");
   
   // Intenta enviar con Enter
   box.dispatchEvent(new KeyboardEvent("keydown", { 
@@ -83,7 +93,7 @@ async function enviarPromptNotebookLM(text, draftId) {
   // Esperar 2 segundos antes de empezar a monitorear
   await new Promise(r => setTimeout(r, 2000));
   
-  console.log("Iniciando monitoreo de respuesta...");
+  console.log("👀 Iniciando monitoreo de respuesta...");
   iniciarMonitoreo(draftId, promptSent);
 }
 
@@ -98,7 +108,7 @@ function iniciarMonitoreo(draftId, promptSent) {
     // Timeout después de 5 minutos
     if (iterationCount > 272) {
       clearInterval(interval);
-      console.error("Timeout: No se detectó 'FIN DEL INFORME' después de 5 minutos");
+      console.error("⏱️ Timeout: No se detectó 'FIN DEL INFORME' después de 5 minutos");
       alert("Timeout: NotebookLM no respondió en el tiempo esperado");
       return;
     }
@@ -117,7 +127,9 @@ function iniciarMonitoreo(draftId, promptSent) {
       'div[class*="conversation"]'
     ].join(','));
 
-    console.log(`[Monitoreo #${iterationCount}] Bloques encontrados:`, blocks.length);
+    if (iterationCount % 10 === 0) {
+      console.log(`[Monitoreo #${iterationCount}] Bloques encontrados:`, blocks.length);
+    }
 
     let matchBlock = null;
 
@@ -129,7 +141,6 @@ function iniciarMonitoreo(draftId, promptSent) {
       
       // Ignorar bloques que contengan el prompt original
       if (txt.includes(promptSent)) {
-        console.log(`[Monitoreo #${iterationCount}] Bloque ${i} ignorado: contiene el prompt enviado`);
         continue;
       }
       
@@ -139,15 +150,12 @@ function iniciarMonitoreo(draftId, promptSent) {
         txt.toUpperCase().includes("FIN DEL ANÁLISIS")
       ) {
         matchBlock = block;
-        console.log(`[Monitoreo #${iterationCount}] ¡Bloque ${i} contiene "FIN DEL INFORME"!`);
+        console.log(`✅ [Monitoreo #${iterationCount}] ¡Bloque ${i} contiene "FIN DEL INFORME"!`);
         break;
       }
     }
 
     if (!matchBlock) {
-      if (iterationCount % 10 === 0) {
-        console.log(`[Monitoreo #${iterationCount}] No se encontró "FIN DEL INFORME" aún...`);
-      }
       return;
     }
 
@@ -155,34 +163,44 @@ function iniciarMonitoreo(draftId, promptSent) {
     
     // Verificar que el texto sea significativamente diferente del prompt
     if (currentText.length < 200) {
-      console.log(`[Monitoreo #${iterationCount}] Texto muy corto (${currentText.length} chars), esperando...`);
+      console.log(`⚠️ [Monitoreo #${iterationCount}] Texto muy corto (${currentText.length} chars), esperando...`);
       return;
     }
 
     if (currentText === lastText) {
       checkTicks++;
-      console.log(`[Monitoreo #${iterationCount}] Texto estable (tick ${checkTicks}/3)`);
+      console.log(`⏳ [Monitoreo #${iterationCount}] Texto estable (tick ${checkTicks}/3)`);
       
       if (checkTicks >= 3) {
         clearInterval(interval);
         console.log("✅ Respuesta completa detectada. Enviando al formulario...");
-        console.log("Texto capturado (primeros 500 chars):", currentText.substring(0, 500));
+        console.log("📝 Texto capturado (primeros 500 chars):", currentText.substring(0, 500));
         comunicarFinal(draftId, currentText);
       }
     } else {
       lastText = currentText;
       checkTicks = 0;
-      console.log(`[Monitoreo #${iterationCount}] Texto actualizado (${currentText.length} caracteres)`);
+      console.log(`🔄 [Monitoreo #${iterationCount}] Texto actualizado (${currentText.length} caracteres)`);
     }
   }, 1100);
 }
 
 function comunicarFinal(draftId, text) {
   console.log("📤 Enviando reporte final a background.js");
-  chrome.runtime.sendMessage({
-    type: "NBLM_REPORT_FINAL",
-    draftId: draftId,
-    reportText: text
-  });
-  console.log("✅ Mensaje enviado a background.js");
+  
+  try {
+    chrome.runtime.sendMessage({
+      type: "NBLM_REPORT_FINAL",
+      draftId: draftId,
+      reportText: text
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.warn("⚠️ No se pudo confirmar envío a background:", chrome.runtime.lastError.message);
+      } else {
+        console.log("✅ Mensaje enviado exitosamente a background.js");
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error al enviar mensaje:", error);
+  }
 }
