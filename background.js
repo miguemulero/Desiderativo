@@ -50,7 +50,7 @@ async function handleStart(request, sender, sendResponse) {
       console.error("Error comunicando con NotebookLM:", error.message);
       sendResponse({ 
         ok: false, 
-        error: "NotebookLM no está listo. Recarga la extensión y abre NotebookLM de nuevo" 
+        error: "Se precisa cargar motor de análisis" 
       });
     }
   } catch (error) {

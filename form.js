@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
-    return `Analiza este protocolo con la fuente "Análisis integral". MANTÉN EXACTAMENTE los títulos de los epígrafes de la fuente sin modificarlos. Inicia con: "Se presenta el análisis estructural y dinámico del protocolo." Títulos en **negrita**. NO incluyas citas ni referencias. Finaliza con "**DISCLAIMER**" seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional" + "FIN DEL INFORME"
+    return `Analiza este protocolo con la fuente "Análisis integral". MANTÉN EXACTAMENTE los títulos de los epígrafes de la fuente sin modificarlos. Comienza DIRECTAMENTE con "**I. Encuadre e Implementación**". Títulos en **negrita**. NO incluyas citas ni referencias. NO incluyas "(funcionamiento yoico)" en el texto. Finaliza con "**DISCLAIMER**" seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional" y luego en una nueva línea escribe exactamente "FIN DEL INFORME".
 
 PROTOCOLO: 
 ${p.nombre}
@@ -167,14 +167,23 @@ ${protocolo}`;
   function processText(rawText) {
     let processed = rawText;
     
-    // 1. Eliminar cualquier texto antes de "Se presenta el análisis"
-    const startPhrase = "Se presenta el análisis estructural y dinámico del protocolo.";
-    const startIndex = processed.indexOf(startPhrase);
+    // 1. Eliminar cualquier texto antes de "I. Encuadre e Implementación"
+    const startIndex = processed.search(/I\.\s+Encuadre e Implementación/i);
     if (startIndex > 0) {
       processed = processed.substring(startIndex);
     }
     
-    // 2. Lista exacta de títulos que deben estar en negrita
+    // 2. Eliminar "(funcionamiento yoico)" y variantes
+    processed = processed.replace(/\s*\(funcionamiento yoico\)/gi, '');
+    processed = processed.replace(/\s*\(Funcionamiento Yoico\)/g, '');
+    
+    // 3. Eliminar "FIN DEL INFORME" y todo lo que venga después
+    const finIndex = processed.search(/FIN DEL INFORME/i);
+    if (finIndex > -1) {
+      processed = processed.substring(0, finIndex);
+    }
+    
+    // 4. Lista exacta de títulos que deben estar en negrita
     const titulos = [
       'I. Encuadre e Implementación',
       'II. Mecanismos Instrumentales',
@@ -187,46 +196,64 @@ ${protocolo}`;
       '2. 2º Disociación Instrumental',
       'Segunda Disociación Instrumental',
       'Segunda Disociación Instrumental.',
+      '3. Identificación Proyectiva',
       'Identificación Proyectiva',
+      '4. Racionalización',
       'Racionalización',
       'III. Manejo y Tipos de Ansiedad',
       'III. Manejo y Tipos de Ansiedad.',
       'IV. Secuencia de Reinos y Fantasías de Muerte',
+      'Fantasías de Muerte',
       'V. Análisis Estructural (Ello, Yo y Superyó)',
       'VI. Perspectiva ADL',
       'VII. Hipótesis Diagnóstica y Pronóstico',
       'DISCLAIMER'
     ];
     
-    // 3. Aplicar negrita a cada título de la lista
+    // 5. Aplicar negrita a cada título de la lista
     titulos.forEach(titulo => {
-      // Escapar caracteres especiales de regex
       const escapedTitulo = titulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(escapedTitulo, 'g');
       processed = processed.replace(regex, '<strong>' + titulo + '</strong>');
     });
     
-    // 4. Detectar y formatear títulos de epígrafes principales (I., II., III., etc.)
-    // Agregar espacios antes y después
-    processed = processed.replace(/\n(<strong>(?:I|II|III|IV|V|VI|VII)\.\s+[^<]+<\/strong>)/g, '<br><br><br>$1<br><br>');
+    // 6. Convertir saltos de línea dobles (párrafos) a marcador temporal
+    processed = processed.replace(/\n\n+/g, '{{PARRAFO}}');
     
-    // 5. Agregar salto de párrafo DESPUÉS de "II. Mecanismos Instrumentales"
-    processed = processed.replace(/(<strong>II\. Mecanismos Instrumentales\.?<\/strong>)/g, '$1<br>');
+    // 7. Convertir saltos de línea simples a espacios
+    processed = processed.replace(/\n/g, ' ');
     
-    // 6. Agregar salto de párrafo DESPUÉS de "III. Manejo y Tipos de Ansiedad"
-    processed = processed.replace(/(<strong>III\. Manejo y Tipos de Ansiedad\.?<\/strong>)/g, '$1<br>');
+    // 8. Restaurar párrafos como <br><br>
+    processed = processed.replace(/{{PARRAFO}}/g, '<br><br>');
     
-    // 7. Formatear el DISCLAIMER especialmente
-    processed = processed.replace(/\n?<strong>DISCLAIMER<\/strong>/g, '<br><br><br><strong>DISCLAIMER</strong><br><br>');
+    // 9. Agregar salto ANTES de títulos principales (I., II., III., etc.) para separarlos
+    processed = processed.replace(/(<strong>(?:I|II|III|IV|V|VI|VII)\.\s+[^<]+<\/strong>)/g, '<br><br>$1<br>');
     
-    // 8. Convertir saltos de línea simples restantes a <br>
-    processed = processed.replace(/\n/g, '<br>');
+    // 10. Agregar salto de línea ANTES de "2. 2° Disociación Instrumental"
+    processed = processed.replace(/(<strong>2\.\s+2[°º]\s+Disociación Instrumental\.?<\/strong>)/g, '<br>$1');
+    processed = processed.replace(/(<strong>Segunda Disociación Instrumental\.?<\/strong>)/g, '<br>$1');
     
-    // 9. Limpiar <br> múltiples al inicio
+    // 11. Agregar salto de línea ANTES de "3. Identificación Proyectiva"
+    processed = processed.replace(/(<strong>3\.\s+Identificación Proyectiva<\/strong>)/g, '<br>$1');
+    
+    // 12. Agregar salto de línea ANTES de "4. Racionalización"
+    processed = processed.replace(/(<strong>4\.\s+Racionalización<\/strong>)/g, '<br>$1');
+    processed = processed.replace(/(<strong>Racionalización<\/strong>)/g, '<br>$1');
+    
+    // 13. Agregar salto de línea ANTES de "Fantasías de Muerte"
+    processed = processed.replace(/(<strong>Fantasías de Muerte<\/strong>)/g, '<br>$1');
+    
+    // 14. Formatear el DISCLAIMER especialmente
+    processed = processed.replace(/<strong>DISCLAIMER<\/strong>/g, '<br><br><strong>DISCLAIMER</strong><br>');
+    
+    // 15. Limpiar <br> múltiples al inicio
     processed = processed.replace(/^(<br>\s*)+/, '');
     
-    // 10. Limpiar más de 4 <br> consecutivos
-    processed = processed.replace(/(<br>\s*){5,}/g, '<br><br><br>');
+    // 16. Limpiar más de 3 <br> consecutivos
+    processed = processed.replace(/(<br>\s*){4,}/g, '<br><br>');
+    
+    // 17. Limpiar espacios al final
+    processed = processed.trim();
     
     return processed;
   }
