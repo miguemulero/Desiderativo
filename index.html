@@ -3,100 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progressive Web App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #ffffff;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-        }
-        input {
-            width: calc(100% - 22px);
-            background-color: #303030;
-            color: #ffffff;
-        }
-        button {
-            background-color: #6200ea;
-            color: #ffffff;
-            cursor: pointer;
-        }
-        .lists {
-            margin: 20px 0;
-        }
-        .analysis {
-            margin-top: 30px;
-        }
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-        }
-    </style>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <title>PWA App</title>
 </head>
 <body>
-    <h1>Progressive Web App</h1>
-    <div id="form-view">
-        <h2>Add a Catexia</h2>
-        <input type="text" id="new-catexias" placeholder="Enter 3 positive and 3 negative catexias separated by commas" />
-        <button onclick="addCatexias()">Add Catexias</button>
-    </div>
-    <div class="lists">
-        <h2>Catexias List</h2>
-        <ul id="catexias-list"></ul>
-    </div>
-    <div class="analysis">
-        <h2>Analysis</h2>
-        <p id="analysis-result"></p>
-    </div>
-    <script>
-        function addCatexias() {
-            const input = document.getElementById('new-catexias').value;
-            const catexias = input.split(',').map(c => c.trim());
-            const positive = catexias.slice(0, 3);
-            const negative = catexias.slice(3, 6);
-            localStorage.setItem('positive', JSON.stringify(positive));
-            localStorage.setItem('negative', JSON.stringify(negative));
-            displayCatexias();
-            analyzeCatexias();
-        }
-        function displayCatexias() {
-            const list = document.getElementById('catexias-list');
-            list.innerHTML = '';
-            const positive = JSON.parse(localStorage.getItem('positive')) || [];
-            const negative = JSON.parse(localStorage.getItem('negative')) || [];
-            positive.forEach(c => {
-                const li = document.createElement('li');
-                li.textContent = 'Positive: ' + c;
-                list.appendChild(li);
-            });
-            negative.forEach(c => {
-                const li = document.createElement('li');
-                li.textContent = 'Negative: ' + c;
-                list.appendChild(li);
-            });
-        }
-        function analyzeCatexias() {
-            const positive = JSON.parse(localStorage.getItem('positive')) || [];
-            const negative = JSON.parse(localStorage.getItem('negative')) || [];
-            const result = `Positive catexias: ${positive.length}, Negative catexias: ${negative.length}`;
-            document.getElementById('analysis-result').textContent = result;
-        }
-        // Load catexias from localStorage on page load
-        window.onload = function() {
-            displayCatexias();
-            analyzeCatexias();
-        };
-    </script>
+    <h1>Welcome to My PWA App</h1>
+    <p>This is a Progressive Web App.</p>
+    <script src="app.js"></script>
 </body>
 </html>
