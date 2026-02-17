@@ -1,15 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css">
-    <title>PWA App</title>
+    <link rel="stylesheet" href="form.css">
+    <title>Cuestionario Desiderativo</title>
 </head>
-<body>
-    <h1>Welcome to My PWA App</h1>
-    <p>This is a Progressive Web App.</p>
-    <script src="app.js"></script>
+<body class="dark-theme">
+    <h1>Cuestionario Desiderativo</h1>
+    <form id="cuestionario" onsubmit="saveData(event)">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required>
+
+        <label for="edad">Edad:</label>
+        <input type="number" id="edad" required>
+
+        <label for="genero">Género:</label>
+        <select id="genero" required>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+            <option value="otro">Otro</option>
+        </select>
+
+        <label for="nivelEducativo">Nivel Educativo:</label>
+        <input type="text" id="nivelEducativo">
+
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" required>
+
+        <label for="modalidad">Modalidad:</label>
+        <input type="text" id="modalidad">
+
+        <label for="informacion">Información:</label>
+        <textarea id="informacion"></textarea>
+
+        <label for="recuerdo">Recuerdo:</label>
+        <textarea id="recuerdo"></textarea>
+
+        <h3>Categorías Positivas:</h3>
+        <input type="text" id="positiva1" placeholder="Categoría Positiva 1">
+        <input type="text" id="positiva2" placeholder="Categoría Positiva 2">
+        <input type="text" id="positiva3" placeholder="Categoría Positiva 3">
+
+        <h3>Categorías Negativas:</h3>
+        <input type="text" id="negativa1" placeholder="Categoría Negativa 1">
+        <input type="text" id="negativa2" placeholder="Categoría Negativa 2">
+        <input type="text" id="negativa3" placeholder="Categoría Negativa 3">
+
+        <h3>Observaciones</h3>
+        <textarea id="observaciones"></textarea>
+
+        <label>
+            <input type="checkbox" id="tieneCambio"> Tiene cambio
+        </label>
+
+        <button type="submit">Enviar</button>
+    </form>
+    
+    <script>
+        function saveData(event) {
+            event.preventDefault();
+            const data = {
+                nombre: document.getElementById('nombre').value,
+                edad: document.getElementById('edad').value,
+                genero: document.getElementById('genero').value,
+                nivelEducativo: document.getElementById('nivelEducativo').value,
+                fecha: document.getElementById('fecha').value,
+                modalidad: document.getElementById('modalidad').value,
+                informacion: document.getElementById('informacion').value,
+                recuerdo: document.getElementById('recuerdo').value,
+                positiva1: document.getElementById('positiva1').value,
+                positiva2: document.getElementById('positiva2').value,
+                positiva3: document.getElementById('positiva3').value,
+                negativa1: document.getElementById('negativa1').value,
+                negativa2: document.getElementById('negativa2').value,
+                negativa3: document.getElementById('negativa3').value,
+                observaciones: document.getElementById('observaciones').value,
+                tieneCambio: document.getElementById('tieneCambio').checked
+            };
+            localStorage.setItem('cuestionarioData', JSON.stringify(data));
+            alert('Datos guardados.');
+        }
+    </script>
 </body>
 </html>
