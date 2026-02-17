@@ -1,129 +1,23 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cuestionario Desiderativo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="form.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon.png">
-    <meta name="theme-color" content="#3b82f6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Desiderativo">
-    <link rel="apple-touch-icon" href="icon.png">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; padding: 20px; }
-        h1 { color: #3b82f6; margin-bottom: 20px; text-align: center; }
-        form { max-width: 600px; margin: 0 auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155; }
-        label { display: block; margin-top: 15px; margin-bottom: 5px; color: #94a3b8; font-size: 14px; font-weight: 500; }
-        input, select, textarea { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1px solid #334155; border-radius: 8px; background-color: #0f172a; color: #f1f5f9; font-size: 14px; font-family: inherit; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #3b82f6; }
-        textarea { resize: vertical; min-height: 80px; }
-        button { width: 100%; padding: 12px; margin-top: 20px; background-color: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        button:active { background-color: #1e40af; }
-        input[type="checkbox"] { width: auto; margin-right: 8px; }
-        h3 { color: #3b82f6; margin-top: 20px; margin-bottom: 10px; }
-    </style>
+    <title>Complete PWA</title>
 </head>
 <body>
-    <h1>Cuestionario Desiderativo</h1>
-    <form id="cuestionario" onsubmit="saveData(event)">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" required>
-        
-        <label for="edad">Edad:</label>
-        <input type="number" id="edad" required>
-        
-        <label for="genero">Género:</label>
-        <select id="genero" required>
-            <option value="masculino">Masculino</option>
-            <option value="femenino">Femenino</option>
-            <option value="otro">Otro</option>
-        </select>
-        
-        <label for="nivelEducativo">Nivel Educativo:</label>
-        <input type="text" id="nivelEducativo">
-        
-        <label for="fecha">Fecha:</label>
-        <input type="date" id="fecha" required>
-        
-        <label for="modalidad">Modalidad:</label>
-        <input type="text" id="modalidad">
-        
-        <label for="informacion">Información:</label>
-        <textarea id="informacion"></textarea>
-        
-        <label for="recuerdo">Recuerdo:</label>
-        <textarea id="recuerdo"></textarea>
-        
-        <h3>Catexias Positivas (3):</h3>
-        <input type="text" id="positiva1" placeholder="Catexia Positiva 1">
-        <input type="text" id="positiva2" placeholder="Catexia Positiva 2">
-        <input type="text" id="positiva3" placeholder="Catexia Positiva 3">
-        
-        <h3>Catexias Negativas (3):</h3>
-        <input type="text" id="negativa1" placeholder="Catexia Negativa 1">
-        <input type="text" id="negativa2" placeholder="Catexia Negativa 2">
-        <input type="text" id="negativa3" placeholder="Catexia Negativa 3">
-        
-        <h3>Observaciones</h3>
-        <textarea id="observaciones"></textarea>
-        
-        <label>
-            <input type="checkbox" id="tieneCambio"> Tiene cambio
-        </label>
-        
-        <button type="submit">💾 Guardar</button>
-    </form>
-    
-    <script>
-        function saveData(event) {
-            event.preventDefault();
-            const data = {
-                nombre: document.getElementById('nombre').value,
-                edad: document.getElementById('edad').value,
-                genero: document.getElementById('genero').value,
-                nivelEducativo: document.getElementById('nivelEducativo').value,
-                fecha: document.getElementById('fecha').value,
-                modalidad: document.getElementById('modalidad').value,
-                informacion: document.getElementById('informacion').value,
-                recuerdo: document.getElementById('recuerdo').value,
-                positiva1: document.getElementById('positiva1').value,
-                positiva2: document.getElementById('positiva2').value,
-                positiva3: document.getElementById('positiva3').value,
-                negativa1: document.getElementById('negativa1').value,
-                negativa2: document.getElementById('negativa2').value,
-                negativa3: document.getElementById('negativa3').value,
-                observaciones: document.getElementById('observaciones').value,
-                tieneCambio: document.getElementById('tieneCambio').checked
-            };
-            localStorage.setItem('cuestionarioData', JSON.stringify(data));
-            alert('✅ Datos guardados correctamente');
-        }
-        
-        // Cargar datos guardados
-        window.onload = function() {
-            const saved = localStorage.getItem('cuestionarioData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                Object.keys(data).forEach(key => {
-                    const el = document.getElementById(key);
-                    if (el) {
-                        if (el.type === 'checkbox') {
-                            el.checked = data[key];
-                        } else {
-                            el.value = data[key];
-                        }
-                    }
-                });
-            }
-        };
-        
-        // Registrar Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
+    <header>
+        <h1>Welcome to the PWA</h1>
+    </header>
+    <main>
+        <form id="myForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <button type="submit">Submit</button>
+        </form>
+    </main>
+    <script src="form.js"></script>
 </body>
 </html>
