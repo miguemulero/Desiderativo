@@ -8,14 +8,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  document.getElementById("nombre").value = "protocolo ACR";
-  document.getElementById("edad").value = "11";
-  document.getElementById("genero").value = "masculino";
-  document.getElementById("nivel_educativo").value = "primario";
-  document.getElementById("fecha").value = "2026-01-20";
-  document.getElementById("modalidad").value = "estandar";
-  document.getElementById("informacion").value = "padres separados con custodia compartida y alto nivel de conflicto. Tiene dos hermanos mayores que él y otro mellizo.";
-  document.getElementById("recuerdo").value = "navidades abriendo regalos con la familia";
+  // Protocolo ACR precargado con delay para asegurar que el DOM esté listo
+  setTimeout(() => {
+    const nombreEl = document.getElementById("nombre");
+    const edadEl = document.getElementById("edad");
+    const generoEl = document.getElementById("genero");
+    const nivelEl = document.getElementById("nivel_educativo");
+    const fechaEl = document.getElementById("fecha");
+    const modalidadEl = document.getElementById("modalidad");
+    const infoEl = document.getElementById("informacion");
+    const recuerdoEl = document.getElementById("recuerdo");
+
+    if (nombreEl) nombreEl.value = "protocolo ACR";
+    if (edadEl) edadEl.value = "11";
+    if (generoEl) generoEl.value = "masculino";
+    if (nivelEl) nivelEl.value = "primario";
+    if (fechaEl) fechaEl.value = "2026-01-20";
+    if (modalidadEl) modalidadEl.value = "estandar";
+    if (infoEl) infoEl.value = "padres separados con custodia compartida y alto nivel de conflicto. Tiene dos hermanos mayores que él y otro mellizo.";
+    if (recuerdoEl) recuerdoEl.value = "navidades abriendo regalos con la familia";
+
+    console.log("✓ Protocolo ACR cargado");
+  }, 100);
 
   function createCatexiaFija(num, simbolo = "", tr = 0, justificacion = "", observaciones = "") {
     const div = document.createElement("div");
@@ -72,10 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return div;
   }
 
+  // Cargar catexias positivas ACR
   positivasContainer.appendChild(createCatexiaFija(1, "AGAPORNI", 3, "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia", ""));
   positivasContainer.appendChild(createCatexiaFija(2, "GIRASOL", 6, "porque le doy pipas a la gente, a veces gratis, a veces no", ""));
   positivasContainer.appendChild(createCatexiaFija(3, "CARNE", 10, "porque estaría buena y disfrutarían comiendo", ""));
 
+  // Cargar catexias negativas ACR
   negativasContainer.appendChild(createCatexiaFija(1, "MAPACHE", 1, "porque huelen mal, me pueden tirar a la basura y matar", ""));
   negativasContainer.appendChild(createCatexiaFija(2, "UN ORDENADOR", 4, "porque me usarían y cuando se acabe la batería no podría respirar", ""));
   negativasContainer.appendChild(createCatexiaFija(3, "UNA ROSA", 10, "porque me arrancarían, me quitarían las espinas y tendría mucho dolor", ""));
@@ -173,8 +189,9 @@ ${protocolo}`;
     resultSection.style.display = "none";
   }
 
+  // Botón Analizar
   analizarBtn.addEventListener("click", async () => {
-    console.log("Botón Analizar clickeado");
+    console.log("🔘 Botón Analizar clickeado");
 
     const protocolo = {
       nombre: document.getElementById("nombre").value.trim(),
@@ -198,8 +215,10 @@ ${protocolo}`;
 
     const protocoloText = buildPrompt(protocolo);
 
+    // Generar ID único para este análisis
     const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
+    // Guardar request en localStorage
     const request = {
       id: analysisId,
       protocol: protocoloText,
@@ -210,12 +229,16 @@ ${protocolo}`;
     localStorage.setItem('desiderativo_request', JSON.stringify(request));
     localStorage.setItem('desiderativo_request_id', analysisId);
     
-    alert("✓ PROTOCOLO GUARDADO\n\nPasos:\n\n1. Abre NotebookLM (app o web)\n2. Abre tu notebook 'Análisis integral'\n3. Toca el bookmarklet '▶️ Analizar'\n4. Espera - todo será automático\n5. Cuando veas notificación verde, vuelve aquí");
+    console.log("💾 Protocolo guardado en localStorage:", analysisId);
+    
+    // Mostrar alerta con instrucciones
+    alert("✓ PROTOCOLO GUARDADO\n\nPasos:\n\n1. Abre NotebookLM (app o web)\n2. Abre tu notebook 'Análisis integral'\n3. Toca el bookmarklet '▶️ Analizar'\n4. Espera - todo será automático\n5. Cuando veas notificación verde, vuelve aquí\n\nLa respuesta aparecerá automáticamente.");
     
     setBusy(true);
     statusText.textContent = "⏳ Esperando análisis en NotebookLM...";
   });
 
+  // Botón Limpiar
   document.getElementById("limpiar").addEventListener("click", () => {
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
@@ -232,10 +255,12 @@ ${protocolo}`;
     setBusy(false);
   });
 
+  // Botón Guardar/Imprimir
   guardarImprimirBtn.addEventListener("click", () => {
     window.print();
   });
 
+  // Listener para detectar respuestas de NotebookLM vía storage event
   window.addEventListener('storage', (e) => {
     if (e.key === 'desiderativo_response' && e.newValue) {
       try {
@@ -243,20 +268,24 @@ ${protocolo}`;
         const currentId = localStorage.getItem('desiderativo_request_id');
         
         if (response.id === currentId && response.status === 'completed') {
+          console.log("✅ Respuesta recibida via storage event");
+          
           setBusy(false);
           statusText.textContent = "✓ Análisis completado";
           showResult(response.reportText);
           
+          // Limpiar localStorage
           localStorage.removeItem('desiderativo_response');
           localStorage.removeItem('desiderativo_request');
           localStorage.removeItem('desiderativo_request_id');
         }
       } catch (err) {
-        console.error('Error:', err);
+        console.error('❌ Error procesando storage event:', err);
       }
     }
   });
 
+  // Polling para detectar respuestas (backup por si storage event no funciona en la misma pestaña)
   setInterval(() => {
     const responseStr = localStorage.getItem('desiderativo_response');
     if (responseStr) {
@@ -265,15 +294,22 @@ ${protocolo}`;
         const currentId = localStorage.getItem('desiderativo_request_id');
         
         if (response.id === currentId && response.status === 'completed') {
+          console.log("✅ Respuesta recibida via polling");
+          
           setBusy(false);
           statusText.textContent = "✓ Análisis completado";
           showResult(response.reportText);
           
+          // Limpiar localStorage
           localStorage.removeItem('desiderativo_response');
           localStorage.removeItem('desiderativo_request');
           localStorage.removeItem('desiderativo_request_id');
         }
-      } catch (err) {}
+      } catch (err) {
+        // Ignorar errores de parsing
+      }
     }
-  }, 2000);
+  }, 2000); // Revisar cada 2 segundos
+
+  console.log("✓ App inicializada");
 });
