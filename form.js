@@ -15,28 +15,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const GEMINI_API_KEY = "AIzaSyCio7SmVNw3jYCw3igZa11vuGOVKxDwv1w"; // ← CAMBIA ESTO POR TU API KEY REAL
   
   // Tu bibliografía subida a Gemini
-  const BIBLIOGRAFIA_FILES = [
-    "files/lqljz0esix7l",  // bullying.pdf
-    "files/l85o2yj4wxni",  // CASO JADE.pdf
-    "files/nwradxiuqm5v",  // CASOS.pdf
-    "files/oy22p4nzj63c",  // CD DIANA.pdf
-    "files/xpqis5z1ghk4",  // CD Graciela Celener.pdf
-    "files/26cu9xpgruab",  // CD pulsiones y defensas en patologías desvalimiento.pdf
-    "files/n79vrv5skpjy",  // criterios de interpretación.pdf
-    "files/fg8kfw3jq378",  // Cuadro proye - Catexias positivas y negativas.pdf
-    "files/8zp3gjdxe7si",  // Cuestionario desiderativo aplicado a niños2.pdf
-    "files/hakfkyc56scm",  // Cuestionario desiderativo-Sneiderman3.pdf
-    "files/ki31xotjf2ep",  // Indicadores-Psicopatologicos - CD.pdf
-    "files/ed3ihkklklif",  // niños latentes.pdf
-    "files/g892mj0liccr",  // Ocampo Arzeno - CD.pdf
-    "files/qd57w3x9nv28",  // O_questionario_desiderativo_fundamentos.pdf
-    "files/9c8x2t9jjeli",  // Preconsciente y su relación con el lenguaje.pdf
-    "files/hgvxtih4jluc",  // Psicodiagnostico Clinico 93-117.pdf
-    "files/cuf95cny20dh",  // Sneiderman_2011-Cuestionario.pdf
-    "files/bryux976g5qq",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
-    "files/jn7qt73rq3mt",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
-    "files/qqox2275732w"   // Vinculo hostil.pdf
-  ];
+ const BIBLIOGRAFIA_FILES = [
+  "files/21i3i9jzwpqw",  // bullying.pdf
+  "files/mj818xm406ge",  // CASO JADE.pdf
+  "files/1szjv7k8ilwy",  // CASOS.pdf
+  "files/cwgwdpij6q70",  // CD DIANA.pdf
+  "files/4tbwz8s35rre",  // CD Graciela Celener.pdf
+  "files/ep8w5gfxyxui",  // CD pulsiones y defensas en patologías desvalimiento.pdf
+  "files/oupricl697jr",  // criterios de interpretación.pdf
+  "files/z2sz31dbmfpc",  // Cuestionario desiderativo-Sneiderman3.pdf
+  "files/zo2pnxy2z9wp",  // Ocampo Arzeno - CD.pdf
+  "files/za5cg09jp6mr",  // O_questionario_desiderativo_fundamentos.pdf
+  "files/ggfx6ttmzi03",  // Preconsciente y su relación con el lenguaje.pdf
+  "files/p4zmsq677185",  // Psicodiagnostico Clinico 93-117.pdf
+  "files/x25s7r2mkl4p",  // Sneiderman_2011-Cuestionario.pdf
+  "files/m1v1lc335jko",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
+  "files/u6jkxrc5pvn5",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
+  "files/n3gnqyt984zm",  // Vinculo hostil.pdf
+];
 
   // ==========================================
 
