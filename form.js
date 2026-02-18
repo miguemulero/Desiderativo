@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // CONFIGURACIÓN - REEMPLAZA TU API KEY
   // ==========================================
-
+  
   const GEMINI_API_KEY = "AIzaSyBxefi-yWlRMvcpRapt7fh6oLLZrxmxU-U"; // ← CAMBIA ESTO POR TU API KEY REAL
   
   // Tu bibliografía subida a Gemini
@@ -226,8 +226,8 @@ ${protocolo}`;
       throw new Error("Por favor, configura tu API Key de Gemini en form.js (línea 14)");
     }
 
-    // Usar gemini-1.5-flash que SÍ soporta Files API
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Usar gemini-2.0-flash-exp que soporta Files API
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`;
 
     // Construir referencias a tus archivos de bibliografía
     const fileParts = BIBLIOGRAFIA_FILES.map(fileId => ({
@@ -337,4 +337,5 @@ ${protocolo}`;
 
   console.log("✓ App inicializada con Gemini Files API");
   console.log("📚 Bibliografía: 20 archivos cargados");
+  console.log("🤖 Modelo: gemini-2.0-flash-exp");
 });
