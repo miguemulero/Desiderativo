@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // CONFIGURACIÓN - REEMPLAZA TU API KEY
   // ==========================================
-  
   const GEMINI_API_KEY = "AIzaSyBxefi-yWlRMvcpRapt7fh6oLLZrxmxU-U"; // ← CAMBIA ESTO POR TU API KEY REAL
   
   // Tu bibliografía subida a Gemini
