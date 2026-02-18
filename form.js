@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  // Protocolo ACR precargado
   document.getElementById("nombre").value = "protocolo ACR";
   document.getElementById("edad").value = "11";
   document.getElementById("genero").value = "masculino";
@@ -111,5 +110,170 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const listPos = p.positivas.map((c, i) => formatCatexia(c, i)).join("\n\n");
-    const listNeg = p.negativas.map((c, i) =>
-
+    const listNeg = p.negativas.map((c, i) => formatCatexia(c, i)).join("\n\n");
+
+    const protocolo = [
+      "Edad: " + p.edad,
+      "Sexo: " + p.genero,
+      "Nivel educativo: " + p.nivel_educativo,
+      "Fecha: " + p.fecha,
+      "Modalidad: " + p.modalidad,
+      "",
+      "CATEXIAS POSITIVAS:",
+      listPos,
+      "",
+      "CATEXIAS NEGATIVAS:",
+      listNeg,
+      "",
+      "Asociaciones:",
+      p.asociaciones || "-",
+      "",
+      "Recuerdo positivo:",
+      p.recuerdo || "-",
+      "",
+      "Información relevante:",
+      p.informacion || "-"
+    ].join("\n");
+
+    return `Analiza integralmente este protocolo sin modificar ni alterar los títulos de los epígrafes bajo ningún concepto mediante el esquema de la fuente "Análisis integral". Al finalizar el apartado VII, escribe en una línea aparte: FIN DEL INFORME. 
+
+PROTOCOLO A ANALIZAR: 
+Nombre/ID: ${p.nombre}
+
+${protocolo}`;
+  }
+
+  function validateForm(protocolo) {
+    if (!protocolo.nombre) {
+      return "Completa el campo Nombre/ID.";
+    }
+    if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) {
+      return "La edad debe estar entre 4 y 100 años.";
+    }
+    if (!protocolo.fecha) {
+      return "Selecciona una fecha.";
+    }
+    return null;
+  }
+
+  function setBusy(isBusy) {
+    spinner.hidden = !isBusy;
+    statusText.textContent = isBusy ? "Procesando..." : "";
+    analizarBtn.disabled = isBusy;
+  }
+
+  function showResult(reportText) {
+    resultText.value = reportText;
+    resultSection.style.display = "block";
+    resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function hideResult() {
+    resultText.value = "";
+    resultSection.style.display = "none";
+  }
+
+  analizarBtn.addEventListener("click", async () => {
+    console.log("Botón Analizar clickeado");
+
+    const protocolo = {
+      nombre: document.getElementById("nombre").value.trim(),
+      edad: Number(document.getElementById("edad").value),
+      genero: document.getElementById("genero").value,
+      nivel_educativo: document.getElementById("nivel_educativo").value,
+      fecha: document.getElementById("fecha").value,
+      modalidad: document.getElementById("modalidad").value,
+      informacion: document.getElementById("informacion").value.trim(),
+      positivas: readCatexias(positivasContainer),
+      negativas: readCatexias(negativasContainer),
+      asociaciones: document.getElementById("asociaciones").value.trim(),
+      recuerdo: document.getElementById("recuerdo").value.trim()
+    };
+
+    const validationError = validateForm(protocolo);
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
+    const protocoloText = buildPrompt(protocolo);
+
+    const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const request = {
+      id: analysisId,
+      protocol: protocoloText,
+      timestamp: Date.now(),
+      status: 'pending'
+    };
+    
+    localStorage.setItem('desiderativo_request', JSON.stringify(request));
+    localStorage.setItem('desiderativo_request_id', analysisId);
+    
+    alert("✓ PROTOCOLO GUARDADO\n\nPasos:\n\n1. Abre NotebookLM (app o web)\n2. Abre tu notebook 'Análisis integral'\n3. Toca el bookmarklet '▶️ Analizar'\n4. Espera - todo será automático\n5. Cuando veas notificación verde, vuelve aquí");
+    
+    setBusy(true);
+    statusText.textContent = "⏳ Esperando análisis en NotebookLM...";
+  });
+
+  document.getElementById("limpiar").addEventListener("click", () => {
+    positivasContainer.innerHTML = "";
+    negativasContainer.innerHTML = "";
+    positivasContainer.appendChild(createCatexiaFija(1));
+    positivasContainer.appendChild(createCatexiaFija(2));
+    positivasContainer.appendChild(createCatexiaFija(3));
+    negativasContainer.appendChild(createCatexiaFija(1));
+    negativasContainer.appendChild(createCatexiaFija(2));
+    negativasContainer.appendChild(createCatexiaFija(3));
+    document.getElementById("asociaciones").value = "";
+    document.getElementById("recuerdo").value = "";
+    hideResult();
+    statusText.textContent = "";
+    setBusy(false);
+  });
+
+  guardarImprimirBtn.addEventListener("click", () => {
+    window.print();
+  });
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'desiderativo_response' && e.newValue) {
+      try {
+        const response = JSON.parse(e.newValue);
+        const currentId = localStorage.getItem('desiderativo_request_id');
+        
+        if (response.id === currentId && response.status === 'completed') {
+          setBusy(false);
+          statusText.textContent = "✓ Análisis completado";
+          showResult(response.reportText);
+          
+          localStorage.removeItem('desiderativo_response');
+          localStorage.removeItem('desiderativo_request');
+          localStorage.removeItem('desiderativo_request_id');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    }
+  });
+
+  setInterval(() => {
+    const responseStr = localStorage.getItem('desiderativo_response');
+    if (responseStr) {
+      try {
+        const response = JSON.parse(responseStr);
+        const currentId = localStorage.getItem('desiderativo_request_id');
+        
+        if (response.id === currentId && response.status === 'completed') {
+          setBusy(false);
+          statusText.textContent = "✓ Análisis completado";
+          showResult(response.reportText);
+          
+          localStorage.removeItem('desiderativo_response');
+          localStorage.removeItem('desiderativo_request');
+          localStorage.removeItem('desiderativo_request_id');
+        }
+      } catch (err) {}
+    }
+  }, 2000);
+});
