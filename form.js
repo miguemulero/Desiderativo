@@ -180,9 +180,26 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
-    return `Analiza integralmente este protocolo sin modificar ni alterar los títulos de los epígrafes bajo ningún concepto mediante el esquema de la fuente "Análisis integral". Al finalizar el apartado VII, escribe en una línea aparte: FIN DEL INFORME. 
+ return `Eres un experto en psicodiagnóstico especializado en el Cuestionario Desiderativo. Analiza PROFUNDAMENTE este protocolo siguiendo ESTRICTAMENTE el esquema de "Análisis integral" de las fuentes bibliográficas proporcionadas.
 
-PROTOCOLO A ANALIZAR: 
+INSTRUCCIONES CRÍTICAS:
+1. NO modifiques ni alteres los títulos de los epígrafes bajo ningún concepto
+2. Cada sección debe ser EXTENSA y fundamentada en los autores (Sneiderman, Ocampo Arzeno, Celener)
+3. Cita explícitamente conceptos y páginas de las fuentes cuando sea relevante
+4. Analiza en profundidad: tiempos de reacción, justificaciones, simbolismo, defensas, estructura psíquica
+5. Integra la información contextual del evaluado en cada apartado
+6. Al finalizar el apartado VII, escribe en una línea aparte: FIN DEL INFORME
+
+REQUISITOS DE PROFUNDIDAD:
+- Apartado I (Consideraciones previas): Mínimo 2 párrafos
+- Apartado II (Análisis formal): Análisis detallado de cada catexia, TR, secuencia
+- Apartado III (Análisis de contenido): Simbolismo profundo, latente vs manifiesto
+- Apartado IV (Mecanismos defensivos): Identificar defensas específicas con ejemplos
+- Apartado V (Estructura psíquica): Integración yo, superyó, ello, angustias
+- Apartado VI (Diagnóstico presuntivo): Fundamentado en todo lo anterior
+- Apartado VII (Recomendaciones): Específicas y justificadas
+
+PROTOCOLO A ANALIZAR:
 Nombre/ID: ${p.nombre}
 
 ${protocolo}`;
@@ -249,10 +266,12 @@ ${protocolo}`;
             { text: prompt }
           ]
         }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 8192,
-        }
+  generationConfig: {
+  temperature: 0.8,
+  maxOutputTokens: 16384,
+  topP: 0.95,
+  topK: 40
+}
       })
     });
 
@@ -300,20 +319,35 @@ ${protocolo}`;
     setStatus("🤖 Analizando con gemini-2.5-flash + 20 PDFs...");
     hideResult();
 
-    try {
-      const reportText = await callGeminiWithFiles(protocoloText);
-      
+let intentos = 0;
+const maxIntentos = 3;
+
+async function intentarAnalisis() {
+  try {
+    setStatus(`🤖 Analizando (intento ${intentos + 1}/${maxIntentos})...`);
+    const reportText = await callGeminiWithFiles(protocoloText);
+    
+    setBusy(false);
+    setStatus("✓ Análisis completado");
+    showResult(reportText);
+    
+  } catch (error) {
+    console.error(`Error en intento ${intentos + 1}:`, error);
+    intentos++;
+    
+    if (intentos < maxIntentos) {
+      setStatus(`⚠️ Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      return intentarAnalisis();
+    } else {
       setBusy(false);
-      setStatus("✓ Análisis completado");
-      showResult(reportText);
-      
-    } catch (error) {
-      console.error("Error:", error);
-      setBusy(false);
-      setStatus("❌ Error en el análisis");
-      alert(`Error: ${error.message}\n\nVerifica tu API Key y conexión a internet.`);
+      setStatus("❌ Error tras 3 intentos");
+      alert(`Error: ${error.message}\n\nPrueba:\n1. Verificar conexión WiFi\n2. Recargar la página\n3. Intentar desde ordenador`);
     }
-  });
+  }
+}
+
+await intentarAnalisis();
 
   document.getElementById("limpiar").addEventListener("click", () => {
     positivasContainer.innerHTML = "";
