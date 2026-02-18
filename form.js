@@ -8,7 +8,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  // Protocolo ACR precargado con delay para asegurar que el DOM esté listo
+  // ==========================================
+  // CONFIGURACIÓN - REEMPLAZA TU API KEY
+  // ==========================================
+  
+  const GEMINI_API_KEY = "AIzaSyBxefi-yWlRMvcpRapt7fh6oLLZrxmxU-U"; // ← CAMBIA ESTO POR TU API KEY REAL
+  
+  // Tu bibliografía subida a Gemini
+  const BIBLIOGRAFIA_FILES = [
+    "files/lqljz0esix7l",  // bullying.pdf
+    "files/l85o2yj4wxni",  // CASO JADE.pdf
+    "files/nwradxiuqm5v",  // CASOS.pdf
+    "files/oy22p4nzj63c",  // CD DIANA.pdf
+    "files/xpqis5z1ghk4",  // CD Graciela Celener.pdf
+    "files/26cu9xpgruab",  // CD pulsiones y defensas en patologías desvalimiento.pdf
+    "files/n79vrv5skpjy",  // criterios de interpretación.pdf
+    "files/fg8kfw3jq378",  // Cuadro proye - Catexias positivas y negativas.pdf
+    "files/8zp3gjdxe7si",  // Cuestionario desiderativo aplicado a niños2.pdf
+    "files/hakfkyc56scm",  // Cuestionario desiderativo-Sneiderman3.pdf
+    "files/ki31xotjf2ep",  // Indicadores-Psicopatologicos - CD.pdf
+    "files/ed3ihkklklif",  // niños latentes.pdf
+    "files/g892mj0liccr",  // Ocampo Arzeno - CD.pdf
+    "files/qd57w3x9nv28",  // O_questionario_desiderativo_fundamentos.pdf
+    "files/9c8x2t9jjeli",  // Preconsciente y su relación con el lenguaje.pdf
+    "files/hgvxtih4jluc",  // Psicodiagnostico Clinico 93-117.pdf
+    "files/cuf95cny20dh",  // Sneiderman_2011-Cuestionario.pdf
+    "files/bryux976g5qq",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
+    "files/jn7qt73rq3mt",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
+    "files/qqox2275732w"   // Vinculo hostil.pdf
+  ];
+
+  // ==========================================
+
   setTimeout(() => {
     const nombreEl = document.getElementById("nombre");
     const edadEl = document.getElementById("edad");
@@ -86,12 +117,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return div;
   }
 
-  // Cargar catexias positivas ACR
   positivasContainer.appendChild(createCatexiaFija(1, "AGAPORNI", 3, "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia", ""));
   positivasContainer.appendChild(createCatexiaFija(2, "GIRASOL", 6, "porque le doy pipas a la gente, a veces gratis, a veces no", ""));
   positivasContainer.appendChild(createCatexiaFija(3, "CARNE", 10, "porque estaría buena y disfrutarían comiendo", ""));
 
-  // Cargar catexias negativas ACR
   negativasContainer.appendChild(createCatexiaFija(1, "MAPACHE", 1, "porque huelen mal, me pueden tirar a la basura y matar", ""));
   negativasContainer.appendChild(createCatexiaFija(2, "UN ORDENADOR", 4, "porque me usarían y cuando se acabe la batería no podría respirar", ""));
   negativasContainer.appendChild(createCatexiaFija(3, "UNA ROSA", 10, "porque me arrancarían, me quitarían las espinas y tendría mucho dolor", ""));
@@ -174,8 +203,11 @@ ${protocolo}`;
 
   function setBusy(isBusy) {
     spinner.hidden = !isBusy;
-    statusText.textContent = isBusy ? "Procesando..." : "";
     analizarBtn.disabled = isBusy;
+  }
+
+  function setStatus(message) {
+    statusText.textContent = message;
   }
 
   function showResult(reportText) {
@@ -189,9 +221,56 @@ ${protocolo}`;
     resultSection.style.display = "none";
   }
 
-  // Botón Analizar
+  async function callGeminiWithFiles(prompt) {
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "TU_API_KEY_AQUI") {
+      throw new Error("Por favor, configura tu API Key de Gemini en form.js (línea 12)");
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`;
+
+    // Construir referencias a tus archivos de bibliografía
+    const fileParts = BIBLIOGRAFIA_FILES.map(fileId => ({
+      fileData: {
+        mimeType: "application/pdf",
+        fileUri: `https://generativelanguage.googleapis.com/v1beta/${fileId}`
+      }
+    }));
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            ...fileParts,
+            { text: prompt }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 8192,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Error de API: ${errorData.error?.message || 'Error desconocido'}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.candidates || data.candidates.length === 0) {
+      throw new Error("No se recibió respuesta de Gemini");
+    }
+
+    return data.candidates[0].content.parts[0].text;
+  }
+
   analizarBtn.addEventListener("click", async () => {
-    console.log("🔘 Botón Analizar clickeado");
+    console.log("Botón Analizar clickeado");
 
     const protocolo = {
       nombre: document.getElementById("nombre").value.trim(),
@@ -215,30 +294,25 @@ ${protocolo}`;
 
     const protocoloText = buildPrompt(protocolo);
 
-    // Generar ID único para este análisis
-    const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Guardar request en localStorage
-    const request = {
-      id: analysisId,
-      protocol: protocoloText,
-      timestamp: Date.now(),
-      status: 'pending'
-    };
-    
-    localStorage.setItem('desiderativo_request', JSON.stringify(request));
-    localStorage.setItem('desiderativo_request_id', analysisId);
-    
-    console.log("💾 Protocolo guardado en localStorage:", analysisId);
-    
-    // Mostrar alerta con instrucciones
-    alert("✓ PROTOCOLO GUARDADO\n\nPasos:\n\n1. Abre NotebookLM (app o web)\n2. Abre tu notebook 'Análisis integral'\n3. Toca el bookmarklet '▶️ Analizar'\n4. Espera - todo será automático\n5. Cuando veas notificación verde, vuelve aquí\n\nLa respuesta aparecerá automáticamente.");
-    
     setBusy(true);
-    statusText.textContent = "⏳ Esperando análisis en NotebookLM...";
+    setStatus("🤖 Analizando con tu bibliografía (20 PDFs)...");
+    hideResult();
+
+    try {
+      const reportText = await callGeminiWithFiles(protocoloText);
+      
+      setBusy(false);
+      setStatus("✓ Análisis completado");
+      showResult(reportText);
+      
+    } catch (error) {
+      console.error("Error:", error);
+      setBusy(false);
+      setStatus("❌ Error en el análisis");
+      alert(`Error: ${error.message}\n\nVerifica tu API Key y conexión a internet.`);
+    }
   });
 
-  // Botón Limpiar
   document.getElementById("limpiar").addEventListener("click", () => {
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
@@ -251,65 +325,14 @@ ${protocolo}`;
     document.getElementById("asociaciones").value = "";
     document.getElementById("recuerdo").value = "";
     hideResult();
-    statusText.textContent = "";
+    setStatus("");
     setBusy(false);
   });
 
-  // Botón Guardar/Imprimir
   guardarImprimirBtn.addEventListener("click", () => {
     window.print();
   });
 
-  // Listener para detectar respuestas de NotebookLM vía storage event
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'desiderativo_response' && e.newValue) {
-      try {
-        const response = JSON.parse(e.newValue);
-        const currentId = localStorage.getItem('desiderativo_request_id');
-        
-        if (response.id === currentId && response.status === 'completed') {
-          console.log("✅ Respuesta recibida via storage event");
-          
-          setBusy(false);
-          statusText.textContent = "✓ Análisis completado";
-          showResult(response.reportText);
-          
-          // Limpiar localStorage
-          localStorage.removeItem('desiderativo_response');
-          localStorage.removeItem('desiderativo_request');
-          localStorage.removeItem('desiderativo_request_id');
-        }
-      } catch (err) {
-        console.error('❌ Error procesando storage event:', err);
-      }
-    }
-  });
-
-  // Polling para detectar respuestas (backup por si storage event no funciona en la misma pestaña)
-  setInterval(() => {
-    const responseStr = localStorage.getItem('desiderativo_response');
-    if (responseStr) {
-      try {
-        const response = JSON.parse(responseStr);
-        const currentId = localStorage.getItem('desiderativo_request_id');
-        
-        if (response.id === currentId && response.status === 'completed') {
-          console.log("✅ Respuesta recibida via polling");
-          
-          setBusy(false);
-          statusText.textContent = "✓ Análisis completado";
-          showResult(response.reportText);
-          
-          // Limpiar localStorage
-          localStorage.removeItem('desiderativo_response');
-          localStorage.removeItem('desiderativo_request');
-          localStorage.removeItem('desiderativo_request_id');
-        }
-      } catch (err) {
-        // Ignorar errores de parsing
-      }
-    }
-  }, 2000); // Revisar cada 2 segundos
-
-  console.log("✓ App inicializada");
+  console.log("App inicializada con Gemini Files API");
+  console.log("Bibliografia: 20 archivos cargados");
 });
