@@ -15,28 +15,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const GEMINI_API_KEY = "AIzaSyDymoRpe2BdFunopcvjy4b2gYvs5FKNTnI"; // ← CAMBIA ESTO POR TU API KEY REAL
   
   // Tu bibliografía subida a Gemini
-  const BIBLIOGRAFIA_FILES = [
-    "files/lqljz0esix7l",  // bullying.pdf
-    "files/l85o2yj4wxni",  // CASO JADE.pdf
-    "files/nwradxiuqm5v",  // CASOS.pdf
-    "files/oy22p4nzj63c",  // CD DIANA.pdf
-    "files/xpqis5z1ghk4",  // CD Graciela Celener.pdf
-    "files/26cu9xpgruab",  // CD pulsiones y defensas en patologías desvalimiento.pdf
-    "files/n79vrv5skpjy",  // criterios de interpretación.pdf
-    "files/fg8kfw3jq378",  // Cuadro proye - Catexias positivas y negativas.pdf
-    "files/8zp3gjdxe7si",  // Cuestionario desiderativo aplicado a niños2.pdf
-    "files/hakfkyc56scm",  // Cuestionario desiderativo-Sneiderman3.pdf
-    "files/ki31xotjf2ep",  // Indicadores-Psicopatologicos - CD.pdf
-    "files/ed3ihkklklif",  // niños latentes.pdf
-    "files/g892mj0liccr",  // Ocampo Arzeno - CD.pdf
-    "files/qd57w3x9nv28",  // O_questionario_desiderativo_fundamentos.pdf
-    "files/9c8x2t9jjeli",  // Preconsciente y su relación con el lenguaje.pdf
-    "files/hgvxtih4jluc",  // Psicodiagnostico Clinico 93-117.pdf
-    "files/cuf95cny20dh",  // Sneiderman_2011-Cuestionario.pdf
-    "files/bryux976g5qq",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
-    "files/jn7qt73rq3mt",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
-    "files/qqox2275732w"   // Vinculo hostil.pdf
-  ];
+const BIBLIOGRAFIA_FILES = [
+  "files/6h0vrkhitk8w",  // bullying.pdf
+  "files/q5tgwp6lc9cj",  // CASO JADE.pdf
+  "files/fqsuu6w0n8hv",  // CD DIANA.pdf
+  "files/9irbzvcqequw",  // CD Graciela Celener.pdf
+  "files/u36qfiegiw4m",  // CD pulsiones y defensas en patologías desvalimiento.pdf
+  "files/ykokv6ny44qf",  // criterios de interpretación.pdf
+  "files/7ltpzc66izpr",  // Cuestionario desiderativo aplicado a niños2.pdf
+  "files/8oapvjkhseq7",  // Cuestionario desiderativo-Sneiderman3.pdf
+  "files/fbkl6f4fsqil",  // Indicadores-Psicopatologicos - CD.pdf
+  "files/bte9fckqi09l",  // niños latentes.pdf
+  "files/un6o9lzjwtgp",  // Ocampo Arzeno - CD.pdf
+  "files/7vsf3mzm5p9d",  // O_questionario_desiderativo_fundamentos.pdf
+  "files/ctv2dnvu5xve",  // Preconsciente y su relación con el lenguaje.pdf
+  "files/egihk7p7ojbp",  // Sneiderman_2011-Cuestionario.pdf
+  "files/gyrx6b0451e8",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
+  "files/tnabgxpdlha8",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
+  "files/bdk55xslkd8o",  // Vinculo hostil.pdf
+];
+
 
   // ==========================================
 
