@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // CONFIGURACIÓN - REEMPLAZA TU API KEY
   // ==========================================
   
-  const GEMINI_API_KEY = "AIzaSyCio7SmVNw3jYCw3igZa11vuGOVKxDwv1w"; // ← CAMBIA ESTO POR TU API KEY REAL
+  const GEMINI_API_KEY = "TU_API_KEY_AQUI"; // ← CAMBIA ESTO POR TU API KEY REAL
   
   // Tu bibliografía subida a Gemini
   const BIBLIOGRAFIA_FILES = [
@@ -180,24 +180,75 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
- return `Eres un experto en psicodiagnóstico especializado en el Cuestionario Desiderativo. Analiza PROFUNDAMENTE este protocolo siguiendo ESTRICTAMENTE el esquema de "Análisis integral" de las fuentes bibliográficas proporcionadas.
+    return `INSTRUCCIONES INTEGRALES PARA ANÁLISIS DEL CUESTIONARIO DESIDERATIVO
 
-INSTRUCCIONES CRÍTICAS:
-1. NO modifiques ni alteres los títulos de los epígrafes bajo ningún concepto
-2. Cada sección debe ser EXTENSA y fundamentada en los autores (Sneiderman, Ocampo Arzeno, Celener)
-3. Cita explícitamente conceptos y páginas de las fuentes cuando sea relevante
-4. Analiza en profundidad: tiempos de reacción, justificaciones, simbolismo, defensas, estructura psíquica
-5. Integra la información contextual del evaluado en cada apartado
-6. Al finalizar el apartado VII, escribe en una línea aparte: FIN DEL INFORME
+Usa EXCLUSIVAMENTE las fuentes del Cuestionario/Test Desiderativo cargadas (Ocampo, Arzeno, Grassano, Celener, Maladesky, manuales y artículos afines).
 
-REQUISITOS DE PROFUNDIDAD:
-- Apartado I (Consideraciones previas): Mínimo 2 párrafos
-- Apartado II (Análisis formal): Análisis detallado de cada catexia, TR, secuencia
-- Apartado III (Análisis de contenido): Simbolismo profundo, latente vs manifiesto
-- Apartado IV (Mecanismos defensivos): Identificar defensas específicas con ejemplos
-- Apartado V (Estructura psíquica): Integración yo, superyó, ello, angustias
-- Apartado VI (Diagnóstico presuntivo): Fundamentado en todo lo anterior
-- Apartado VII (Recomendaciones): Específicas y justificadas
+NO inventes teoría ni nomenclaturas nuevas. Si algo no se fundamenta en las fuentes, indícalo como hipótesis clínica y márcalo como tal.
+
+Trabaja siempre a partir del protocolo que te daré: símbolos, racionalizaciones, tiempos de reacción, implementaciones, conducta observada.
+
+Tu tarea es realizar un análisis clínico INTEGRAL del Cuestionario Desiderativo, con el MÁXIMO nivel de profundidad y rigor posible, abarcando TODAS las variables clásicas de la técnica.
+
+Explicita SIEMPRE:
+- Los datos del protocolo que tomas
+- El concepto teórico que aplicas (citando autor y fuente)
+- La inferencia clínica que extraes
+
+ESTRUCTURA DEL INFORME:
+
+1. IMPLEMENTACIÓN Y ENCUADRE
+- Cómo se administró: forma estándar/guiada, aclaraciones, cambios, resistencias
+- Comprensión de consigna: "muerte como humano", función metafórica
+- Indicadores de fortaleza/debilidad yoica en implementación
+
+2. MECANISMOS INSTRUMENTALES
+- Primera disociación: capacidad de convertirse en símbolo
+- Segunda disociación: discriminación positivo/negativo
+- Identificación al símbolo: distancia vs ecuación simbólica
+- Racionalización: coherencia, idealización/peyorización, clichés
+
+3. ANSIEDAD (análisis integral según Ocampo y otros autores)
+- Catexia por catexia: tipo e intensidad (persecutoria/depresiva)
+- Tiempos de reacción y shocks: relación con defensas
+- Curva global: clasificación tipos 1-6 de Ocampo, evolución
+- Capacidad de reconocer, tolerar, transformar y simbolizar ansiedad
+
+4. REINOS Y FANTASÍAS DE MUERTE
+- Secuencia de reinos: orden y variaciones (Animal-Vegetal-Objeto)
+- Significado de elecciones: fortaleza/debilidad, esquema corporal
+- Fantasías de muerte: aniquilación vs permanencia/legado/reparación
+
+5. ANÁLISIS ESTRUCTURAL: ELLO - YO - SUPERYÓ
+- Ello: pulsiones predominantes, grado de ligadura simbólica
+- Yo: fortaleza, juicio de realidad, flexibilidad, función sintetizadora
+- Superyó/Ideal del Yo: exigencias, culpa, perfeccionismo
+
+6. POSICIÓN RESPECTO DEL OTRO
+- Tipo de vínculos: cuidado, sometimiento, dominio, dependencia
+- Lugar del sujeto: útil, víctima, perseguidor, protector
+- Articulación con ansiedad y Superyó
+
+7. DEFENSAS Y RECURSOS
+- Defensas predominantes: represión, negación, proyección, etc.
+- Eficacia: momentos de tramitación vs fracaso
+- Recursos yoicos: insight, humor, simbolización, reparación
+
+8. PERSPECTIVA ADL (Algoritmo David Liberman)
+8.1. Identificación de erotismos por catexias (oral primario/secundario, anal primario/secundario, fálico-uretral, fálico-genital)
+8.2. Registro del lenguaje: narrativo, descriptivo, argumentativo, modal
+8.3. Defensas según ADL y eficacia
+8.4. Trayectoria pulsional a lo largo del protocolo
+8.5. Articulación ADL con Yo, Superyó y posición frente al Otro
+8.6. Síntesis ADL: aporte al diagnóstico y pronóstico
+
+9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO
+- Hipótesis estructural fundamentada en todos los ejes
+- Pronóstico: fortaleza yoica, flexibilidad defensiva, capacidad de simbolización
+
+Al finalizar, escribe: "FIN DEL INFORME"
+
+═══════════════════════════════════════════════════════════
 
 PROTOCOLO A ANALIZAR:
 Nombre/ID: ${p.nombre}
@@ -243,10 +294,8 @@ ${protocolo}`;
       throw new Error("Por favor, configura tu API Key de Gemini en form.js (línea 14)");
     }
 
-    // Usar gemini-2.5-flash (modelo más reciente disponible)
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-    // Construir referencias a tus archivos de bibliografía
     const fileParts = BIBLIOGRAFIA_FILES.map(fileId => ({
       fileData: {
         mimeType: "application/pdf",
@@ -266,12 +315,12 @@ ${protocolo}`;
             { text: prompt }
           ]
         }],
-  generationConfig: {
-  temperature: 0.8,
-  maxOutputTokens: 16384,
-  topP: 0.95,
-  topK: 40
-}
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 16384,
+          topP: 0.95,
+          topK: 40
+        }
       })
     });
 
@@ -316,40 +365,54 @@ ${protocolo}`;
     const protocoloText = buildPrompt(protocolo);
 
     setBusy(true);
-    setStatus("🤖 Analizando con gemini-2.5-flash + 20 PDFs...");
+    setStatus("🤖 Analizando protocolo con 20 PDFs de bibliografía...");
     hideResult();
 
-let intentos = 0;
-const maxIntentos = 3;
+    let intentos = 0;
+    const maxIntentos = 3;
 
-async function intentarAnalisis() {
-  try {
-    setStatus(`🤖 Analizando (intento ${intentos + 1}/${maxIntentos})...`);
-    const reportText = await callGeminiWithFiles(protocoloText);
-    
-    setBusy(false);
-    setStatus("✓ Análisis completado");
-    showResult(reportText);
-    
-  } catch (error) {
-    console.error(`Error en intento ${intentos + 1}:`, error);
-    intentos++;
-    
-    if (intentos < maxIntentos) {
-      setStatus(`⚠️ Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      return intentarAnalisis();
-    } else {
-      setBusy(false);
-      setStatus("❌ Error tras 3 intentos");
-      alert(`Error: ${error.message}\n\nPrueba:\n1. Verificar conexión WiFi\n2. Recargar la página\n3. Intentar desde ordenador`);
+    async function intentarAnalisis() {
+      try {
+        if (intentos > 0) {
+          setStatus(`🔄 Reintentando (${intentos + 1}/${maxIntentos})...`);
+        }
+        
+        const reportText = await callGeminiWithFiles(protocoloText);
+        
+        setBusy(false);
+        setStatus("✅ Análisis completado correctamente");
+        showResult(reportText);
+        
+      } catch (error) {
+        console.error(`Error en intento ${intentos + 1}:`, error);
+        intentos++;
+        
+        if (intentos < maxIntentos) {
+          setStatus(`⚠️ Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          return intentarAnalisis();
+        } else {
+          setBusy(false);
+          setStatus("❌ Error tras 3 intentos");
+          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página (F5)\n3. Si persiste, prueba desde ordenador`);
+        }
+      }
     }
-  }
-}
 
-await intentarAnalisis();
+    await intentarAnalisis();
+  });
 
   document.getElementById("limpiar").addEventListener("click", () => {
+    document.getElementById("nombre").value = "";
+    document.getElementById("edad").value = "";
+    document.getElementById("genero").value = "";
+    document.getElementById("nivel_educativo").value = "";
+    document.getElementById("fecha").value = "";
+    document.getElementById("modalidad").value = "estandar";
+    document.getElementById("informacion").value = "";
+    document.getElementById("asociaciones").value = "";
+    document.getElementById("recuerdo").value = "";
+    
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
     positivasContainer.appendChild(createCatexiaFija(1));
@@ -358,8 +421,7 @@ await intentarAnalisis();
     negativasContainer.appendChild(createCatexiaFija(1));
     negativasContainer.appendChild(createCatexiaFija(2));
     negativasContainer.appendChild(createCatexiaFija(3));
-    document.getElementById("asociaciones").value = "";
-    document.getElementById("recuerdo").value = "";
+    
     hideResult();
     setStatus("");
     setBusy(false);
@@ -369,7 +431,8 @@ await intentarAnalisis();
     window.print();
   });
 
-  console.log("✓ App inicializada con Gemini Files API");
-  console.log("📚 Bibliografía: 20 archivos cargados");
-  console.log("🤖 Modelo: gemini-2.5-flash (más reciente)");
+  console.log("✓ App inicializada correctamente");
+  console.log("📚 Bibliografía: 20 archivos PDF cargados");
+  console.log("🤖 Modelo: gemini-2.5-flash");
+  console.log("📋 Prompt: Instrucciones integrales con 9 apartados completos");
 });
