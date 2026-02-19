@@ -65,6 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function createCatexiaFija(num, simbolo = "", tr = 0, justificacion = "", observaciones = "") {
     const div = document.createElement("div");
     div.className = "catexia-item";
+    const uniqueId = `cambio-${num}-${Date.now()}`;
+    
     div.innerHTML = `
       <div class="catexia-header">Catexia ${num}</div>
       <div class="catexia-main">
@@ -82,10 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
       <div class="checkbox-row">
-        <input type="checkbox" class="cambio-check" id="cambio-${num}">
-        <label for="cambio-${num}">Cambio</label>
+        <input type="checkbox" class="cambio-check" id="${uniqueId}">
+        <label for="${uniqueId}">Cambio de símbolo</label>
       </div>
-      <button type="button" class="add-btn" style="display:none;">+ Añadir respuesta</button>
+      <button type="button" class="add-btn" style="display:none;">+ Añadir símbolo descartado</button>
       <div class="extras-container"></div>
     `;
 
@@ -93,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addBtn = div.querySelector(".add-btn");
     const extrasContainer = div.querySelector(".extras-container");
 
+    // Mostrar/ocultar botón al marcar checkbox
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
         addBtn.style.display = "block";
@@ -102,15 +105,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Añadir símbolo descartado
     addBtn.addEventListener("click", () => {
       const extra = document.createElement("div");
       extra.className = "extra-response";
       extra.innerHTML = `
-        <input type="text" placeholder="Símbolo" class="extra-simbolo"/>
+        <input type="text" placeholder="Símbolo descartado" class="extra-simbolo"/>
         <input type="number" placeholder="TR (seg)" class="extra-tr" min="0" step="0.01"/>
-        <button type="button" class="remove-btn">×</button>
+        <button type="button" class="remove-btn" title="Eliminar">×</button>
       `;
-      extra.querySelector(".remove-btn").addEventListener("click", () => extra.remove());
+      
+      // Botón eliminar
+      extra.querySelector(".remove-btn").addEventListener("click", () => {
+        extra.remove();
+        // Si no quedan extras, desmarcar checkbox
+        if (extrasContainer.children.length === 0) {
+          checkbox.checked = false;
+          addBtn.style.display = "none";
+        }
+      });
+      
       extrasContainer.appendChild(extra);
     });
 
@@ -146,9 +160,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const formatCatexia = (cat, idx) => {
       let text = `${idx + 1}. Símbolo: ${cat.simbolo} | TR(s): ${cat.tr}\n   Justificación: ${cat.justificacion}\n   Observaciones: ${cat.observaciones}`;
       if (cat.extras && cat.extras.length > 0) {
-        text += "\n   Cambios: ";
+        text += "\n   Cambios de símbolo:";
         cat.extras.forEach((ex, i) => {
-          text += `\n      ${i + 1}. ${ex.simbolo} | TR(s): ${ex.tr}`;
+          text += `\n      ${i + 1}. Símbolo descartado: ${ex.simbolo} | TR(s): ${ex.tr}`;
         });
       }
       return text;
