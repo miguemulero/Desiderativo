@@ -24,7 +24,7 @@
   <div class="container">
     <header>
       <h1>📋 Análisis Cuestionario Desiderativo</h1>
-      <p class="subtitle">Análisis clínico integral con IA + 20 fuentes bibliográficas</p>
+      <p class="subtitle">Análisis clínico integral</p>
     </header>
 
     <main>
@@ -142,12 +142,17 @@
           <h2>📊 Informe de Análisis</h2>
           <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
         </div>
+
+        <!-- Pantalla -->
         <textarea id="result-text" class="result-textarea" readonly></textarea>
+
+        <!-- Impresión: elemento imprimible (sin scroll) -->
+        <pre id="result-print" class="result-print" aria-hidden="true"></pre>
       </section>
     </main>
 
     <footer>
-      <p>Desarrollado con Gemini 2.5 Flash + Bibliografía especializada en Cuestionario Desiderativo</p>
+      <p></p>
     </footer>
   </div>
 
