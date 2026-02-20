@@ -431,7 +431,8 @@ main {
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.6;
-  resize: vertical;
+  resize: none;           /* CAMBIO: no redimensionar manualmente */
+  overflow: hidden;       /* CAMBIO: sin scroll; crece con el contenido */
   background: white;
 }
 
@@ -511,5 +512,12 @@ footer {
 
   .result-header .btn {
     display: none;
+  }
+
+  /* CAMBIO: asegurar que el informe se imprime completo */
+  #result-text {
+    height: auto !important;
+    overflow: visible !important;
+    white-space: pre-wrap;
   }
 }
