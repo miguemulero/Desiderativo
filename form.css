@@ -431,9 +431,13 @@ main {
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.6;
-  resize: none;           /* CAMBIO: no redimensionar manualmente */
-  overflow: hidden;       /* CAMBIO: sin scroll; crece con el contenido */
+  resize: vertical;
   background: white;
+}
+
+/* Elemento solo para imprimir */
+.result-print {
+  display: none;
 }
 
 /* FOOTER */
@@ -507,17 +511,22 @@ footer {
   .result-section {
     border: none;
     background: white;
-    page-break-inside: avoid;
   }
 
   .result-header .btn {
     display: none;
   }
 
-  /* CAMBIO: asegurar que el informe se imprime completo */
+  /* Impresión: ocultar textarea (problemático) y mostrar el <pre> */
   #result-text {
-    height: auto !important;
-    overflow: visible !important;
+    display: none !important;
+  }
+
+  #result-print {
+    display: block !important;
     white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 11pt;
+    line-height: 1.4;
   }
 }
