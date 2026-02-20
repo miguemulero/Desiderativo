@@ -12,10 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // CONFIGURACIÓN
   // ==========================================
 
-  // URL de tu Cloudflare Worker (proxy)
+  // Cloudflare Worker (proxy)
   const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
 
-  // Nombre de clave donde se guarda el token en el navegador (no se sube a GitHub)
+  // Guardamos el token localmente (no en GitHub)
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
   // Tu bibliografía subida a Gemini
@@ -293,8 +293,18 @@ ${protocolo}`;
     statusText.textContent = message;
   }
 
+  function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+  }
+
   function showResult(reportText) {
     resultText.value = reportText;
+
+    // CAMBIO: ajustar textarea al contenido para que no se corte al imprimir/guardar
+    autoResizeTextarea(resultText);
+
     resultSection.style.display = "block";
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -331,7 +341,7 @@ ${protocolo}`;
 
     const token = ensureAccessToken();
     if (!token) {
-      throw new Error("Falta ACCESS TOKEN. (Si te equivocaste, recarga la página e inténtalo de nuevo).");
+      throw new Error("Falta ACCESS TOKEN.");
     }
 
     const response = await fetch(WORKER_URL, {
@@ -347,7 +357,6 @@ ${protocolo}`;
       })
     });
 
-    // Si el token es incorrecto, permitimos reintentarlo fácilmente
     if (response.status === 401) {
       localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
       const errText = await response.text();
@@ -411,7 +420,6 @@ ${protocolo}`;
         setBusy(false);
         setStatus("✅ Análisis completado correctamente");
         showResult(reportText);
-
       } catch (error) {
         console.error(`Error en intento ${intentos + 1}:`, error);
         intentos++;
@@ -423,7 +431,7 @@ ${protocolo}`;
         } else {
           setBusy(false);
           setStatus("❌ Error tras 3 intentos");
-          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`);
+          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página (F5)\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`);
         }
       }
     }
@@ -457,10 +465,16 @@ ${protocolo}`;
   });
 
   guardarImprimirBtn.addEventListener("click", () => {
+    // Asegurar que el textarea está ajustado antes de imprimir
+    autoResizeTextarea(resultText);
     window.print();
   });
 
+  // Si cambia el tamaño de pantalla (móvil / rotación), reajustar
+  window.addEventListener("resize", () => autoResizeTextarea(resultText));
+
   console.log("✓ App inicializada correctamente");
-  console.log("📚 Bibliografía: archivos PDF configurados");
-  console.log("🤖 Modelo: gemini-2.5-flash (vía Cloudflare Worker)");
+  console.log("📚 Bibliografía: 20 archivos PDF cargados");
+  console.log("🤖 Modelo: gemini-2.5-flash (vía Worker)");
+  console.log("📋 Prompt: Instrucciones integrales con 9 apartados completos");
 });
