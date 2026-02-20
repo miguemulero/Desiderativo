@@ -9,32 +9,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
   // ==========================================
-  // CONFIGURACIÓN - REEMPLAZA TU API KEY
+  // CONFIGURACIÓN
   // ==========================================
-  
-  const GEMINI_API_KEY = "AIzaSyDymoRpe2BdFunopcvjy4b2gYvs5FKNTnI"; // ← CAMBIA ESTO POR TU API KEY REAL
-  
-  // Tu bibliografía subida a Gemini
-const BIBLIOGRAFIA_FILES = [
-  "files/6h0vrkhitk8w",  // bullying.pdf
-  "files/q5tgwp6lc9cj",  // CASO JADE.pdf
-  "files/fqsuu6w0n8hv",  // CD DIANA.pdf
-  "files/9irbzvcqequw",  // CD Graciela Celener.pdf
-  "files/u36qfiegiw4m",  // CD pulsiones y defensas en patologías desvalimiento.pdf
-  "files/ykokv6ny44qf",  // criterios de interpretación.pdf
-  "files/7ltpzc66izpr",  // Cuestionario desiderativo aplicado a niños2.pdf
-  "files/8oapvjkhseq7",  // Cuestionario desiderativo-Sneiderman3.pdf
-  "files/fbkl6f4fsqil",  // Indicadores-Psicopatologicos - CD.pdf
-  "files/bte9fckqi09l",  // niños latentes.pdf
-  "files/un6o9lzjwtgp",  // Ocampo Arzeno - CD.pdf
-  "files/7vsf3mzm5p9d",  // O_questionario_desiderativo_fundamentos.pdf
-  "files/ctv2dnvu5xve",  // Preconsciente y su relación con el lenguaje.pdf
-  "files/egihk7p7ojbp",  // Sneiderman_2011-Cuestionario.pdf
-  "files/gyrx6b0451e8",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
-  "files/tnabgxpdlha8",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
-  "files/bdk55xslkd8o",  // Vinculo hostil.pdf
-];
 
+  // URL de tu Cloudflare Worker (proxy)
+  const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
+
+  // Nombre de clave donde se guarda el token en el navegador (no se sube a GitHub)
+  const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
+
+  // Tu bibliografía subida a Gemini
+  const BIBLIOGRAFIA_FILES = [
+    "files/6h0vrkhitk8w",  // bullying.pdf
+    "files/q5tgwp6lc9cj",  // CASO JADE.pdf
+    "files/fqsuu6w0n8hv",  // CD DIANA.pdf
+    "files/9irbzvcqequw",  // CD Graciela Celener.pdf
+    "files/u36qfiegiw4m",  // CD pulsiones y defensas en patologías desvalimiento.pdf
+    "files/ykokv6ny44qf",  // criterios de interpretación.pdf
+    "files/7ltpzc66izpr",  // Cuestionario desiderativo aplicado a niños2.pdf
+    "files/8oapvjkhseq7",  // Cuestionario desiderativo-Sneiderman3.pdf
+    "files/fbkl6f4fsqil",  // Indicadores-Psicopatologicos - CD.pdf
+    "files/bte9fckqi09l",  // niños latentes.pdf
+    "files/un6o9lzjwtgp",  // Ocampo Arzeno - CD.pdf
+    "files/7vsf3mzm5p9d",  // O_questionario_desiderativo_fundamentos.pdf
+    "files/ctv2dnvu5xve",  // Preconsciente y su relación con el lenguaje.pdf
+    "files/egihk7p7ojbp",  // Sneiderman_2011-Cuestionario.pdf
+    "files/gyrx6b0451e8",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
+    "files/tnabgxpdlha8",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
+    "files/bdk55xslkd8o",  // Vinculo hostil.pdf
+  ];
 
   // ==========================================
 
@@ -64,7 +67,7 @@ const BIBLIOGRAFIA_FILES = [
     const div = document.createElement("div");
     div.className = "catexia-item";
     const uniqueId = `cambio-${num}-${Date.now()}`;
-    
+
     div.innerHTML = `
       <div class="catexia-header">Catexia ${num}</div>
       <div class="catexia-main">
@@ -112,7 +115,7 @@ const BIBLIOGRAFIA_FILES = [
         <input type="number" placeholder="TR (seg)" class="extra-tr" min="0" step="0.01"/>
         <button type="button" class="remove-btn" title="Eliminar">×</button>
       `;
-      
+
       // Botón eliminar
       extra.querySelector(".remove-btn").addEventListener("click", () => {
         extra.remove();
@@ -122,7 +125,7 @@ const BIBLIOGRAFIA_FILES = [
           addBtn.style.display = "none";
         }
       });
-      
+
       extrasContainer.appendChild(extra);
     });
 
@@ -301,49 +304,63 @@ ${protocolo}`;
     resultSection.style.display = "none";
   }
 
+  function getAccessToken() {
+    return localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || "";
+  }
+
+  function ensureAccessToken() {
+    let token = getAccessToken();
+    if (token) return token;
+
+    token = window.prompt(
+      "Introduce el ACCESS TOKEN para usar el análisis (se guardará en este navegador):",
+      ""
+    ) || "";
+
+    token = token.trim();
+    if (token) {
+      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+    }
+    return token;
+  }
+
   async function callGeminiWithFiles(prompt) {
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "TU_API_KEY_AQUI") {
-      throw new Error("Por favor, configura tu API Key de Gemini en form.js (línea 14)");
+    if (!WORKER_URL) {
+      throw new Error("Falta configurar WORKER_URL.");
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const token = ensureAccessToken();
+    if (!token) {
+      throw new Error("Falta ACCESS TOKEN. (Si te equivocaste, recarga la página e inténtalo de nuevo).");
+    }
 
-    const fileParts = BIBLIOGRAFIA_FILES.map(fileId => ({
-      fileData: {
-        mimeType: "application/pdf",
-        fileUri: `https://generativelanguage.googleapis.com/v1beta/${fileId}`
-      }
-    }));
-
-    const response = await fetch(url, {
-      method: 'POST',
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        "X-Access-Token": token
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [
-            ...fileParts,
-            { text: prompt }
-          ]
-        }],
-        generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens: 16384,
-          topP: 0.95,
-          topK: 40
-        }
+        model: "gemini-2.5-flash",
+        prompt,
+        fileIds: BIBLIOGRAFIA_FILES
       })
     });
 
+    // Si el token es incorrecto, permitimos reintentarlo fácilmente
+    if (response.status === 401) {
+      localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      const errText = await response.text();
+      throw new Error(`No autorizado (token incorrecto). Detalle: ${errText}`);
+    }
+
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error completo de API:", errorData);
-      throw new Error(`Error de API: ${errorData.error?.message || 'Error desconocido'}`);
+      const errText = await response.text();
+      throw new Error(`Error worker (${response.status}): ${errText}`);
     }
 
     const data = await response.json();
-    
+
     if (!data.candidates || data.candidates.length === 0) {
       throw new Error("No se recibió respuesta de Gemini");
     }
@@ -388,17 +405,17 @@ ${protocolo}`;
         if (intentos > 0) {
           setStatus(`🔄 Reintentando (${intentos + 1}/${maxIntentos})...`);
         }
-        
+
         const reportText = await callGeminiWithFiles(protocoloText);
-        
+
         setBusy(false);
         setStatus("✅ Análisis completado correctamente");
         showResult(reportText);
-        
+
       } catch (error) {
         console.error(`Error en intento ${intentos + 1}:`, error);
         intentos++;
-        
+
         if (intentos < maxIntentos) {
           setStatus(`⚠️ Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
           await new Promise(resolve => setTimeout(resolve, 3000));
@@ -406,7 +423,7 @@ ${protocolo}`;
         } else {
           setBusy(false);
           setStatus("❌ Error tras 3 intentos");
-          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página (F5)\n3. Si persiste, prueba desde ordenador`);
+          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`);
         }
       }
     }
@@ -424,7 +441,7 @@ ${protocolo}`;
     document.getElementById("informacion").value = "";
     document.getElementById("asociaciones").value = "";
     document.getElementById("recuerdo").value = "";
-    
+
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
     positivasContainer.appendChild(createCatexiaFija(1));
@@ -433,7 +450,7 @@ ${protocolo}`;
     negativasContainer.appendChild(createCatexiaFija(1));
     negativasContainer.appendChild(createCatexiaFija(2));
     negativasContainer.appendChild(createCatexiaFija(3));
-    
+
     hideResult();
     setStatus("");
     setBusy(false);
@@ -444,7 +461,6 @@ ${protocolo}`;
   });
 
   console.log("✓ App inicializada correctamente");
-  console.log("📚 Bibliografía: 20 archivos PDF cargados");
-  console.log("🤖 Modelo: gemini-2.5-flash");
-  console.log("📋 Prompt: Instrucciones integrales con 9 apartados completos");
+  console.log("📚 Bibliografía: archivos PDF configurados");
+  console.log("🤖 Modelo: gemini-2.5-flash (vía Cloudflare Worker)");
 });
