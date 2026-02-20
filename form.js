@@ -6,19 +6,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const analizarBtn = document.getElementById("analizar");
   const resultSection = document.getElementById("result-section");
   const resultText = document.getElementById("result-text");
+  const resultPrint = document.getElementById("result-print");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
   // ==========================================
   // CONFIGURACIÓN
   // ==========================================
-
-  // Cloudflare Worker (proxy)
   const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
-
-  // Guardamos el token localmente (no en GitHub)
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
-  // Tu bibliografía subida a Gemini
   const BIBLIOGRAFIA_FILES = [
     "files/6h0vrkhitk8w",  // bullying.pdf
     "files/q5tgwp6lc9cj",  // CASO JADE.pdf
@@ -96,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const addBtn = div.querySelector(".add-btn");
     const extrasContainer = div.querySelector(".extras-container");
 
-    // Mostrar/ocultar botón al marcar checkbox
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
         addBtn.style.display = "block";
@@ -106,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Añadir símbolo descartado
     addBtn.addEventListener("click", () => {
       const extra = document.createElement("div");
       extra.className = "extra-response";
@@ -116,10 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="remove-btn" title="Eliminar">×</button>
       `;
 
-      // Botón eliminar
       extra.querySelector(".remove-btn").addEventListener("click", () => {
         extra.remove();
-        // Si no quedan extras, desmarcar checkbox
         if (extrasContainer.children.length === 0) {
           checkbox.checked = false;
           addBtn.style.display = "none";
@@ -293,17 +285,11 @@ ${protocolo}`;
     statusText.textContent = message;
   }
 
-  function autoResizeTextarea(textarea) {
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    textarea.style.height = textarea.scrollHeight + "px";
-  }
-
   function showResult(reportText) {
     resultText.value = reportText;
 
-    // CAMBIO: ajustar textarea al contenido para que no se corte al imprimir/guardar
-    autoResizeTextarea(resultText);
+    // CLAVE: copiar el mismo texto al <pre> imprimible
+    if (resultPrint) resultPrint.textContent = reportText;
 
     resultSection.style.display = "block";
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -311,6 +297,7 @@ ${protocolo}`;
 
   function hideResult() {
     resultText.value = "";
+    if (resultPrint) resultPrint.textContent = "";
     resultSection.style.display = "none";
   }
 
@@ -403,7 +390,7 @@ ${protocolo}`;
     const protocoloText = buildPrompt(protocolo);
 
     setBusy(true);
-    setStatus("🤖 Analizando protocolo con 20 PDFs de bibliografía...");
+    setStatus("Analizando protocolo para revisión profesional");
     hideResult();
 
     let intentos = 0;
@@ -412,7 +399,7 @@ ${protocolo}`;
     async function intentarAnalisis() {
       try {
         if (intentos > 0) {
-          setStatus(`🔄 Reintentando (${intentos + 1}/${maxIntentos})...`);
+          setStatus(`Reintentando (${intentos + 1}/${maxIntentos})...`);
         }
 
         const reportText = await callGeminiWithFiles(protocoloText);
@@ -420,18 +407,19 @@ ${protocolo}`;
         setBusy(false);
         setStatus("✅ Análisis completado correctamente");
         showResult(reportText);
+
       } catch (error) {
         console.error(`Error en intento ${intentos + 1}:`, error);
         intentos++;
 
         if (intentos < maxIntentos) {
-          setStatus(`⚠️ Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
+          setStatus(`Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
           await new Promise(resolve => setTimeout(resolve, 3000));
           return intentarAnalisis();
         } else {
           setBusy(false);
-          setStatus("❌ Error tras 3 intentos");
-          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página (F5)\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`);
+          setStatus("Error tras 3 intentos");
+          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`);
         }
       }
     }
@@ -465,16 +453,10 @@ ${protocolo}`;
   });
 
   guardarImprimirBtn.addEventListener("click", () => {
-    // Asegurar que el textarea está ajustado antes de imprimir
-    autoResizeTextarea(resultText);
+    // Asegurar que el <pre> está sincronizado justo antes de imprimir
+    if (resultPrint) resultPrint.textContent = resultText.value || "";
     window.print();
   });
 
-  // Si cambia el tamaño de pantalla (móvil / rotación), reajustar
-  window.addEventListener("resize", () => autoResizeTextarea(resultText));
-
   console.log("✓ App inicializada correctamente");
-  console.log("📚 Bibliografía: 20 archivos PDF cargados");
-  console.log("🤖 Modelo: gemini-2.5-flash (vía Worker)");
-  console.log("📋 Prompt: Instrucciones integrales con 9 apartados completos");
 });
