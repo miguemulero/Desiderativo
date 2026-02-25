@@ -308,44 +308,6 @@ main {
   transform: rotate(90deg) scale(1.1);
 }
 
-/* ANÁLISIS SELECTIVO */
-.analysis-checkboxes {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 15px;
-  background: #f0f7ff;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-}
-
-.analysis-checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.analysis-checkbox-item input[type="checkbox"] {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  accent-color: #667eea;
-  flex-shrink: 0;
-}
-
-.analysis-checkbox-item label {
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #2c3e50;
-  user-select: none;
-  margin: 0;
-}
-
-.analysis-checkbox-item label:hover {
-  color: #667eea;
-}
-
 /* BOTONES DE ACCIÓN */
 .form-actions {
   display: flex;
@@ -526,10 +488,6 @@ footer {
 
   .result-header .btn {
     width: 100%;
-  }
-
-  .analysis-checkboxes {
-    grid-template-columns: 1fr;
   }
 }
 

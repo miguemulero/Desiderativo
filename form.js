@@ -12,14 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // CONFIGURACIÓN
   // ==========================================
-
-  // Cloudflare Worker (proxy)
   const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
-
-  // Guardamos el token localmente (no en GitHub)
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
-  // Tu bibliografía subida a Gemini
   const BIBLIOGRAFIA_FILES = [
     "files/6h0vrkhitk8w",  // bullying.pdf
     "files/q5tgwp6lc9cj",  // CASO JADE.pdf
@@ -42,15 +37,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ==========================================
 
-  // Protocolo ACR precargado
-  document.getElementById("nombre").value = "protocolo ACR";
-  document.getElementById("edad").value = "11";
-  document.getElementById("genero").value = "masculino";
-  document.getElementById("nivel_educativo").value = "primario";
-  document.getElementById("fecha").value = "2026-01-20";
-  document.getElementById("modalidad").value = "estandar";
-  document.getElementById("informacion").value = "padres separados con custodia compartida y alto nivel de conflicto. Tiene dos hermanos mayores que él y otro mellizo.";
-  document.getElementById("recuerdo").value = "navidades abriendo regalos con la familia";
+  setTimeout(() => {
+    const nombreEl = document.getElementById("nombre");
+    const edadEl = document.getElementById("edad");
+    const generoEl = document.getElementById("genero");
+    const nivelEl = document.getElementById("nivel_educativo");
+    const fechaEl = document.getElementById("fecha");
+    const modalidadEl = document.getElementById("modalidad");
+    const infoEl = document.getElementById("informacion");
+    const recuerdoEl = document.getElementById("recuerdo");
+
+    if (nombreEl) nombreEl.value = "protocolo ACR";
+    if (edadEl) edadEl.value = "11";
+    if (generoEl) generoEl.value = "masculino";
+    if (nivelEl) nivelEl.value = "primario";
+    if (fechaEl) fechaEl.value = "2026-01-20";
+    if (modalidadEl) modalidadEl.value = "estandar";
+    if (infoEl) infoEl.value = "padres separados con custodia compartida y alto nivel de conflicto. Tiene dos hermanos mayores que él y otro mellizo.";
+    if (recuerdoEl) recuerdoEl.value = "navidades abriendo regalos con la familia";
+
+    console.log("✓ Protocolo ACR cargado");
+  }, 100);
 
   function createCatexiaFija(num, simbolo = "", tr = 0, justificacion = "", observaciones = "") {
     const div = document.createElement("div");
@@ -142,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function buildPrompt(p, selectedAnalysis) {
+  function buildPrompt(p) {
     const formatCatexia = (cat, idx) => {
       let text = `${idx + 1}. Símbolo: ${cat.simbolo} | TR(s): ${cat.tr}\n   Justificación: ${cat.justificacion}\n   Observaciones: ${cat.observaciones}`;
       if (cat.extras && cat.extras.length > 0) {
@@ -180,8 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
-    // Construir instrucciones DINÁMICAMENTE según lo marcado
-    let instrucciones = `INSTRUCCIONES PARA ANÁLISIS DEL CUESTIONARIO DESIDERATIVO
+    return `INSTRUCCIONES INTEGRALES PARA ANÁLISIS DEL CUESTIONARIO DESIDERATIVO
 
 Usa EXCLUSIVAMENTE las fuentes del Cuestionario/Test Desiderativo cargadas (Ocampo, Arzeno, Grassano, Celener, Maladesky, manuales y artículos afines).
 
@@ -189,7 +195,7 @@ NO inventes teoría ni nomenclaturas nuevas. Si algo no se fundamenta en las fue
 
 Trabaja siempre a partir del protocolo que te daré: símbolos, racionalizaciones, tiempos de reacción, implementaciones, conducta observada.
 
-Tu tarea es realizar un análisis clínico del Cuestionario Desiderativo con el máximo nivel de profundidad y rigor posible en los aspectos solicitados.
+Tu tarea es realizar un análisis clínico INTEGRAL del Cuestionario Desiderativo, con el MÁXIMO nivel de profundidad y rigor posible, abarcando TODAS las variables clásicas de la técnica.
 
 Explicita SIEMPRE:
 - Los datos del protocolo que tomas
@@ -197,49 +203,29 @@ Explicita SIEMPRE:
 - La inferencia clínica que extraes
 
 ESTRUCTURA DEL INFORME:
-`;
 
-    // Añadir solo los apartados marcados
-    if (selectedAnalysis.encuadre) {
-      instrucciones += `
 1. IMPLEMENTACIÓN Y ENCUADRE
 - Cómo se administró: forma estándar/guiada, aclaraciones, cambios, resistencias
 - Comprensión de consigna: "muerte como humano", función metafórica
 - Indicadores de fortaleza/debilidad yoica en implementación
-`;
-    }
 
-    if (selectedAnalysis.mecanismos) {
-      instrucciones += `
 2. MECANISMOS INSTRUMENTALES
 - Primera disociación: capacidad de convertirse en símbolo
 - Segunda disociación: discriminación positivo/negativo
 - Identificación al símbolo: distancia vs ecuación simbólica
 - Racionalización: coherencia, idealización/peyorización, clichés
-`;
-    }
 
-    if (selectedAnalysis.ansiedad) {
-      instrucciones += `
 3. ANSIEDAD (análisis integral según Ocampo y otros autores)
 - Catexia por catexia: tipo e intensidad (persecutoria/depresiva)
 - Tiempos de reacción y shocks: relación con defensas
 - Curva global: clasificación tipos 1-6 de Ocampo, evolución
 - Capacidad de reconocer, tolerar, transformar y simbolizar ansiedad
-`;
-    }
 
-    if (selectedAnalysis.reinos) {
-      instrucciones += `
 4. REINOS Y FANTASÍAS DE MUERTE
 - Secuencia de reinos: orden y variaciones (Animal-Vegetal-Objeto)
 - Significado de elecciones: fortaleza/debilidad, esquema corporal
 - Fantasías de muerte: aniquilación vs permanencia/legado/reparación
-`;
-    }
 
-    if (selectedAnalysis.estructural) {
-      instrucciones += `
 5. ANÁLISIS ESTRUCTURAL: ELLO - YO - SUPERYÓ
 - Ello: pulsiones predominantes, grado de ligadura simbólica
 - Yo: fortaleza, juicio de realidad, flexibilidad, función sintetizadora
@@ -254,11 +240,7 @@ ESTRUCTURA DEL INFORME:
 - Defensas predominantes: represión, negación, proyección, etc.
 - Eficacia: momentos de tramitación vs fracaso
 - Recursos yoicos: insight, humor, simbolización, reparación
-`;
-    }
 
-    if (selectedAnalysis.adl) {
-      instrucciones += `
 8. PERSPECTIVA ADL (Algoritmo David Liberman)
 8.1. Identificación de erotismos por catexias (oral primario/secundario, anal primario/secundario, fálico-uretral, fálico-genital)
 8.2. Registro del lenguaje: narrativo, descriptivo, argumentativo, modal
@@ -266,18 +248,11 @@ ESTRUCTURA DEL INFORME:
 8.4. Trayectoria pulsional a lo largo del protocolo
 8.5. Articulación ADL con Yo, Superyó y posición frente al Otro
 8.6. Síntesis ADL: aporte al diagnóstico y pronóstico
-`;
-    }
 
-    if (selectedAnalysis.hipotesis) {
-      instrucciones += `
 9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO
-- Hipótesis estructural fundamentada en los ejes seleccionados
+- Hipótesis estructural fundamentada en todos los ejes
 - Pronóstico: fortaleza yoica, flexibilidad defensiva, capacidad de simbolización
-`;
-    }
 
-    instrucciones += `
 Al finalizar, escribe: "FIN DEL INFORME"
 
 ═══════════════════════════════════════════════════════════
@@ -286,8 +261,6 @@ PROTOCOLO A ANALIZAR:
 Nombre/ID: ${p.nombre}
 
 ${protocolo}`;
-
-    return instrucciones;
   }
 
   function validateForm(protocolo) {
@@ -315,7 +288,7 @@ ${protocolo}`;
   function showResult(reportText) {
     resultText.value = reportText;
 
-    // Copiar el mismo texto al <pre> imprimible
+    // CLAVE: copiar el mismo texto al <pre> imprimible
     if (resultPrint) resultPrint.textContent = reportText;
 
     resultSection.style.display = "block";
@@ -408,30 +381,13 @@ ${protocolo}`;
       recuerdo: document.getElementById("recuerdo").value.trim()
     };
 
-    // Leer casillas de análisis
-    const selectedAnalysis = {
-      encuadre: document.getElementById("analysis-encuadre").checked,
-      mecanismos: document.getElementById("analysis-mecanismos").checked,
-      ansiedad: document.getElementById("analysis-ansiedad").checked,
-      reinos: document.getElementById("analysis-reinos").checked,
-      estructural: document.getElementById("analysis-estructural").checked,
-      adl: document.getElementById("analysis-adl").checked,
-      hipotesis: document.getElementById("analysis-hipotesis").checked
-    };
-
-    // Verificar que al menos una opción está marcada
-    if (!Object.values(selectedAnalysis).some(v => v === true)) {
-      alert("Selecciona al menos un aspecto para analizar.");
-      return;
-    }
-
     const validationError = validateForm(protocolo);
     if (validationError) {
       alert(validationError);
       return;
     }
 
-    const protocoloText = buildPrompt(protocolo, selectedAnalysis);
+    const protocoloText = buildPrompt(protocolo);
 
     setBusy(true);
     setStatus("Analizando protocolo para revisión profesional");
@@ -502,15 +458,5 @@ ${protocolo}`;
     window.print();
   });
 
-  // Si cambia el tamaño de pantalla (móvil / rotación), reajustar si es necesario
-  window.addEventListener("resize", () => {
-    if (resultPrint && resultText.value) {
-      resultPrint.textContent = resultText.value;
-    }
-  });
-
   console.log("✓ App inicializada correctamente");
-  console.log("📚 Bibliografía: 17 archivos PDF cargados");
-  console.log("🤖 Modelo: gemini-2.5-flash (vía Worker)");
-  console.log("📊 Análisis selectivo: 7 apartados configurables");
 });
