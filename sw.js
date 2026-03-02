@@ -1,9 +1,9 @@
-const CACHE_NAME = 'desiderativo-v1';
+const CACHE_NAME = 'desiderativo-v3-pwa';
 const urlsToCache = [
   '/Desiderativo/',
   '/Desiderativo/index.html',
-  '/Desiderativo/app.css',
-  '/Desiderativo/app.js',
+  '/Desiderativo/form.css',
+  '/Desiderativo/form.js',
   '/Desiderativo/manifest.json',
   '/Desiderativo/icon.png'
 ];
