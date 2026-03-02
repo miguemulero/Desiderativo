@@ -1,26 +1,24 @@
-'use strict';
+// Import the necessary libraries
+import { Router } from 'itty-router';
+import { handleRequest } from './geminiAPI';
 
-addEventListener('fetch', event => {
-    event.respondWith(handleRequest(event.request));
+// Create a new router instance
+const router = Router();
+
+// Define routes
+router.get('/', (request) => {
+    return new Response('Welcome to the Gemini API Cloudflare Worker!');
 });
 
-async function handleRequest(request) {
-    const url = new URL(request.url);
+// Integrate with the Gemini API
+router.get('/api/gemini', async (request) => {
+    return await handleRequest(request);
+});
 
-    // Adjust the API endpoint according to the Gemini API documentation
-    const apiUrl = 'https://api.gemini.com/v1/some_endpoint';
+// Fallback for undefined routes
+router.all('*', () => new Response('404 Not Found', { status: 404 }));
 
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        return new Response(JSON.stringify(data), {
-            headers: { 'Content-Type': 'application/json' },
-        });
-    } catch (err) {
-        return new Response('Error fetching data from Gemini API: ' + err.message, {
-            status: 500,
-            headers: { 'Content-Type': 'text/plain' },
-        });
-    }
-}
+// Export the function to handle incoming requests
+addEventListener('fetch', event => {
+    event.respondWith(router.handle(event.request));
+});
