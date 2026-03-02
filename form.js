@@ -13,7 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // CONFIGURACIÓN
   // ==========================================
 
+  // 🔴 ACTUALIZA ESTA URL CON TU WORKER
   const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
+
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
   const BIBLIOGRAFIA_FILES = [
@@ -348,6 +350,8 @@ ${protocolo}`;
     }
 
     try {
+      console.log("Enviando solicitud a:", WORKER_URL);
+      
       const response = await fetch(WORKER_URL, {
         method: "POST",
         headers: {
@@ -355,11 +359,13 @@ ${protocolo}`;
           "X-Access-Token": token
         },
         body: JSON.stringify({
-          model: "gemini-2.0-flash",
+          model: "gemini-1.5-flash",
           prompt,
           fileIds: BIBLIOGRAFIA_FILES
         })
       });
+
+      console.log("Respuesta del Worker:", response.status, response.statusText);
 
       if (response.status === 401) {
         localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
@@ -389,6 +395,7 @@ ${protocolo}`;
 
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
+      console.error("Error en callGeminiWithFiles:", error);
       throw new Error(`Error al conectar con Gemini: ${error.message}`);
     }
   }
@@ -471,6 +478,10 @@ ${protocolo}`;
           } else if (error.message.includes("400")) {
             mensajeError += "1. Verifica que el Worker esté funcionando\n";
             mensajeError += "2. Comprueba que los fileIds sean correctos\n";
+          } else if (error.message.includes("fetch")) {
+            mensajeError += "1. Verifica que la URL del Worker sea correcta en form.js\n";
+            mensajeError += "2. Asegúrate de que el Worker tiene CORS habilitado\n";
+            mensajeError += "3. Verifica que el Worker esté desplegado\n";
           } else {
             mensajeError += "1. Verifica tu conexión WiFi\n";
             mensajeError += "2. Recarga la página\n";
@@ -523,6 +534,6 @@ ${protocolo}`;
 
   console.log("✓ App inicializada correctamente");
   console.log("📚 Bibliografía: 17 archivos PDF cargados");
-  console.log("🤖 Modelo: gemini-2.0-flash (vía Cloudflare Worker)");
+  console.log("🤖 Modelo: gemini-1.5-flash (vía Cloudflare Worker)");
   console.log("📊 Análisis selectivo: 7 apartados configurables");
 });
