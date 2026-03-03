@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análisis Cuestionario Desiderativo</title>
+
+  <link rel="stylesheet" href="form.css">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+
+  <!-- Favicon / marcador -->
+  <link rel="icon" type="image/png" href="icon.png">
+
+  <!-- iOS: icono al "Añadir a pantalla de inicio" -->
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Desiderativo">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 Análisis Cuestionario Desiderativo</h1>
+      <p class="subtitle">Análisis clínico integral</p>
+    </header>
+
+    <main>
+      <form id="desiderativo-form">
+
+        <!-- DATOS DEL EVALUADO -->
+        <section class="form-section">
+          <h2>Datos del Evaluado</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre">Nombre/ID del protocolo *</label>
+              <input type="text" id="nombre" name="nombre" required placeholder="Ej: Protocolo ACR">
+            </div>
+
+            <div class="form-group">
+              <label for="edad">Edad *</label>
+              <input type="number" id="edad" name="edad" min="4" max="100" required placeholder="Años">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="genero">Sexo</label>
+              <select id="genero" name="genero">
+                <option value="">Seleccionar...</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+                <option value="no-especifica">Prefiere no especificar</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="nivel_educativo">Nivel educativo</label>
+              <select id="nivel_educativo" name="nivel_educativo">
+                <option value="">Seleccionar...</option>
+                <option value="inicial">Inicial</option>
+                <option value="primario">Primario</option>
+                <option value="secundario">Secundario</option>
+                <option value="terciario">Terciario</option>
+                <option value="universitario">Universitario</option>
+                <option value="posgrado">Posgrado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fecha">Fecha de aplicación *</label>
+              <input type="date" id="fecha" name="fecha" required>
+            </div>
+
+            <div class="form-group">
+              <label for="modalidad">Modalidad de aplicación</label>
+              <select id="modalidad" name="modalidad">
+                <option value="estandar">Estándar</option>
+                <option value="guiada">Guiada</option>
+                <option value="modificada">Modificada</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="informacion">Información contextual relevante</label>
+            <textarea id="informacion" name="informacion" rows="3" placeholder="Motivo de consulta, antecedentes, observaciones de conducta durante la aplicación..."></textarea>
+          </div>
+        </section>
+
+        <!-- CATEXIAS POSITIVAS -->
+        <section class="form-section">
+          <h2>🟢 Catexias Positivas</h2>
+          <p class="section-description">¿Qué te gustaría ser si no pudieras ser persona?</p>
+          <div id="positivas-container"></div>
+        </section>
+
+        <!-- CATEXIAS NEGATIVAS -->
+        <section class="form-section">
+          <h2>🔴 Catexias Negativas</h2>
+          <p class="section-description">¿Qué NO te gustaría ser?</p>
+          <div id="negativas-container"></div>
+        </section>
+
+        <!-- ASOCIACIONES Y RECUERDO -->
+        <section class="form-section">
+          <h2>Asociaciones y Recuerdo</h2>
+
+          <div class="form-group">
+            <label for="asociaciones">Asociaciones espontáneas</label>
+            <textarea id="asociaciones" name="asociaciones" rows="3" placeholder="Asociaciones libres, comentarios espontáneos durante o después de la aplicación..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="recuerdo">Recuerdo positivo</label>
+            <textarea id="recuerdo" name="recuerdo" rows="2" placeholder="Recuerdo positivo solicitado al finalizar..."></textarea>
+          </div>
+        </section>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <section class="form-actions">
+          <button type="button" id="limpiar" class="btn btn-secondary">🗑️ Limpiar formulario</button>
+          <button type="button" id="analizar" class="btn btn-primary">🤖 Analizar protocolo</button>
+        </section>
+
+        <!-- STATUS -->
+        <div class="status-container">
+          <div id="spinner" class="spinner" hidden></div>
+          <p id="statusText" class="status-text"></p>
+        </div>
+      </form>
+
+      <!-- RESULTADO -->
+      <section id="result-section" class="result-section" style="display: none;">
+        <div class="result-header">
+          <h2>📊 Informe de Análisis</h2>
+          <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
+        </div>
+
+        <!-- Pantalla -->
+        <textarea id="result-text" class="result-textarea" readonly></textarea>
+
+        <!-- Impresión: elemento imprimible (sin scroll) -->
+        <pre id="result-print" class="result-print" aria-hidden="true"></pre>
+      </section>
+    </main>
+
+    <footer>
+      <p></p>
+    </footer>
+  </div>
+
+  <script src="form.js"></script>
+  <script>
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('✓ Service Worker registrado'))
+          .catch(err => console.log('✗ Error en Service Worker:', err));
+      });
+    }
+  </script>
+</body>
+</html>

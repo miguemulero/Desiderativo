@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurar NotebookLM Bridge</title>
+  <link rel="stylesheet" href="form.css">
+  <style>
+    .step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .step > div {
+      flex: 1;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      margin-top: 8px;
+      font-size: 11px;
+      font-family: monospace;
+    }
+    button {
+      margin-top: 8px;
+    }
+    ol {
+      line-height: 1.8;
+    }
+    a.btn-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      text-decoration: none;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    a.btn-link:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>🔗 Configuración NotebookLM</h1>
+      <p class="subtitle">Solo una vez</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h2>📱 Instrucciones de Configuración</h2>
+      <p>Sigue estos pasos <strong>UNA SOLA VEZ</strong> para conectar NotebookLM con tu app:</p>
+    </div>
+
+    <div class="card">
+      <div class="step">
+        <span class="step-number">1</span>
+        <div>
+          <strong>Copia este código:</strong>
+          <textarea id="bookmarklet-code" readonly>javascript:(function(){const s=document.createElement('script');s.src='https://miguemulero.github.io/Desiderativo/notebooklm-bridge.js';document.body.appendChild(s);})();</textarea>
+          <button onclick="copyCode()" class="primary">📋 Copiar código</button>
+          <span id="copy-status" style="margin-left: 8px; color: var(--success); display: none;">✓ Copiado</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div>
+          <strong>En Safari (iOS):</strong> Añade un marcador de esta página:
+          <ul style="margin-top: 8px;">
+            <li>Toca el botón <strong>Compartir</strong> (⬆️)</li>
+            <li>Selecciona <strong>"Añadir a marcadores"</strong></li>
+            <li>Guárdalo con cualquier nombre temporalmente</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div>
+          <strong>Edita el marcador:</strong>
+          <ul style="margin-top: 8px;">
+            <li>Ve a <strong>Marcadores</strong> (icono de libro 📖)</li>
+            <li>Toca <strong>"Editar"</strong></li>
+            <li>Selecciona el marcador que acabas de crear</li>
+            <li><strong>Borra la URL</strong> y <strong>pega el código</strong> del paso 1</li>
+            <li>Renómbralo: <strong>"🔗 Desiderativo"</strong></li>
+            <li>Guarda</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">4</span>
+        <div>
+          <strong>¡Listo!</strong> Ya está configurado. Ahora puedes usar la app normalmente.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Cómo usar (diario)</h2>
+      <ol>
+        <li>Abre la app Desiderativo</li>
+        <li>Completa el formulario</li>
+        <li>Click en <strong>"Analizar"</strong></li>
+        <li>Se abrirá NotebookLM automáticamente</li>
+        <li><strong>Toca el marcador "🔗 Desiderativo"</strong> (solo la primera vez)</li>
+        <li><strong>Todo lo demás es automático:</strong>
+          <ul>
+            <li>✓ El protocolo se pega solo</li>
+            <li>✓ Se envía solo</li>
+            <li>✓ La respuesta se captura sola</li>
+            <li>✓ Vuelve a tu app automáticamente</li>
+          </ul>
+        </li>
+      </ol>
+      <p><strong>Sin copiar/pegar manual. Sin pasos extra.</strong></p>
+      
+      <a href="index.html" class="btn-link">
+        → Ir a la App Desiderativo
+      </a>
+    </div>
+
+    <div class="card">
+      <h2>❓ Solución de problemas</h2>
+      <details>
+        <summary style="cursor: pointer; font-weight: 600; padding: 8px 0;">El marcador no funciona</summary>
+        <p style="margin-top: 8px;">Verifica que:
+          <ul>
+            <li>El código comienza con <code>javascript:(function()</code></li>
+            <li>No tiene espacios antes de <code>javascript:</code></li>
+            <li>Lo pegaste en el campo URL del marcador, no en el nombre</li>
+          </ul>
+        </p>
+      </details>
+      
+      <details>
+        <summary style="cursor: pointer; font-weight: 600; padding: 8px 0;">NotebookLM no se abre automáticamente</summary>
+        <p style="margin-top: 8px;">Es normal. Simplemente ábrelo manualmente y toca el marcador "🔗 Desiderativo".</p>
+      </details>
+      
+      <details>
+        <summary style="cursor: pointer; font-weight: 600; padding: 8px 0;">No detecta la respuesta de NotebookLM</summary>
+        <p style="margin-top: 8px;">Asegúrate de que:
+          <ul>
+            <li>Tocaste el marcador DESPUÉS de que NotebookLM se abrió</li>
+            <li>La respuesta terminó de generarse (dice "FIN DEL INFORME")</li>
+            <li>Ambas pestañas/ventanas están abiertas (la app y NotebookLM)</li>
+          </ul>
+        </p>
+      </details>
+    </div>
+  </main>
+
+  <script>
+    function copyCode() {
+      const textarea = document.getElementById('bookmarklet-code');
+      textarea.select();
+      document.execCommand('copy');
+      
+      // Mostrar confirmación
+      const status = document.getElementById('copy-status');
+      status.style.display = 'inline';
+      setTimeout(() => {
+        status.style.display = 'none';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
