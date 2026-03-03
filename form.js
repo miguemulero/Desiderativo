@@ -13,9 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // CONFIGURACIÓN
   // ==========================================
 
+  // Tu Cloudflare Worker URL
   const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
+
+  // Token de acceso almacenado localmente
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
+  // Bibliografía subida a Gemini
   const BIBLIOGRAFIA_FILES = [
     "files/6h0vrkhitk8w",
     "files/q5tgwp6lc9cj",
@@ -38,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ==========================================
 
+  // Protocolo ACR precargado
   document.getElementById("nombre").value = "protocolo ACR";
   document.getElementById("edad").value = "11";
   document.getElementById("genero").value = "masculino";
@@ -283,21 +288,71 @@ ${protocolo}`;
   }
 
   function validateForm(protocolo) {
-    if (!protocolo.nombre) return "Completa el campo Nombre/ID.";
-    if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) return "La edad debe estar entre 4 y 100 años.";
-    if (!protocolo.fecha) return "Selecciona una fecha.";
+    if (!protocolo.nombre) {
+      return "Completa el campo Nombre/ID.";
+    }
+    if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) {
+      return "La edad debe estar entre 4 y 100 años.";
+    }
+    if (!protocolo.fecha) {
+      return "Selecciona una fecha.";
+    }
     return null;
   }
 
+  function setBusy(isBusy) {
+    spinner.hidden = !isBusy;
+    analizarBtn.disabled = isBusy;
+  }
+
+  function setStatus(message) {
+    statusText.textContent = message;
+  }
+
+  function showResult(reportText) {
+    resultText.value = reportText;
+    if (resultPrint) resultPrint.textContent = reportText;
+    resultSection.style.display = "block";
+    resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function hideResult() {
+    resultText.value = "";
+    if (resultPrint) resultPrint.textContent = "";
+    resultSection.style.display = "none";
+  }
+
+  function getAccessToken() {
+    return localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || "";
+  }
+
+  function ensureAccessToken() {
+    let token = getAccessToken();
+    if (token) return token;
+
+    token = window.prompt(
+      "Introduce el ACCESS TOKEN para usar el análisis (se guardará en este navegador):",
+      ""
+    ) || "";
+
+    token = token.trim();
+    if (token) {
+      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+    }
+    return token;
+  }
+
   async function callGeminiWithFiles(prompt) {
-    if (!WORKER_URL) throw new Error("Falta configurar WORKER_URL.");
+    if (!WORKER_URL) {
+      throw new Error("Falta configurar WORKER_URL.");
+    }
 
     const token = ensureAccessToken();
-    if (!token) throw new Error("Falta ACCESS TOKEN.");
+    if (!token) {
+      throw new Error("Falta ACCESS TOKEN.");
+    }
 
     try {
-      console.log("Enviando solicitud a:", WORKER_URL);
-
       const response = await fetch(WORKER_URL, {
         method: "POST",
         headers: {
@@ -305,19 +360,21 @@ ${protocolo}`;
           "X-Access-Token": token
         },
         body: JSON.stringify({
-          // ✅ ÚNICO CAMBIO FUNCIONAL: modelo disponible según tu ListModels
-          model: "gemini-2.5-flash",
+          model: "gemini-2.0-flash",
           prompt,
           fileIds: BIBLIOGRAFIA_FILES
         })
       });
 
-      console.log("Respuesta del Worker:", response.status, response.statusText);
-
       if (response.status === 401) {
         localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
         const errText = await response.text();
         throw new Error(`No autorizado - Token incorrecto. ${errText}`);
+      }
+
+      if (response.status === 400) {
+        const errText = await response.text();
+        throw new Error(`Error en la solicitud (400): ${errText}`);
       }
 
       if (!response.ok) {
@@ -337,20 +394,140 @@ ${protocolo}`;
 
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
-      console.error("Error en callGeminiWithFiles:", error);
       throw new Error(`Error al conectar con Gemini: ${error.message}`);
     }
   }
 
-  // ======= TU CÓDIGO ORIGINAL DE EVENTOS (sin cambios) =======
-  // Nota: aquí no puedo reconstruir tu archivo real al 100% si en tu repo
-  // tiene más handlers. Si tu form.js real incluye más código debajo,
-  // mantenlo y solo sustituye la función callGeminiWithFiles por esta versión.
-
   analizarBtn.addEventListener("click", async () => {
-    // Este bloque depende de tu form.js real. Mantén el tuyo.
-    // Si ya lo tienes, NO lo reemplaces; solo cambia el modelo en callGeminiWithFiles.
+    console.log("Botón Analizar clickeado");
+
+    const protocolo = {
+      nombre: document.getElementById("nombre").value.trim(),
+      edad: Number(document.getElementById("edad").value),
+      genero: document.getElementById("genero").value,
+      nivel_educativo: document.getElementById("nivel_educativo").value,
+      fecha: document.getElementById("fecha").value,
+      modalidad: document.getElementById("modalidad").value,
+      informacion: document.getElementById("informacion").value.trim(),
+      positivas: readCatexias(positivasContainer),
+      negativas: readCatexias(negativasContainer),
+      asociaciones: document.getElementById("asociaciones").value.trim(),
+      recuerdo: document.getElementById("recuerdo").value.trim()
+    };
+
+    const selectedAnalysis = {
+      encuadre: document.getElementById("analysis-encuadre").checked,
+      mecanismos: document.getElementById("analysis-mecanismos").checked,
+      ansiedad: document.getElementById("analysis-ansiedad").checked,
+      reinos: document.getElementById("analysis-reinos").checked,
+      estructural: document.getElementById("analysis-estructural").checked,
+      adl: document.getElementById("analysis-adl").checked,
+      hipotesis: document.getElementById("analysis-hipotesis").checked
+    };
+
+    if (!Object.values(selectedAnalysis).some(v => v === true)) {
+      alert("Selecciona al menos un aspecto para analizar.");
+      return;
+    }
+
+    const validationError = validateForm(protocolo);
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
+    const protocoloText = buildPrompt(protocolo, selectedAnalysis);
+
+    setBusy(true);
+    setStatus("Conectando con Gemini...");
+    hideResult();
+
+    let intentos = 0;
+    const maxIntentos = 3;
+
+    async function intentarAnalisis() {
+      try {
+        if (intentos > 0) {
+          setStatus(`Reintentando (${intentos + 1}/${maxIntentos})...`);
+        }
+
+        const reportText = await callGeminiWithFiles(protocoloText);
+
+        setBusy(false);
+        setStatus("✅ Análisis completado correctamente");
+        showResult(reportText);
+
+      } catch (error) {
+        console.error(`Error en intento ${intentos + 1}:`, error);
+        intentos++;
+
+        if (intentos < maxIntentos) {
+          setStatus(`Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          return intentarAnalisis();
+        } else {
+          setBusy(false);
+          setStatus("❌ Error tras 3 intentos");
+          
+          let mensajeError = `Error: ${error.message}\n\nSoluciones:\n`;
+          if (error.message.includes("401") || error.message.includes("Token")) {
+            mensajeError += "1. Verifica que el ACCESS_TOKEN sea correcto\n";
+            mensajeError += "2. Limpia el token guardado: Abre DevTools (F12), pestaña Storage, borra 'desiderativo_access_token'\n";
+          } else if (error.message.includes("400")) {
+            mensajeError += "1. Verifica que el Worker esté funcionando\n";
+            mensajeError += "2. Comprueba que los fileIds sean correctos\n";
+          } else {
+            mensajeError += "1. Verifica tu conexión WiFi\n";
+            mensajeError += "2. Recarga la página\n";
+          }
+          mensajeError += "3. Abre la consola (F12) para más detalles";
+          
+          alert(mensajeError);
+        }
+      }
+    }
+
+    await intentarAnalisis();
   });
 
-  guardarImprimirBtn?.addEventListener("click", () => window.print());
+  document.getElementById("limpiar").addEventListener("click", () => {
+    document.getElementById("nombre").value = "";
+    document.getElementById("edad").value = "";
+    document.getElementById("genero").value = "";
+    document.getElementById("nivel_educativo").value = "";
+    document.getElementById("fecha").value = "";
+    document.getElementById("modalidad").value = "estandar";
+    document.getElementById("informacion").value = "";
+    document.getElementById("asociaciones").value = "";
+    document.getElementById("recuerdo").value = "";
+
+    positivasContainer.innerHTML = "";
+    negativasContainer.innerHTML = "";
+    positivasContainer.appendChild(createCatexiaFija(1));
+    positivasContainer.appendChild(createCatexiaFija(2));
+    positivasContainer.appendChild(createCatexiaFija(3));
+    negativasContainer.appendChild(createCatexiaFija(1));
+    negativasContainer.appendChild(createCatexiaFija(2));
+    negativasContainer.appendChild(createCatexiaFija(3));
+
+    hideResult();
+    setStatus("");
+    setBusy(false);
+  });
+
+  guardarImprimirBtn.addEventListener("click", () => {
+    if (resultPrint) resultPrint.textContent = resultText.value || "";
+    window.print();
+  });
+
+  window.addEventListener("resize", () => {
+    if (resultPrint && resultText.value) {
+      resultPrint.textContent = resultText.value;
+    }
+  });
+
+  console.log("✓ App inicializada correctamente");
+  console.log("📚 Bibliografía: 17 archivos PDF cargados");
+  console.log("🤖 Modelo: gemini-2.0-flash (vía Cloudflare Worker)");
+  console.log("📊 Análisis selectivo: 7 apartados configurables");
 });
