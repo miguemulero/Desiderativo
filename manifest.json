@@ -1,18 +1,1 @@
-{
-  "name": "Cuestionario Desiderativo",
-  "short_name": "Desiderativo",
-  "description": "Análisis Integral del Cuestionario Desiderativo",
-  "start_url": "/Desiderativo/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2c3e50",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "/Desiderativo/icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
-}
+{"name":"Cuestionario Desiderativo","short_name":"Desiderativo","description":"Análisis Integral del Cuestionario Desiderativo","start_url":"/Desiderativo/","display":"standalone","background_color":"#0f172a","theme_color":"#3b82f6","orientation":"portrait","icons":[{"src":"/Desiderativo/icon.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}

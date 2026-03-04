@@ -9,35 +9,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
   // ==========================================
-  // CONFIGURACIÓN (v3-pwa) - USAR WORKER (NO API KEY EN FRONT)
+  // CONFIGURACIÓN - REEMPLAZA TU API KEY
   // ==========================================
+  
+  const GEMINI_API_KEY = "AIzaSyDymoRpe2BdFunopcvjy4b2gYvs5FKNTnI"; // ← CAMBIA ESTO POR TU API KEY REAL
+  
+  // Tu bibliografía subida a Gemini
+const BIBLIOGRAFIA_FILES = [
+  "files/6h0vrkhitk8w",  // bullying.pdf
+  "files/q5tgwp6lc9cj",  // CASO JADE.pdf
+  "files/fqsuu6w0n8hv",  // CD DIANA.pdf
+  "files/9irbzvcqequw",  // CD Graciela Celener.pdf
+  "files/u36qfiegiw4m",  // CD pulsiones y defensas en patologías desvalimiento.pdf
+  "files/ykokv6ny44qf",  // criterios de interpretación.pdf
+  "files/7ltpzc66izpr",  // Cuestionario desiderativo aplicado a niños2.pdf
+  "files/8oapvjkhseq7",  // Cuestionario desiderativo-Sneiderman3.pdf
+  "files/fbkl6f4fsqil",  // Indicadores-Psicopatologicos - CD.pdf
+  "files/bte9fckqi09l",  // niños latentes.pdf
+  "files/un6o9lzjwtgp",  // Ocampo Arzeno - CD.pdf
+  "files/7vsf3mzm5p9d",  // O_questionario_desiderativo_fundamentos.pdf
+  "files/ctv2dnvu5xve",  // Preconsciente y su relación con el lenguaje.pdf
+  "files/egihk7p7ojbp",  // Sneiderman_2011-Cuestionario.pdf
+  "files/gyrx6b0451e8",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
+  "files/tnabgxpdlha8",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
+  "files/bdk55xslkd8o",  // Vinculo hostil.pdf
+];
 
-  const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
-  const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
-
-  // Tu bibliografía subida (ids). El Worker se encarga de pasarlos correctamente a Gemini.
-  const BIBLIOGRAFIA_FILES = [
-    "files/lqljz0esix7l",
-    "files/l85o2yj4wxni",
-    "files/nwradxiuqm5v",
-    "files/oy22p4nzj63c",
-    "files/xpqis5z1ghk4",
-    "files/26cu9xpgruab",
-    "files/n79vrv5skpjy",
-    "files/fg8kfw3jq378",
-    "files/8zp3gjdxe7si",
-    "files/hakfkyc56scm",
-    "files/ki31xotjf2ep",
-    "files/ed3ihkklklif",
-    "files/g892mj0liccr",
-    "files/qd57w3x9nv28",
-    "files/9c8x2t9jjeli",
-    "files/hgvxtih4jluc",
-    "files/cuf95cny20dh",
-    "files/bryux976g5qq",
-    "files/jn7qt73rq3mt",
-    "files/qqox2275732w"
-  ];
 
   // ==========================================
 
@@ -67,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const div = document.createElement("div");
     div.className = "catexia-item";
     const uniqueId = `cambio-${num}-${Date.now()}`;
-
+    
     div.innerHTML = `
       <div class="catexia-header">Catexia ${num}</div>
       <div class="catexia-main">
@@ -96,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addBtn = div.querySelector(".add-btn");
     const extrasContainer = div.querySelector(".extras-container");
 
+    // Mostrar/ocultar botón al marcar checkbox
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
         addBtn.style.display = "block";
@@ -105,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Añadir símbolo descartado
     addBtn.addEventListener("click", () => {
       const extra = document.createElement("div");
       extra.className = "extra-response";
@@ -113,15 +112,17 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="number" placeholder="TR (seg)" class="extra-tr" min="0" step="0.01"/>
         <button type="button" class="remove-btn" title="Eliminar">×</button>
       `;
-
+      
+      // Botón eliminar
       extra.querySelector(".remove-btn").addEventListener("click", () => {
         extra.remove();
+        // Si no quedan extras, desmarcar checkbox
         if (extrasContainer.children.length === 0) {
           checkbox.checked = false;
           addBtn.style.display = "none";
         }
       });
-
+      
       extrasContainer.appendChild(extra);
     });
 
@@ -193,7 +194,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return `INSTRUCCIONES INTEGRALES PARA ANÁLISIS DEL CUESTIONARIO DESIDERATIVO
 
-(…tu prompt largo igual que lo tienes…)
+Usa EXCLUSIVAMENTE las fuentes del Cuestionario/Test Desiderativo cargadas (Ocampo, Arzeno, Grassano, Celener, Maladesky, manuales y artículos afines).
+
+NO inventes teoría ni nomenclaturas nuevas. Si algo no se fundamenta en las fuentes, indícalo como hipótesis clínica y márcalo como tal.
+
+Trabaja siempre a partir del protocolo que te daré: símbolos, racionalizaciones, tiempos de reacción, implementaciones, conducta observada.
+
+Tu tarea es realizar un análisis clínico INTEGRAL del Cuestionario Desiderativo, con el MÁXIMO nivel de profundidad y rigor posible, abarcando TODAS las variables clásicas de la técnica.
+
+Explicita SIEMPRE:
+- Los datos del protocolo que tomas
+- El concepto teórico que aplicas (citando autor y fuente)
+- La inferencia clínica que extraes
+
+ESTRUCTURA DEL INFORME:
+
+1. IMPLEMENTACIÓN Y ENCUADRE
+- Cómo se administró: forma estándar/guiada, aclaraciones, cambios, resistencias
+- Comprensión de consigna: "muerte como humano", función metafórica
+- Indicadores de fortaleza/debilidad yoica en implementación
+
+2. MECANISMOS INSTRUMENTALES
+- Primera disociación: capacidad de convertirse en símbolo
+- Segunda disociación: discriminación positivo/negativo
+- Identificación al símbolo: distancia vs ecuación simbólica
+- Racionalización: coherencia, idealización/peyorización, clichés
+
+3. ANSIEDAD (análisis integral según Ocampo y otros autores)
+- Catexia por catexia: tipo e intensidad (persecutoria/depresiva)
+- Tiempos de reacción y shocks: relación con defensas
+- Curva global: clasificación tipos 1-6 de Ocampo, evolución
+- Capacidad de reconocer, tolerar, transformar y simbolizar ansiedad
+
+4. REINOS Y FANTASÍAS DE MUERTE
+- Secuencia de reinos: orden y variaciones (Animal-Vegetal-Objeto)
+- Significado de elecciones: fortaleza/debilidad, esquema corporal
+- Fantasías de muerte: aniquilación vs permanencia/legado/reparación
+
+5. ANÁLISIS ESTRUCTURAL: ELLO - YO - SUPERYÓ
+- Ello: pulsiones predominantes, grado de ligadura simbólica
+- Yo: fortaleza, juicio de realidad, flexibilidad, función sintetizadora
+- Superyó/Ideal del Yo: exigencias, culpa, perfeccionismo
+
+6. POSICIÓN RESPECTO DEL OTRO
+- Tipo de vínculos: cuidado, sometimiento, dominio, dependencia
+- Lugar del sujeto: útil, víctima, perseguidor, protector
+- Articulación con ansiedad y Superyó
+
+7. DEFENSAS Y RECURSOS
+- Defensas predominantes: represión, negación, proyección, etc.
+- Eficacia: momentos de tramitación vs fracaso
+- Recursos yoicos: insight, humor, simbolización, reparación
+
+8. PERSPECTIVA ADL (Algoritmo David Liberman)
+8.1. Identificación de erotismos por catexias (oral primario/secundario, anal primario/secundario, fálico-uretral, fálico-genital)
+8.2. Registro del lenguaje: narrativo, descriptivo, argumentativo, modal
+8.3. Defensas según ADL y eficacia
+8.4. Trayectoria pulsional a lo largo del protocolo
+8.5. Articulación ADL con Yo, Superyó y posición frente al Otro
+8.6. Síntesis ADL: aporte al diagnóstico y pronóstico
+
+9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO
+- Hipótesis estructural fundamentada en todos los ejes
+- Pronóstico: fortaleza yoica, flexibilidad defensiva, capacidad de simbolización
+
+Al finalizar, escribe: "FIN DEL INFORME"
+
+═══════════════════════════════════════════════════════════
 
 PROTOCOLO A ANALIZAR:
 Nombre/ID: ${p.nombre}
@@ -202,9 +269,15 @@ ${protocolo}`;
   }
 
   function validateForm(protocolo) {
-    if (!protocolo.nombre) return "Completa el campo Nombre/ID.";
-    if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) return "La edad debe estar entre 4 y 100 años.";
-    if (!protocolo.fecha) return "Selecciona una fecha.";
+    if (!protocolo.nombre) {
+      return "Completa el campo Nombre/ID.";
+    }
+    if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) {
+      return "La edad debe estar entre 4 y 100 años.";
+    }
+    if (!protocolo.fecha) {
+      return "Selecciona una fecha.";
+    }
     return null;
   }
 
@@ -228,44 +301,59 @@ ${protocolo}`;
     resultSection.style.display = "none";
   }
 
-  function ensureAccessToken() {
-    let token = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || "";
-    if (token) return token;
-    token = (window.prompt("Introduce el ACCESS TOKEN:", "") || "").trim();
-    if (token) localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-    return token;
-  }
-
-  // ✅ ESTA es la corrección del “error de conexión”:
-  // llamar al Worker (evita CORS y problemas de fileUri en el navegador)
   async function callGeminiWithFiles(prompt) {
-    const token = ensureAccessToken();
-    if (!token) throw new Error("Falta ACCESS TOKEN.");
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "TU_API_KEY_AQUI") {
+      throw new Error("Por favor, configura tu API Key de Gemini en form.js (línea 14)");
+    }
 
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+    const fileParts = BIBLIOGRAFIA_FILES.map(fileId => ({
+      fileData: {
+        mimeType: "application/pdf",
+        fileUri: `https://generativelanguage.googleapis.com/v1beta/${fileId}`
+      }
+    }));
+
+    const response = await fetch(url, {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "X-Access-Token": token
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        // modelo disponible en tu cuenta
-        model: "gemini-2.5-flash",
-        prompt,
-        fileIds: BIBLIOGRAFIA_FILES
+        contents: [{
+          parts: [
+            ...fileParts,
+            { text: prompt }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 16384,
+          topP: 0.95,
+          topK: 40
+        }
       })
     });
 
-    const text = await res.text();
-    if (!res.ok) throw new Error(`Worker ${res.status}: ${text}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error completo de API:", errorData);
+      throw new Error(`Error de API: ${errorData.error?.message || 'Error desconocido'}`);
+    }
 
-    const data = JSON.parse(text);
-    const out = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!out) throw new Error("Respuesta vacía/incompleta de Gemini");
-    return out;
+    const data = await response.json();
+    
+    if (!data.candidates || data.candidates.length === 0) {
+      throw new Error("No se recibió respuesta de Gemini");
+    }
+
+    return data.candidates[0].content.parts[0].text;
   }
 
   analizarBtn.addEventListener("click", async () => {
+    console.log("Botón Analizar clickeado");
+
     const protocolo = {
       nombre: document.getElementById("nombre").value.trim(),
       edad: Number(document.getElementById("edad").value),
@@ -281,24 +369,49 @@ ${protocolo}`;
     };
 
     const validationError = validateForm(protocolo);
-    if (validationError) return alert(validationError);
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
 
     const protocoloText = buildPrompt(protocolo);
 
     setBusy(true);
-    setStatus("🤖 Analizando protocolo con bibliografía...");
+    setStatus("🤖 Analizando protocolo con 20 PDFs de bibliografía...");
     hideResult();
 
-    try {
-      const reportText = await callGeminiWithFiles(protocoloText);
-      setStatus("✅ Análisis completado correctamente");
-      showResult(reportText);
-    } catch (e) {
-      setStatus("❌ Error");
-      alert(String(e?.message || e));
-    } finally {
-      setBusy(false);
+    let intentos = 0;
+    const maxIntentos = 3;
+
+    async function intentarAnalisis() {
+      try {
+        if (intentos > 0) {
+          setStatus(`🔄 Reintentando (${intentos + 1}/${maxIntentos})...`);
+        }
+        
+        const reportText = await callGeminiWithFiles(protocoloText);
+        
+        setBusy(false);
+        setStatus("✅ Análisis completado correctamente");
+        showResult(reportText);
+        
+      } catch (error) {
+        console.error(`Error en intento ${intentos + 1}:`, error);
+        intentos++;
+        
+        if (intentos < maxIntentos) {
+          setStatus(`⚠️ Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          return intentarAnalisis();
+        } else {
+          setBusy(false);
+          setStatus("❌ Error tras 3 intentos");
+          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página (F5)\n3. Si persiste, prueba desde ordenador`);
+        }
+      }
     }
+
+    await intentarAnalisis();
   });
 
   document.getElementById("limpiar").addEventListener("click", () => {
@@ -311,7 +424,7 @@ ${protocolo}`;
     document.getElementById("informacion").value = "";
     document.getElementById("asociaciones").value = "";
     document.getElementById("recuerdo").value = "";
-
+    
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
     positivasContainer.appendChild(createCatexiaFija(1));
@@ -320,11 +433,18 @@ ${protocolo}`;
     negativasContainer.appendChild(createCatexiaFija(1));
     negativasContainer.appendChild(createCatexiaFija(2));
     negativasContainer.appendChild(createCatexiaFija(3));
-
+    
     hideResult();
     setStatus("");
     setBusy(false);
   });
 
-  guardarImprimirBtn.addEventListener("click", () => window.print());
+  guardarImprimirBtn.addEventListener("click", () => {
+    window.print();
+  });
+
+  console.log("✓ App inicializada correctamente");
+  console.log("📚 Bibliografía: 20 archivos PDF cargados");
+  console.log("🤖 Modelo: gemini-2.5-flash");
+  console.log("📋 Prompt: Instrucciones integrales con 9 apartados completos");
 });
