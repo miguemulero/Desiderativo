@@ -4,20 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Análisis Cuestionario Desiderativo</title>
+
   <link rel="stylesheet" href="form.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2c3e50">
+
   <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- Fuente más profesional -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>📋 Análisis Cuestionario Desiderativo</h1>
-      <p class="subtitle">Análisis clínico integral con IA + 20 fuentes bibliográficas</p>
+    <header class="app-header">
+      <div class="header-title">
+        <img src="icon-192.png" alt="Icono" class="app-icon">
+        <h1>Análisis Cuestionario Desiderativo</h1>
+      </div>
+      <p class="subtitle">Análisis clínico integral</p>
     </header>
 
     <main>
       <form id="desiderativo-form">
+        <!-- DATOS DEL EVALUADO -->
         <section class="form-section">
           <h2>Datos del Evaluado</h2>
 
@@ -81,18 +92,22 @@
           </div>
         </section>
 
-        <section class="form-section">
-          <h2>🟢 Catexias Positivas</h2>
-          <p class="section-description">¿Qué te gustaría ser si no pudieras ser persona?</p>
-          <div id="positivas-container"></div>
-        </section>
+        <!-- CATEXIAS EN DOS COLUMNAS (negativas izquierda, positivas derecha) -->
+        <div class="catexias-two-col">
+          <section class="form-section">
+            <h2>🔴 Catexias Negativas</h2>
+            <p class="section-description">¿Qué NO te gustaría ser?</p>
+            <div id="negativas-container"></div>
+          </section>
 
-        <section class="form-section">
-          <h2>🔴 Catexias Negativas</h2>
-          <p class="section-description">¿Qué NO te gustaría ser?</p>
-          <div id="negativas-container"></div>
-        </section>
+          <section class="form-section">
+            <h2>🟢 Catexias Positivas</h2>
+            <p class="section-description">¿Qué te gustaría ser si no pudieras ser persona?</p>
+            <div id="positivas-container"></div>
+          </section>
+        </div>
 
+        <!-- ASOCIACIONES Y RECUERDO -->
         <section class="form-section">
           <h2>Asociaciones y Recuerdo</h2>
 
@@ -107,37 +122,40 @@
           </div>
         </section>
 
+        <!-- BOTONES DE ACCIÓN -->
         <section class="form-actions">
           <button type="button" id="limpiar" class="btn btn-secondary">🗑️ Limpiar formulario</button>
           <button type="button" id="analizar" class="btn btn-primary">🤖 Analizar protocolo</button>
         </section>
 
+        <!-- STATUS -->
         <div class="status-container">
           <div id="spinner" class="spinner" hidden></div>
           <p id="statusText" class="status-text"></p>
         </div>
       </form>
 
+      <!-- RESULTADO -->
       <section id="result-section" class="result-section" style="display: none;">
         <div class="result-header">
           <h2>📊 Informe de Análisis</h2>
           <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
         </div>
+        <!-- Ajuste de altura automático + texto con separadores viene de form.js -->
         <textarea id="result-text" class="result-textarea" readonly></textarea>
       </section>
     </main>
 
-    <footer>
-      <p>Desarrollado con Gemini 2.5 Flash + Bibliografía especializada en Cuestionario Desiderativo</p>
-    </footer>
+    <footer class="app-footer"></footer>
   </div>
 
   <script type="module" src="form.js"></script>
   <script>
+    // Registrar Service Worker para PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then(() => console.log('✓ Service Worker registrado'))
+          .then(reg => console.log('✓ Service Worker registrado'))
           .catch(err => console.log('✗ Error en Service Worker:', err));
       });
     }
