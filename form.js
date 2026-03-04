@@ -18,17 +18,27 @@ document.addEventListener("DOMContentLoaded", () => {
   function setBusy(isBusy) {
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
-    setStatus(isBusy ? "🤖 Analizando..." : "");
+    // MANTENER "Analizando..." como pediste
+    setStatus(isBusy ? "Analizando..." : "");
+  }
+
+  function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    // Un poco de margen para que no corte la última línea en impresión
+    textarea.style.height = (textarea.scrollHeight + 6) + "px";
   }
 
   function showResult(reportText) {
     resultText.value = processText(reportText);
+    autoResizeTextarea(resultText);
     resultSection.style.display = "block";
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function hideResult() {
     resultText.value = "";
+    autoResizeTextarea(resultText);
     resultSection.style.display = "none";
   }
 
@@ -249,15 +259,32 @@ ${p.nombre}
 ${protocolo}`;
   }
 
+  // Texto con separadores + mejor legibilidad
   function processText(rawText) {
     let processed = String(rawText || "");
+
     const startIndex = processed.search(/I\.\s+Encuadre e Implementación/i);
     if (startIndex > 0) processed = processed.substring(startIndex);
+
     processed = processed.replace(/\s*\(funcionamiento yoico\)/gi, "");
     processed = processed.replace(/\s*\(Funcionamiento Yoico\)/g, "");
+
     const finIndex = processed.search(/FIN DEL INFORME/i);
     if (finIndex > -1) processed = processed.substring(0, finIndex);
-    return processed.trim();
+
+    processed = processed.trim();
+
+    // Separadores visuales en texto (sin cambiar contenido esencial)
+    // - Asegura saltos antes de secciones romanas
+    processed = processed.replace(/\n?\s*(I|II|III|IV|V|VI|VII)\.\s+/g, "\n\n────────────────────────────────\n$1. ");
+
+    // - Asegura que DISCLAIMER destaque
+    processed = processed.replace(/\n?\s*DISCLAIMER\s*/g, "\n\n────────────────────────────────\nDISCLAIMER\n");
+
+    // Limpieza mínima
+    processed = processed.replace(/\n{3,}/g, "\n\n").trim();
+
+    return processed;
   }
 
   function escapeAttr(str) {
@@ -277,7 +304,9 @@ ${protocolo}`;
   // ===== INIT (precarga visible) =====
   preloadACR();
   initCatexiasPrecargadasACR();
-  setStatus("✅ Protocolo ACR precargado");
+
+  // Ajuste inicial del textarea por si ya hubiera contenido (p.ej. cache)
+  autoResizeTextarea(resultText);
 
   // ===== EVENTOS =====
   analizarBtn.addEventListener("click", async () => {
@@ -306,9 +335,7 @@ ${protocolo}`;
     try {
       const reportText = await callGeminiViaWorker(prompt);
       showResult(reportText);
-      setStatus("✅ Análisis completado");
     } catch (e) {
-      setStatus("❌ Error");
       alert(String(e?.message || e));
     } finally {
       setBusy(false);
@@ -320,7 +347,7 @@ ${protocolo}`;
     preloadACR();
     initCatexiasPrecargadasACR();
     hideResult();
-    setStatus("✅ Protocolo ACR precargado");
+    setStatus("");
   });
 
   guardarImprimirBtn.addEventListener("click", () => window.print());
