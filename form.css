@@ -113,7 +113,7 @@ input:focus, select:focus, textarea:focus{
   box-shadow: 0 0 0 4px rgba(37,99,235,.18);
 }
 
-/* 2 columnas catexias */
+/* 2 columnas catexias: Negativas izquierda, Positivas derecha */
 .catexias-two-col{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -121,7 +121,6 @@ input:focus, select:focus, textarea:focus{
   align-items: start;
 }
 
-/* Botones */
 .form-actions{
   display:flex;
   gap: 10px;
@@ -179,7 +178,6 @@ input:focus, select:focus, textarea:focus{
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Resultado */
 .result-section{
   background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
   border: 1px solid rgba(16,185,129,.45);
@@ -199,12 +197,12 @@ input:focus, select:focus, textarea:focus{
 
 .result-textarea{
   width: 100%;
-  min-height: 240px; /* crecerá dinámicamente por JS */
+  min-height: 240px; /* crecerá por JS */
   height: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
   line-height: 1.45;
   white-space: pre-wrap;
-  overflow: hidden; /* para que al imprimir no corte raro */
+  overflow: hidden; /* clave para impresión */
 }
 
 /* ====== Catexias ====== */
@@ -315,5 +313,5 @@ input:focus, select:focus, textarea:focus{
   .result-textarea{ overflow: visible; }
 }
 
-/* footer vacío, por si acaso */
+/* Footer: no debe aparecer nada */
 .app-footer{ display:none; }
