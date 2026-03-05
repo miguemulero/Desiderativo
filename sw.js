@@ -1,5 +1,5 @@
 // SOLO CAMBIO NECESARIO: subir la versión para invalidar caché (no cambia funcionamiento)
-const CACHE_VERSION = "2026-03-05-past-ui-1";
+const CACHE_VERSION = "2026-03-05-past-ui-2";
 const CACHE_NAME = `desiderativo-${CACHE_VERSION}`;
 
 const STATIC_ASSETS = [
