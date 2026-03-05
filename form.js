@@ -18,10 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function setBusy(isBusy) {
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
-    // NO cambiar: mantener "Analizando..."
+    // Mantener Analizando...
     setStatus(isBusy ? "Analizando..." : "");
   }
 
+  // ✅ Autoajuste del textarea al contenido (no afecta a la lógica del análisis)
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
@@ -172,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
 
-    // Positivas
     positivasContainer.appendChild(createCatexiaFija(
       1, "AGAPORNI", 3,
       "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia", ""
@@ -186,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "porque estaría buena y disfrutarían comiendo", ""
     ));
 
-    // Negativas
     negativasContainer.appendChild(createCatexiaFija(
       1, "MAPACHE", 1,
       "porque huelen mal, me pueden tirar a la basura y matar", ""
@@ -201,7 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ));
   }
 
-  // ====== PROMPT / VALIDACIÓN / FORMATEO ======
   function validateForm(protocolo) {
     if (!protocolo.nombre) return "Completa el campo Nombre/ID del protocolo.";
     if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) return "La edad debe estar entre 4 y 100 años.";
@@ -258,7 +256,6 @@ ${p.nombre}
 ${protocolo}`;
   }
 
-  // Texto con separadores + sin romper lo que ya funciona
   function processText(rawText) {
     let processed = String(rawText || "");
     const startIndex = processed.search(/I\.\s+Encuadre e Implementación/i);
@@ -267,14 +264,7 @@ ${protocolo}`;
     processed = processed.replace(/\s*\(Funcionamiento Yoico\)/g, "");
     const finIndex = processed.search(/FIN DEL INFORME/i);
     if (finIndex > -1) processed = processed.substring(0, finIndex);
-    processed = processed.trim();
-
-    // Separadores (solo presentación)
-    processed = processed.replace(/\n?\s*(I|II|III|IV|V|VI|VII)\.\s+/g, "\n\n────────────────────────────────\n$1. ");
-    processed = processed.replace(/\n?\s*DISCLAIMER\s*/g, "\n\n────────────────────────────────\nDISCLAIMER\n");
-    processed = processed.replace(/\n{3,}/g, "\n\n").trim();
-
-    return processed;
+    return processed.trim();
   }
 
   function escapeAttr(str) {
@@ -291,12 +281,11 @@ ${protocolo}`;
       .replaceAll(">", "&gt;");
   }
 
-  // ===== INIT (precarga) =====
+  // INIT
   preloadACR();
   initCatexiasPrecargadasACR();
   autoResizeTextarea(resultText);
 
-  // ===== EVENTOS =====
   analizarBtn.addEventListener("click", async () => {
     const protocolo = {
       nombre: document.getElementById("nombre").value.trim(),
@@ -340,6 +329,6 @@ ${protocolo}`;
 
   guardarImprimirBtn.addEventListener("click", () => window.print());
 
-  // Si el usuario redimensiona la ventana, recalculamos por si cambia el wrap
+  // Si cambia el ancho, recalcular altura (wrap)
   window.addEventListener("resize", () => autoResizeTextarea(resultText));
 });
