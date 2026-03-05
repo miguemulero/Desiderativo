@@ -8,9 +8,13 @@
   <link rel="stylesheet" href="form.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2c3e50">
-  <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- Tipografías: título con una serif moderna, resto con Inter -->
+  <!-- Icono para pestaña/marcador -->
+  <link rel="icon" href="icon.png">
+
+  <!-- Icono para iPhone / pantalla de inicio -->
+  <link rel="apple-touch-icon" href="icon.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -20,16 +24,13 @@
     <header class="app-header">
       <div class="header-title">
         <img src="icon.png" alt="Icono" class="app-icon">
-        <!-- Título centrado via CSS y con tipografía distinta -->
         <h1 class="app-title">Análisis Cuestionario Desiderativo</h1>
       </div>
-
       <p class="subtitle">Análisis clínico integral</p>
     </header>
 
     <main>
       <form id="desiderativo-form">
-
         <section class="form-section">
           <h2>Datos del Evaluado</h2>
 
@@ -122,8 +123,8 @@
         </section>
 
         <section class="form-actions">
-          <button type="button" id="limpiar" class="btn btn-secondary">🗑️ Limpiar formulario</button>
-          <button type="button" id="analizar" class="btn btn-primary">🤖 Analizar protocolo</button>
+          <button type="button" id="limpiar" class="btn btn-secondary">Limpiar formulario</button>
+          <button type="button" id="analizar" class="btn btn-primary">Analizar protocolo</button>
         </section>
 
         <div class="status-container">
@@ -134,9 +135,8 @@
 
       <section id="result-section" class="result-section" style="display: none;">
         <div class="result-header">
-          <!-- Quitado "📊" -->
           <h2>Informe de Análisis</h2>
-          <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
+          <button type="button" id="guardar-imprimir" class="btn btn-success">Guardar / Imprimir</button>
         </div>
         <textarea id="result-text" class="result-textarea" readonly></textarea>
       </section>
@@ -150,7 +150,7 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('✓ Service Worker registrado'))
+          .then(() => console.log('✓ Service Worker registrado'))
           .catch(err => console.log('✗ Error en Service Worker:', err));
       });
     }
