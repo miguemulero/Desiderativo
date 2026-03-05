@@ -10,17 +10,18 @@
   <meta name="theme-color" content="#2c3e50">
   <link rel="apple-touch-icon" href="icon-192.png">
 
+  <!-- Tipografías: título con una serif moderna, resto con Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <header class="app-header">
       <div class="header-title">
         <img src="icon.png" alt="Icono" class="app-icon">
-        <!-- ✅ Eliminado el "📋" del título -->
-        <h1>Análisis Cuestionario Desiderativo</h1>
+        <!-- Título centrado via CSS y con tipografía distinta -->
+        <h1 class="app-title">Análisis Cuestionario Desiderativo</h1>
       </div>
 
       <p class="subtitle">Análisis clínico integral</p>
@@ -133,7 +134,8 @@
 
       <section id="result-section" class="result-section" style="display: none;">
         <div class="result-header">
-          <h2>📊 Informe de Análisis</h2>
+          <!-- Quitado "📊" -->
+          <h2>Informe de Análisis</h2>
           <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
         </div>
         <textarea id="result-text" class="result-textarea" readonly></textarea>
