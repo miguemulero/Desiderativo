@@ -18,14 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function setBusy(isBusy) {
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
-    // MANTENER "Analizando..." como pediste
+    // NO cambiar: mantener "Analizando..."
     setStatus(isBusy ? "Analizando..." : "");
   }
 
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
-    // Un poco de margen para que no corte la última línea en impresión
     textarea.style.height = (textarea.scrollHeight + 6) + "px";
   }
 
@@ -259,29 +258,20 @@ ${p.nombre}
 ${protocolo}`;
   }
 
-  // Texto con separadores + mejor legibilidad
+  // Texto con separadores + sin romper lo que ya funciona
   function processText(rawText) {
     let processed = String(rawText || "");
-
     const startIndex = processed.search(/I\.\s+Encuadre e Implementación/i);
     if (startIndex > 0) processed = processed.substring(startIndex);
-
     processed = processed.replace(/\s*\(funcionamiento yoico\)/gi, "");
     processed = processed.replace(/\s*\(Funcionamiento Yoico\)/g, "");
-
     const finIndex = processed.search(/FIN DEL INFORME/i);
     if (finIndex > -1) processed = processed.substring(0, finIndex);
-
     processed = processed.trim();
 
-    // Separadores visuales en texto (sin cambiar contenido esencial)
-    // - Asegura saltos antes de secciones romanas
+    // Separadores (solo presentación)
     processed = processed.replace(/\n?\s*(I|II|III|IV|V|VI|VII)\.\s+/g, "\n\n────────────────────────────────\n$1. ");
-
-    // - Asegura que DISCLAIMER destaque
     processed = processed.replace(/\n?\s*DISCLAIMER\s*/g, "\n\n────────────────────────────────\nDISCLAIMER\n");
-
-    // Limpieza mínima
     processed = processed.replace(/\n{3,}/g, "\n\n").trim();
 
     return processed;
@@ -301,11 +291,9 @@ ${protocolo}`;
       .replaceAll(">", "&gt;");
   }
 
-  // ===== INIT (precarga visible) =====
+  // ===== INIT (precarga) =====
   preloadACR();
   initCatexiasPrecargadasACR();
-
-  // Ajuste inicial del textarea por si ya hubiera contenido (p.ej. cache)
   autoResizeTextarea(resultText);
 
   // ===== EVENTOS =====
@@ -351,4 +339,7 @@ ${protocolo}`;
   });
 
   guardarImprimirBtn.addEventListener("click", () => window.print());
+
+  // Si el usuario redimensiona la ventana, recalculamos por si cambia el wrap
+  window.addEventListener("resize", () => autoResizeTextarea(resultText));
 });
