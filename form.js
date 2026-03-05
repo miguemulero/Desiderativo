@@ -18,11 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function setBusy(isBusy) {
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
-    // Mantener Analizando...
     setStatus(isBusy ? "Analizando..." : "");
   }
 
-  // ✅ Autoajuste del textarea al contenido (no afecta a la lógica del análisis)
+  // Autoajuste del textarea del informe (sin cambiar funcionamiento)
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
@@ -200,6 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ));
   }
 
+  // ====== PROMPT / VALIDACIÓN / FORMATEO ======
   function validateForm(protocolo) {
     if (!protocolo.nombre) return "Completa el campo Nombre/ID del protocolo.";
     if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) return "La edad debe estar entre 4 y 100 años.";
@@ -208,63 +208,114 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function buildPrompt(p) {
-    const formatCatexia = (cat, idx) => {
-      let text =
-        `${idx + 1}. Símbolo: ${cat.simbolo} | TR(s): ${cat.tr}\n` +
-        `   Justificación: ${cat.justificacion}\n` +
-        `   Observaciones: ${cat.observaciones}`;
-      if (cat.extras && cat.extras.length > 0) {
-        text += "\n   Cambios:";
-        cat.extras.forEach((ex, i) => {
-          text += `\n      ${i + 1}. ${ex.simbolo} | TR(s): ${ex.tr}`;
-        });
-      }
-      return text;
+    // Tabla completa con TODA la info del formulario + catexias + cambios + observaciones
+    const tableRow = (sign, idx, cat) => {
+      const extrasText =
+        (cat.extras && cat.extras.length > 0)
+          ? cat.extras
+              .map((ex, i) => `${i + 1}) ${ex.simbolo || "-"} (TR: ${Number(ex.tr || 0)}s)`)
+              .join(" | ")
+          : "—";
+
+      return [
+        `${sign}${idx + 1}`,
+        `Símbolo: ${cat.simbolo || "-"}`,
+        `TR(s): ${Number(cat.tr || 0)}`,
+        `Justificación: ${cat.justificacion || "-"}`,
+        `Observaciones: ${cat.observaciones || "-"}`,
+        `Cambios: ${extrasText}`
+      ].join(" | ");
     };
 
-    const listPos = p.positivas.map((c, i) => formatCatexia(c, i)).join("\n\n");
-    const listNeg = p.negativas.map((c, i) => formatCatexia(c, i)).join("\n\n");
+    const posRows = p.positivas.map((c, i) => tableRow("+", i, c)).join("\n");
+    const negRows = p.negativas.map((c, i) => tableRow("-", i, c)).join("\n");
 
-    const protocolo = [
-      "Edad: " + p.edad,
-      "Sexo: " + (p.genero || "-"),
-      "Nivel educativo: " + (p.nivel_educativo || "-"),
-      "Fecha: " + p.fecha,
-      "Modalidad: " + (p.modalidad || "-"),
+    const resumen = [
+      `Nombre/ID: ${p.nombre || "-"}`,
+      `Edad: ${p.edad || "-"}`,
+      `Sexo: ${p.genero || "-"}`,
+      `Nivel educativo: ${p.nivel_educativo || "-"}`,
+      `Fecha: ${p.fecha || "-"}`,
+      `Modalidad: ${p.modalidad || "-"}`,
       "",
-      "CATEXIAS POSITIVAS:",
-      listPos,
+      "Información relevante:",
+      p.informacion || "-",
       "",
-      "CATEXIAS NEGATIVAS:",
-      listNeg,
-      "",
-      "Asociaciones:",
+      "Asociaciones espontáneas:",
       p.asociaciones || "-",
       "",
       "Recuerdo positivo:",
-      p.recuerdo || "-",
-      "",
-      "Información relevante:",
-      p.informacion || "-"
+      p.recuerdo || "-"
     ].join("\n");
 
-    return `Analiza este protocolo con la fuente "Análisis integral". MANTÉN EXACTAMENTE los títulos de los epígrafes de la fuente sin modificarlos. Comienza DIRECTAMENTE con "**I. Encuadre e Implementación**". Títulos en **negrita**. NO incluyas citas ni referencias. NO incluyas "(funcionamiento yoico)" en el texto. Finaliza con "**DISCLAIMER**" seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional" y luego en una nueva línea escribe exactamente "FIN DEL INFORME".
+    const miniTabla = [
+      "MINI TABLA RESUMEN (con clasificación de reinos a inferir por el analista):",
+      "",
+      "CATÉXIAS POSITIVAS (+):",
+      posRows || "(sin datos)",
+      "",
+      "CATÉXIAS NEGATIVAS (-):",
+      negRows || "(sin datos)"
+    ].join("\n");
 
-PROTOCOLO:
-${p.nombre}
+    // Instrucciones: esquema fijo, párrafos, ADL completo, reinos, VIII preguntas y respuestas.
+    return `Redacta un INFORME CLÍNICO INTEGRAL del Cuestionario Desiderativo siguiendo ESTRICTAMENTE el esquema I–VIII que se indica abajo. Debes CONECTAR y ARTICULAR: (1) los datos del evaluado, (2) la información relevante, (3) las catexias positivas/negativas, (4) los TR, (5) las justificaciones, (6) las observaciones y (7) los cambios (si los hay). No inventes datos no presentes. Cuando infieras algo, indícalo como inferencia clínica.
 
-${protocolo}`;
+FORMATO OBLIGATORIO:
+- Empieza DIRECTAMENTE con **MINI TABLA RESUMEN** (en texto plano).
+- Luego escribe los apartados **I** a **VIII** en este orden.
+- Cada apartado debe llevar su título EXACTO en **negrita**.
+- Dentro de cada apartado redacta en PÁRRAFOS separados (no listas largas).
+- Debes clasificar tú mismo el REINO de cada símbolo (Animal/Vegetal/Objeto u “Otro/Indeterminado”) y usarlo en los apartados donde corresponda.
+- Interpreta el nivel PARAVERBAL del ADL usando: (a) TR y (b) lo escrito en “Observaciones” (pausas, dudas, correcciones, titubeos, etc. si están consignadas).
+- Mantén el lenguaje profesional y clínico. No hagas “diagnóstico médico definitivo”.
+- Finaliza con un apartado **DISCLAIMER** (en negrita) y luego, en una nueva línea, escribe exactamente: FIN DEL INFORME.
+
+ESQUEMA OBLIGATORIO (títulos exactos):
+**I. Encuadre e Implementación**
+**II. Mecanismos instrumentales**
+**III. Manejo y Tipos de Ansiedad**
+**IV. Secuencia de Reinos y Fantasías de Muerte**
+**V. Análisis Estructural (Ello, Yo y Superyó)**
+**VI. Perspectiva ADL (Algoritmo David Liberman)**
+**VII. Hipótesis Diagnóstica y Pronóstico**
+**VIII. Cuestiones relevantes**
+
+PAUTAS CLÍNICAS ESPECÍFICAS:
+- En III (TR): analiza shocks por acortamiento (<10s) y alargamiento (>30s), y describe la cualidad probable de la ansiedad (persecutoria/depresiva) según el contenido.
+- En IV: analiza el orden esperable de reinos (positivas: Animal > Vegetal > Objeto; negativas: inverso) y qué implica si se altera.
+- En VI (ADL): incluye Niveles (paraverbal, actos del habla, relatos/escenas), Deseos (erogeneidades) y Defensas + estado (exitosa/fracasada/inhibida/sublimatoria), apoyándote en el material verbal del protocolo.
+- En VII: plantea hipótesis (compatibilidad) entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES. Si concluyes mayor compatibilidad con “neurótica”, añade si es más compatible con una organización obsesiva o hist��rica y por qué (indicadores).
+- En VIII: genera ENTRE 10 y 25 cuestiones relevantes PERSONALIZADAS (no genéricas) como preguntas clínicas profundas derivadas del material. Formato obligatorio:
+  1) Pregunta…
+  (Párrafo de respuesta)
+  2) Pregunta…
+  (Párrafo de respuesta)
+  etc.
+
+${miniTabla}
+
+DATOS Y CONTEXTO:
+${resumen}
+
+**DISCLAIMER**
+Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional
+FIN DEL INFORME`;
   }
 
   function processText(rawText) {
     let processed = String(rawText || "");
-    const startIndex = processed.search(/I\.\s+Encuadre e Implementación/i);
+
+    // Si el modelo incluyera cosas antes de la mini tabla, recortamos a ella.
+    const startIndex = processed.search(/MINI\s+TABLA\s+RESUMEN/i);
     if (startIndex > 0) processed = processed.substring(startIndex);
-    processed = processed.replace(/\s*\(funcionamiento yoico\)/gi, "");
-    processed = processed.replace(/\s*\(Funcionamiento Yoico\)/g, "");
+
+    // Mantener recorte por FIN DEL INFORME si aparece
     const finIndex = processed.search(/FIN DEL INFORME/i);
     if (finIndex > -1) processed = processed.substring(0, finIndex);
-    return processed.trim();
+
+    processed = processed.trim();
+    return processed;
   }
 
   function escapeAttr(str) {
@@ -281,11 +332,12 @@ ${protocolo}`;
       .replaceAll(">", "&gt;");
   }
 
-  // INIT
+  // ===== INIT =====
   preloadACR();
   initCatexiasPrecargadasACR();
   autoResizeTextarea(resultText);
 
+  // ===== EVENTOS =====
   analizarBtn.addEventListener("click", async () => {
     const protocolo = {
       nombre: document.getElementById("nombre").value.trim(),
@@ -329,6 +381,5 @@ ${protocolo}`;
 
   guardarImprimirBtn.addEventListener("click", () => window.print());
 
-  // Si cambia el ancho, recalcular altura (wrap)
   window.addEventListener("resize", () => autoResizeTextarea(resultText));
 });
