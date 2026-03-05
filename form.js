@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus(isBusy ? "Analizando..." : "");
   }
 
-  // Autoajuste del textarea del informe (sin cambiar funcionamiento)
+  // Mantiene lo que ya funcionaba: textarea del informe se autoajusta para impresión/guardado
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
@@ -172,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
 
+    // Positivas
     positivasContainer.appendChild(createCatexiaFija(
       1, "AGAPORNI", 3,
       "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia", ""
@@ -185,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "porque estaría buena y disfrutarían comiendo", ""
     ));
 
+    // Negativas
     negativasContainer.appendChild(createCatexiaFija(
       1, "MAPACHE", 1,
       "porque huelen mal, me pueden tirar a la basura y matar", ""
@@ -207,96 +209,93 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
+  // PROMPT ajustado al "esquema real" que mostraste (1..9 + Cuestiones relevantes),
+  // y con VIII. Cuestiones relevantes al final (numerado con preguntas y respuestas).
   function buildPrompt(p) {
-    // Tabla completa con TODA la info del formulario + catexias + cambios + observaciones
-    const tableRow = (sign, idx, cat) => {
-      const extrasText =
+    const makeCatexiaBlock = (cat, idx, sign) => {
+      const extras =
         (cat.extras && cat.extras.length > 0)
-          ? cat.extras
-              .map((ex, i) => `${i + 1}) ${ex.simbolo || "-"} (TR: ${Number(ex.tr || 0)}s)`)
-              .join(" | ")
-          : "—";
+          ? cat.extras.map((ex, i) => `- Cambio ${i + 1}: ${ex.simbolo || "-"} (TR: ${Number(ex.tr || 0)}s)`).join("\n")
+          : "- Cambios: —";
 
       return [
-        `${sign}${idx + 1}`,
-        `Símbolo: ${cat.simbolo || "-"}`,
+        `${sign}${idx + 1}) Símbolo: ${cat.simbolo || "-"}`,
         `TR(s): ${Number(cat.tr || 0)}`,
         `Justificación: ${cat.justificacion || "-"}`,
         `Observaciones: ${cat.observaciones || "-"}`,
-        `Cambios: ${extrasText}`
-      ].join(" | ");
+        extras
+      ].join("\n");
     };
 
-    const posRows = p.positivas.map((c, i) => tableRow("+", i, c)).join("\n");
-    const negRows = p.negativas.map((c, i) => tableRow("-", i, c)).join("\n");
+    const pos = (p.positivas || []).map((c, i) => makeCatexiaBlock(c, i, "+")).join("\n\n");
+    const neg = (p.negativas || []).map((c, i) => makeCatexiaBlock(c, i, "-")).join("\n\n");
 
-    const resumen = [
-      `Nombre/ID: ${p.nombre || "-"}`,
-      `Edad: ${p.edad || "-"}`,
-      `Sexo: ${p.genero || "-"}`,
-      `Nivel educativo: ${p.nivel_educativo || "-"}`,
-      `Fecha: ${p.fecha || "-"}`,
-      `Modalidad: ${p.modalidad || "-"}`,
+    const header = [
+      "**INFORME DE ANÁLISIS DEL CUESTIONARIO DESIDERATIVO**",
+      `**Nombre/ID:** ${p.nombre || "-"}`,
+      `**Edad:** ${p.edad || "-"}`,
+      `**Sexo:** ${p.genero || "-"}`,
+      `**Nivel educativo:** ${p.nivel_educativo || "-"}`,
+      `**Fecha:** ${p.fecha || "-"}`,
+      `**Modalidad:** ${p.modalidad || "-"}`,
+      ""
+    ].join("\n");
+
+    const protocolo = [
+      "PROTOCOLO (material para análisis):",
       "",
-      "Información relevante:",
-      p.informacion || "-",
+      "CATÉXIAS POSITIVAS:",
+      pos || "(sin datos)",
+      "",
+      "CATÉXIAS NEGATIVAS:",
+      neg || "(sin datos)",
       "",
       "Asociaciones espontáneas:",
       p.asociaciones || "-",
       "",
       "Recuerdo positivo:",
-      p.recuerdo || "-"
+      p.recuerdo || "-",
+      "",
+      "Información contextual relevante:",
+      p.informacion || "-"
     ].join("\n");
 
-    const miniTabla = [
-      "MINI TABLA RESUMEN (con clasificación de reinos a inferir por el analista):",
-      "",
-      "CATÉXIAS POSITIVAS (+):",
-      posRows || "(sin datos)",
-      "",
-      "CATÉXIAS NEGATIVAS (-):",
-      negRows || "(sin datos)"
-    ].join("\n");
-
-    // Instrucciones: esquema fijo, párrafos, ADL completo, reinos, VIII preguntas y respuestas.
-    return `Redacta un INFORME CLÍNICO INTEGRAL del Cuestionario Desiderativo siguiendo ESTRICTAMENTE el esquema I–VIII que se indica abajo. Debes CONECTAR y ARTICULAR: (1) los datos del evaluado, (2) la información relevante, (3) las catexias positivas/negativas, (4) los TR, (5) las justificaciones, (6) las observaciones y (7) los cambios (si los hay). No inventes datos no presentes. Cuando infieras algo, indícalo como inferencia clínica.
+    return `${header}
+Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar de forma explícita los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
 
 FORMATO OBLIGATORIO:
-- Empieza DIRECTAMENTE con **MINI TABLA RESUMEN** (en texto plano).
-- Luego escribe los apartados **I** a **VIII** en este orden.
-- Cada apartado debe llevar su título EXACTO en **negrita**.
-- Dentro de cada apartado redacta en PÁRRAFOS separados (no listas largas).
-- Debes clasificar tú mismo el REINO de cada símbolo (Animal/Vegetal/Objeto u “Otro/Indeterminado”) y usarlo en los apartados donde corresponda.
-- Interpreta el nivel PARAVERBAL del ADL usando: (a) TR y (b) lo escrito en “Observaciones” (pausas, dudas, correcciones, titubeos, etc. si están consignadas).
-- Mantén el lenguaje profesional y clínico. No hagas “diagnóstico médico definitivo”.
-- Finaliza con un apartado **DISCLAIMER** (en negrita) y luego, en una nueva línea, escribe exactamente: FIN DEL INFORME.
+- Mantén exactamente los títulos y numeración que se indican en el ESQUEMA (1 a 9) con títulos en **negrita**.
+- Redacta con PÁRRAFOS (no listas largas).
+- Incluye ejemplos textuales concretos del protocolo (símbolos, frases de justificación, TR) para sostener cada afirmación.
+- Debes CLASIFICAR el REINO de cada símbolo (Animal / Vegetal / Objeto / Otro/Indeterminado) sin pedir información adicional.
+- En “ANSIEDAD”: analiza shocks por acortamiento (<10s) y alargamiento (>30s) y su sentido defensivo.
+- En “PERSPECTIVA ADL”: debe ser completa e incluir:
+  (a) erotismos por catexia (LI, O1, O2, A1, A2, FU, FG),
+  (b) registro del lenguaje (narrativo/descriptivo/argumentativo/modal; uso de pronombres, “me”, “pueden”, etc.),
+  (c) defensas según ADL y eficacia,
+  (d) trayectoria pulsional,
+  (e) articulación con Yo/Superyó y posición frente al Otro,
+  (f) síntesis ADL.
+  Para el nivel paraverbal: usa TR y lo consignado en “Observaciones”.
+- En “HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO”: formula compatibilidad entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES. Si predomina la compatibilidad neurótica, indica si es más compatible con organización obsesiva o histérica (indicadores).
+- Al final añade “CUESTIONES RELEVANTES:” y genera ENTRE 10 y 25 preguntas personalizadas, numeradas, cada una seguida por un párrafo de respuesta.
 
-ESQUEMA OBLIGATORIO (títulos exactos):
-**I. Encuadre e Implementación**
-**II. Mecanismos instrumentales**
-**III. Manejo y Tipos de Ansiedad**
-**IV. Secuencia de Reinos y Fantasías de Muerte**
-**V. Análisis Estructural (Ello, Yo y Superyó)**
-**VI. Perspectiva ADL (Algoritmo David Liberman)**
-**VII. Hipótesis Diagnóstica y Pronóstico**
-**VIII. Cuestiones relevantes**
+ESQUEMA (exacto, con títulos en negrita):
+**1. IMPLEMENTACIÓN Y ENCUADRE**
+**2. MECANISMOS INSTRUMENTALES**
+**3. ANSIEDAD**
+**4. REINOS Y FANTASÍAS DE MUERTE**
+**5. ANÁLISIS ESTRUCTURAL: ELLO - YO – SUPERYÓ**
+**6. POSICIÓN RESPECTO DEL OTRO**
+**7. DEFENSAS Y RECURSOS**
+**8. PERSPECTIVA ADL (Algoritmo David Liberman)**
+**9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO**
 
-PAUTAS CLÍNICAS ESPECÍFICAS:
-- En III (TR): analiza shocks por acortamiento (<10s) y alargamiento (>30s), y describe la cualidad probable de la ansiedad (persecutoria/depresiva) según el contenido.
-- En IV: analiza el orden esperable de reinos (positivas: Animal > Vegetal > Objeto; negativas: inverso) y qué implica si se altera.
-- En VI (ADL): incluye Niveles (paraverbal, actos del habla, relatos/escenas), Deseos (erogeneidades) y Defensas + estado (exitosa/fracasada/inhibida/sublimatoria), apoyándote en el material verbal del protocolo.
-- En VII: plantea hipótesis (compatibilidad) entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES. Si concluyes mayor compatibilidad con “neurótica”, añade si es más compatible con una organización obsesiva o hist��rica y por qué (indicadores).
-- En VIII: genera ENTRE 10 y 25 cuestiones relevantes PERSONALIZADAS (no genéricas) como preguntas clínicas profundas derivadas del material. Formato obligatorio:
-  1) Pregunta…
-  (Párrafo de respuesta)
-  2) Pregunta…
-  (Párrafo de respuesta)
-  etc.
+CIERRE OBLIGATORIO:
+Termina con **DISCLAIMER** seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional"
+Luego, en una nueva línea, escribe exactamente: FIN DEL INFORME
 
-${miniTabla}
-
-DATOS Y CONTEXTO:
-${resumen}
+${protocolo}
 
 **DISCLAIMER**
 Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional
@@ -305,12 +304,11 @@ FIN DEL INFORME`;
 
   function processText(rawText) {
     let processed = String(rawText || "");
-
-    // Si el modelo incluyera cosas antes de la mini tabla, recortamos a ella.
-    const startIndex = processed.search(/MINI\s+TABLA\s+RESUMEN/i);
+    // Si añade texto antes del título principal, recortamos
+    const startIndex = processed.search(/\*\*INFORME DE ANÁLISIS DEL CUESTIONARIO DESIDERATIVO\*\*/i);
     if (startIndex > 0) processed = processed.substring(startIndex);
 
-    // Mantener recorte por FIN DEL INFORME si aparece
+    // No incluir FIN DEL INFORME en el textarea (como venías haciendo)
     const finIndex = processed.search(/FIN DEL INFORME/i);
     if (finIndex > -1) processed = processed.substring(0, finIndex);
 
