@@ -33,7 +33,6 @@ body{
   margin-bottom: 18px;
 }
 
-/* Centrado del bloque de título */
 .header-title{
   display:flex;
   align-items:center;
@@ -42,13 +41,12 @@ body{
 }
 
 .app-icon{
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0,0,0,.35);
 }
 
-/* Tipografía distinta y atractiva para el título */
 .app-title{
   margin:0;
   font-family: "Fraunces", ui-serif, Georgia, "Times New Roman", Times, serif;
@@ -203,7 +201,6 @@ input:focus, select:focus, textarea:focus{
   margin-bottom: 10px;
 }
 
-/* El autoajuste lo hace form.js, aquí evitamos scroll interno */
 .result-textarea{
   width: 100%;
   min-height: 240px;
@@ -211,7 +208,8 @@ input:focus, select:focus, textarea:focus{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
   line-height: 1.45;
   white-space: pre-wrap;
-  overflow: hidden;
+  overflow: hidden; /* sin barras */
+  resize: none;     /* sin “agarre” manual */
 }
 
 /* Catexias */
@@ -322,4 +320,5 @@ input:focus, select:focus, textarea:focus{
   .result-textarea{ overflow: visible; }
 }
 
+/* Footer oculto */
 .app-footer{ display:none; }
