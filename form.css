@@ -26,6 +26,7 @@ body{
   padding: 22px 18px 28px;
 }
 
+/* ===== Header ===== */
 .app-header{
   padding: 14px 10px 14px;
   border-bottom: 1px solid rgba(255,255,255,.08);
@@ -59,6 +60,7 @@ h1{
   font-weight: 500;
 }
 
+/* ===== Sections / layout ===== */
 .form-section{
   background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
   border: 1px solid rgba(255,255,255,.08);
@@ -113,7 +115,7 @@ input:focus, select:focus, textarea:focus{
   box-shadow: 0 0 0 4px rgba(37,99,235,.18);
 }
 
-/* 2 columnas catexias: Negativas izquierda, Positivas derecha */
+/* ===== Two column catexias: Positivas left, Negativas right ===== */
 .catexias-two-col{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -121,6 +123,7 @@ input:focus, select:focus, textarea:focus{
   align-items: start;
 }
 
+/* ===== Buttons ===== */
 .form-actions{
   display:flex;
   gap: 10px;
@@ -160,6 +163,7 @@ input:focus, select:focus, textarea:focus{
 
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
+/* ===== Status ===== */
 .status-container{
   min-height: 34px;
   display:flex;
@@ -176,8 +180,10 @@ input:focus, select:focus, textarea:focus{
   border-top-color: var(--primary);
   animation: spin .8s linear infinite;
 }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ===== Result ===== */
 .result-section{
   background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
   border: 1px solid rgba(16,185,129,.45);
@@ -205,7 +211,7 @@ input:focus, select:focus, textarea:focus{
   overflow: hidden; /* clave para impresión */
 }
 
-/* ====== Catexias ====== */
+/* ===== Catexias ===== */
 #positivas-container, #negativas-container{
   display:flex;
   flex-direction:column;
@@ -290,7 +296,7 @@ input:focus, select:focus, textarea:focus{
   padding: 0;
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 900px){
   .catexias-two-col{ grid-template-columns: 1fr; }
 }
@@ -303,7 +309,7 @@ input:focus, select:focus, textarea:focus{
   .btn{ justify-content: center; }
 }
 
-/* Print */
+/* ===== Print ===== */
 @media print{
   body{ background: white; color: black; }
   .app-header, .form-actions, .status-container{ display:none !important; }
@@ -313,5 +319,5 @@ input:focus, select:focus, textarea:focus{
   .result-textarea{ overflow: visible; }
 }
 
-/* Footer: no debe aparecer nada */
+/* Footer (oculto) */
 .app-footer{ display:none; }
