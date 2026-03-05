@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="form.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2c3e50">
-
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <!-- Fuente más profesional -->
@@ -28,6 +27,7 @@
 
     <main>
       <form id="desiderativo-form">
+
         <!-- DATOS DEL EVALUADO -->
         <section class="form-section">
           <h2>Datos del Evaluado</h2>
@@ -92,7 +92,7 @@
           </div>
         </section>
 
-        <!-- CATEXIAS EN DOS COLUMNAS (negativas izquierda, positivas derecha) -->
+        <!-- CATEXIAS EN DOS COLUMNAS (Negativas izquierda, Positivas derecha) -->
         <div class="catexias-two-col">
           <section class="form-section">
             <h2>🔴 Catexias Negativas</h2>
@@ -139,19 +139,19 @@
       <section id="result-section" class="result-section" style="display: none;">
         <div class="result-header">
           <h2>📊 Informe de Análisis</h2>
+          <!-- Se mantiene el menú/botón de imprimir/descargar -->
           <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
         </div>
-        <!-- Ajuste de altura automático + texto con separadores viene de form.js -->
         <textarea id="result-text" class="result-textarea" readonly></textarea>
       </section>
     </main>
 
-    <footer class="app-footer"></footer>
+    <!-- Footer vacío (no debe aparecer nada) -->
+    <footer class="app-footer" aria-hidden="true"></footer>
   </div>
 
   <script type="module" src="form.js"></script>
   <script>
-    // Registrar Service Worker para PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
