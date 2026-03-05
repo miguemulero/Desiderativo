@@ -21,16 +21,22 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus(isBusy ? "Analizando..." : "");
   }
 
-  // Mantiene lo que ya funcionaba: textarea del informe se autoajusta para impresión/guardado
+  // ✅ Autoajuste real del textarea del informe: sin scroll, siempre al alto del contenido
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
-    textarea.style.height = (textarea.scrollHeight + 6) + "px";
+    // Forzar reflow para asegurar cálculo correcto en algunos navegadores
+    // eslint-disable-next-line no-unused-expressions
+    textarea.offsetHeight;
+    textarea.style.height = (textarea.scrollHeight + 8) + "px";
   }
 
   function showResult(reportText) {
     resultText.value = processText(reportText);
+    // Importante: hacerlo después de setear value, y también en el siguiente frame
     autoResizeTextarea(resultText);
+    requestAnimationFrame(() => autoResizeTextarea(resultText));
+
     resultSection.style.display = "block";
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -201,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ));
   }
 
-  // ====== PROMPT / VALIDACIÓN / FORMATEO ======
   function validateForm(protocolo) {
     if (!protocolo.nombre) return "Completa el campo Nombre/ID del protocolo.";
     if (!protocolo.edad || protocolo.edad < 4 || protocolo.edad > 100) return "La edad debe estar entre 4 y 100 años.";
@@ -209,8 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  // PROMPT ajustado al "esquema real" que mostraste (1..9 + Cuestiones relevantes),
-  // y con VIII. Cuestiones relevantes al final (numerado con preguntas y respuestas).
   function buildPrompt(p) {
     const makeCatexiaBlock = (cat, idx, sign) => {
       const extras =
@@ -261,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ].join("\n");
 
     return `${header}
-Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar de forma explícita los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
+Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar explícitamente los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
 
 FORMATO OBLIGATORIO:
 - Mantén exactamente los títulos y numeración que se indican en el ESQUEMA (1 a 9) con títulos en **negrita**.
@@ -277,7 +280,9 @@ FORMATO OBLIGATORIO:
   (e) articulación con Yo/Superyó y posición frente al Otro,
   (f) síntesis ADL.
   Para el nivel paraverbal: usa TR y lo consignado en “Observaciones”.
-- En “HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO”: formula compatibilidad entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES. Si predomina la compatibilidad neurótica, indica si es más compatible con organización obsesiva o histérica (indicadores).
+- En “HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO”: formula compatibilidad entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES.
+  CRUCIAL: basa la hipótesis estructural FUNDAMENTALMENTE en los MECANISMOS DE DEFENSA PREDOMINANTES y su nivel (más neuróticos vs más primitivos), y luego apóyala con el resto de indicadores.
+  Si predomina la compatibilidad neurótica, indica si es más compatible con organización obsesiva o histérica (indicadores).
 - Al final añade “CUESTIONES RELEVANTES:” y genera ENTRE 10 y 25 preguntas personalizadas, numeradas, cada una seguida por un párrafo de respuesta.
 
 ESQUEMA (exacto, con títulos en negrita):
@@ -304,11 +309,9 @@ FIN DEL INFORME`;
 
   function processText(rawText) {
     let processed = String(rawText || "");
-    // Si añade texto antes del título principal, recortamos
     const startIndex = processed.search(/\*\*INFORME DE ANÁLISIS DEL CUESTIONARIO DESIDERATIVO\*\*/i);
     if (startIndex > 0) processed = processed.substring(startIndex);
 
-    // No incluir FIN DEL INFORME en el textarea (como venías haciendo)
     const finIndex = processed.search(/FIN DEL INFORME/i);
     if (finIndex > -1) processed = processed.substring(0, finIndex);
 
@@ -330,12 +333,15 @@ FIN DEL INFORME`;
       .replaceAll(">", "&gt;");
   }
 
-  // ===== INIT =====
+  // INIT
   preloadACR();
   initCatexiasPrecargadasACR();
+
+  // Asegura que el textarea del informe se calcule bien aunque esté oculto inicialmente
+  // (al mostrarse el result-section, el requestAnimationFrame en showResult hace el ajuste definitivo).
   autoResizeTextarea(resultText);
 
-  // ===== EVENTOS =====
+  // EVENTOS
   analizarBtn.addEventListener("click", async () => {
     const protocolo = {
       nombre: document.getElementById("nombre").value.trim(),
@@ -379,5 +385,6 @@ FIN DEL INFORME`;
 
   guardarImprimirBtn.addEventListener("click", () => window.print());
 
+  // Recalcular si cambia el ancho (el wrap cambia el alto)
   window.addEventListener("resize", () => autoResizeTextarea(resultText));
 });
