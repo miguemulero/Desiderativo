@@ -19,8 +19,9 @@
   <div class="container">
     <header class="app-header">
       <div class="header-title">
-        <img src="icon-192.png" alt="Icono" class="app-icon">
-        <h1>Análisis Cuestionario Desiderativo</h1>
+        <!-- CAMBIO: usar icon.png (no texto "icono") -->
+        <img src="icon.png" alt="Icono" class="app-icon">
+        <h1>📋 Análisis Cuestionario Desiderativo</h1>
       </div>
       <p class="subtitle">Análisis clínico integral</p>
     </header>
@@ -92,18 +93,18 @@
           </div>
         </section>
 
-        <!-- CATEXIAS EN DOS COLUMNAS (Negativas izquierda, Positivas derecha) -->
+        <!-- CAMBIO: CATEXIAS EN DOS COLUMNAS (Positivas izquierda, Negativas derecha) -->
         <div class="catexias-two-col">
-          <section class="form-section">
-            <h2>🔴 Catexias Negativas</h2>
-            <p class="section-description">¿Qué NO te gustaría ser?</p>
-            <div id="negativas-container"></div>
-          </section>
-
           <section class="form-section">
             <h2>🟢 Catexias Positivas</h2>
             <p class="section-description">¿Qué te gustaría ser si no pudieras ser persona?</p>
             <div id="positivas-container"></div>
+          </section>
+
+          <section class="form-section">
+            <h2>🔴 Catexias Negativas</h2>
+            <p class="section-description">¿Qué NO te gustaría ser?</p>
+            <div id="negativas-container"></div>
           </section>
         </div>
 
@@ -139,14 +140,12 @@
       <section id="result-section" class="result-section" style="display: none;">
         <div class="result-header">
           <h2>📊 Informe de Análisis</h2>
-          <!-- Se mantiene el menú/botón de imprimir/descargar -->
           <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
         </div>
         <textarea id="result-text" class="result-textarea" readonly></textarea>
       </section>
     </main>
 
-    <!-- Footer vacío (no debe aparecer nada) -->
     <footer class="app-footer" aria-hidden="true"></footer>
   </div>
 
