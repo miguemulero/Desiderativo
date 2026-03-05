@@ -21,11 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus(isBusy ? "Analizando..." : "");
   }
 
-  // ✅ Autoajuste real del textarea del informe: sin scroll, siempre al alto del contenido
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
-    // Forzar reflow para asegurar cálculo correcto en algunos navegadores
+    // Forzar reflow para cálculo estable de scrollHeight
     // eslint-disable-next-line no-unused-expressions
     textarea.offsetHeight;
     textarea.style.height = (textarea.scrollHeight + 8) + "px";
@@ -33,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showResult(reportText) {
     resultText.value = processText(reportText);
-    // Importante: hacerlo después de setear value, y también en el siguiente frame
     autoResizeTextarea(resultText);
     requestAnimationFrame(() => autoResizeTextarea(resultText));
 
@@ -283,7 +281,13 @@ FORMATO OBLIGATORIO:
 - En “HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO”: formula compatibilidad entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES.
   CRUCIAL: basa la hipótesis estructural FUNDAMENTALMENTE en los MECANISMOS DE DEFENSA PREDOMINANTES y su nivel (más neuróticos vs más primitivos), y luego apóyala con el resto de indicadores.
   Si predomina la compatibilidad neurótica, indica si es más compatible con organización obsesiva o histérica (indicadores).
-- Al final añade “CUESTIONES RELEVANTES:” y genera ENTRE 10 y 25 preguntas personalizadas, numeradas, cada una seguida por un párrafo de respuesta.
+
+CUESTIONES RELEVANTES (MUY IMPORTANTE):
+- NO son preguntas para hacerle al paciente.
+- Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿Cómo se articula…?”, “¿Qué revela…?”).
+- Deben estar RESPONDIDAS con un párrafo inmediatamente después.
+- Deben sostenerse en MARCOS TEÓRICOS/BIBLIOGRAFÍA CLÍNICA (p.ej., Freud, Klein, mecanismos de defensa, técnica desiderativa, ADL), SIN necesidad de listar bibliografía ni poner referencias formales.
+- Genera ENTRE 10 y 25, numeradas.
 
 ESQUEMA (exacto, con títulos en negrita):
 **1. IMPLEMENTACIÓN Y ENCUADRE**
@@ -336,9 +340,6 @@ FIN DEL INFORME`;
   // INIT
   preloadACR();
   initCatexiasPrecargadasACR();
-
-  // Asegura que el textarea del informe se calcule bien aunque esté oculto inicialmente
-  // (al mostrarse el result-section, el requestAnimationFrame en showResult hace el ajuste definitivo).
   autoResizeTextarea(resultText);
 
   // EVENTOS
@@ -385,6 +386,5 @@ FIN DEL INFORME`;
 
   guardarImprimirBtn.addEventListener("click", () => window.print());
 
-  // Recalcular si cambia el ancho (el wrap cambia el alto)
   window.addEventListener("resize", () => autoResizeTextarea(resultText));
 });
