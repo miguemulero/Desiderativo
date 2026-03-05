@@ -10,7 +10,6 @@
   <meta name="theme-color" content="#2c3e50">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- Fuente más profesional (estética, sin afectar funcionamiento) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,19 +18,17 @@
   <div class="container">
     <header class="app-header">
       <div class="header-title">
-        <!-- Icono real: icon.png -->
         <img src="icon.png" alt="Icono" class="app-icon">
-        <h1>📋 Análisis Cuestionario Desiderativo</h1>
+        <!-- CAMBIO: quitar el emoji "📋" -->
+        <h1>Análisis Cuestionario Desiderativo</h1>
       </div>
 
-      <!-- Texto ajustado -->
       <p class="subtitle">Análisis clínico integral</p>
     </header>
 
     <main>
       <form id="desiderativo-form">
 
-        <!-- DATOS DEL EVALUADO -->
         <section class="form-section">
           <h2>Datos del Evaluado</h2>
 
@@ -95,7 +92,6 @@
           </div>
         </section>
 
-        <!-- CATEXIAS (2 columnas): Positivas izquierda, Negativas derecha -->
         <div class="catexias-two-col">
           <section class="form-section">
             <h2>🟢 Catexias Positivas</h2>
@@ -110,7 +106,6 @@
           </section>
         </div>
 
-        <!-- ASOCIACIONES Y RECUERDO -->
         <section class="form-section">
           <h2>Asociaciones y Recuerdo</h2>
 
@@ -125,38 +120,31 @@
           </div>
         </section>
 
-        <!-- BOTONES DE ACCIÓN (sin cambios de funcionamiento) -->
         <section class="form-actions">
           <button type="button" id="limpiar" class="btn btn-secondary">🗑️ Limpiar formulario</button>
           <button type="button" id="analizar" class="btn btn-primary">🤖 Analizar protocolo</button>
         </section>
 
-        <!-- STATUS -->
         <div class="status-container">
           <div id="spinner" class="spinner" hidden></div>
           <p id="statusText" class="status-text"></p>
         </div>
       </form>
 
-      <!-- RESULTADO -->
       <section id="result-section" class="result-section" style="display: none;">
         <div class="result-header">
           <h2>📊 Informe de Análisis</h2>
-          <!-- Se mantiene -->
           <button type="button" id="guardar-imprimir" class="btn btn-success">💾 Guardar / Imprimir</button>
         </div>
         <textarea id="result-text" class="result-textarea" readonly></textarea>
       </section>
     </main>
 
-    <!-- No mostrar nada abajo -->
     <footer class="app-footer" aria-hidden="true"></footer>
   </div>
 
-  <!-- Mantener como módulo (tu form.js actual usa imports) -->
   <script type="module" src="form.js"></script>
   <script>
-    // Registrar Service Worker para PWA (mantener funcionamiento)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
