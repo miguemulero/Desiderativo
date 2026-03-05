@@ -26,7 +26,7 @@ body{
   padding: 22px 18px 28px;
 }
 
-/* ===== Header ===== */
+/* Header */
 .app-header{
   padding: 14px 10px 14px;
   border-bottom: 1px solid rgba(255,255,255,.08);
@@ -39,9 +39,10 @@ body{
   gap: 12px;
 }
 
+/* icon.png en tamaño similar al texto del título */
 .app-icon{
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   box-shadow: 0 10px 20px rgba(0,0,0,.35);
 }
@@ -60,7 +61,7 @@ h1{
   font-weight: 500;
 }
 
-/* ===== Sections / layout ===== */
+/* Sections */
 .form-section{
   background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
   border: 1px solid rgba(255,255,255,.08);
@@ -115,7 +116,7 @@ input:focus, select:focus, textarea:focus{
   box-shadow: 0 0 0 4px rgba(37,99,235,.18);
 }
 
-/* ===== Two column catexias: Positivas left, Negativas right ===== */
+/* 2 columnas: positivas izquierda, negativas derecha */
 .catexias-two-col{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -123,7 +124,6 @@ input:focus, select:focus, textarea:focus{
   align-items: start;
 }
 
-/* ===== Buttons ===== */
 .form-actions{
   display:flex;
   gap: 10px;
@@ -148,9 +148,7 @@ input:focus, select:focus, textarea:focus{
   border: 0;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
 }
-.btn-secondary{
-  background: rgba(255,255,255,.04);
-}
+.btn-secondary{ background: rgba(255,255,255,.04); }
 .btn-success{
   border: 0;
   background: linear-gradient(135deg, #16a34a 0%, #10b981 100%);
@@ -160,10 +158,9 @@ input:focus, select:focus, textarea:focus{
   background: var(--danger);
   color: white;
 }
-
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
-/* ===== Status ===== */
+/* Status */
 .status-container{
   min-height: 34px;
   display:flex;
@@ -180,10 +177,9 @@ input:focus, select:focus, textarea:focus{
   border-top-color: var(--primary);
   animation: spin .8s linear infinite;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ===== Result ===== */
+/* Resultado */
 .result-section{
   background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
   border: 1px solid rgba(16,185,129,.45);
@@ -203,15 +199,15 @@ input:focus, select:focus, textarea:focus{
 
 .result-textarea{
   width: 100%;
-  min-height: 240px; /* crecerá por JS */
+  min-height: 240px;
   height: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
   line-height: 1.45;
   white-space: pre-wrap;
-  overflow: hidden; /* clave para impresión */
+  overflow: hidden;
 }
 
-/* ===== Catexias ===== */
+/* Catexias */
 #positivas-container, #negativas-container{
   display:flex;
   flex-direction:column;
@@ -296,7 +292,7 @@ input:focus, select:focus, textarea:focus{
   padding: 0;
 }
 
-/* ===== Responsive ===== */
+/* Responsive */
 @media (max-width: 900px){
   .catexias-two-col{ grid-template-columns: 1fr; }
 }
@@ -309,7 +305,7 @@ input:focus, select:focus, textarea:focus{
   .btn{ justify-content: center; }
 }
 
-/* ===== Print ===== */
+/* Print */
 @media print{
   body{ background: white; color: black; }
   .app-header, .form-actions, .status-container{ display:none !important; }
@@ -319,5 +315,5 @@ input:focus, select:focus, textarea:focus{
   .result-textarea{ overflow: visible; }
 }
 
-/* Footer (oculto) */
+/* Footer oculto */
 .app-footer{ display:none; }
