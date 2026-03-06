@@ -1,9 +1,4 @@
-import {
-  WORKER_URL,
-  GEMINI_MODEL,
-  WORKER_TOKEN_STORAGE_KEY,
-  BIBLIOGRAFIA_FILES
-} from "./app-config.js";
+import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const formEl = document.getElementById("desiderativo-form");
@@ -63,22 +58,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = ensureAccessToken();
     if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
 
-    // Si no hay bibliografía, no tiene sentido exigir “solo bibliografía”.
-    if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
-      throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
-    }
-
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Access-Token": token
       },
-      body: JSON.stringify({
-        model: GEMINI_MODEL,
-        prompt,
-        fileIds: BIBLIOGRAFIA_FILES
-      })
+      body: JSON.stringify({ model: GEMINI_MODEL, prompt })
     });
 
     const data = await res.json().catch(async () => {
@@ -275,16 +261,8 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
-    const disclaimerText =
-      "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico clínico definitivo de forma aislada y deben ser supervisados por un profesional";
-
     return `${header}
-REGLA CRÍTICA (FUENTES):
-- Debes basarte EXCLUSIVAMENTE en la bibliografía adjunta en los archivos (fileData) proporcionados junto con este prompt.
-- NO uses conocimiento general externo ni otras fuentes implícitas.
-- Si una afirmación/interpretación no puede sustentarse en la bibliografía adjunta, escribe: "No consta en la bibliografía aportada" y no la desarrolles.
-
-Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar explícitamente los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas (y recuerda: solo desde bibliografía adjunta + protocolo).
+Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar explícitamente los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
 
 FORMATO OBLIGATORIO:
 - Mantén exactamente los títulos y numeración que se indican en el ESQUEMA (1 a 9) con títulos en **negrita**.
@@ -308,7 +286,7 @@ CUESTIONES RELEVANTES (MUY IMPORTANTE):
 - NO son preguntas para hacerle al paciente.
 - Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿Cómo se articula…?”, “¿Qué revela…?”).
 - Deben estar RESPONDIDAS con un párrafo inmediatamente después.
-- Deben sostenerse EXCLUSIVAMENTE en la bibliografía adjunta.
+- Deben sostenerse en MARCOS TEÓRICOS/BIBLIOGRAFÍA CLÍNICA (p.ej., Freud, Klein, mecanismos de defensa, técnica desiderativa, ADL), SIN necesidad de listar bibliografía ni poner referencias formales.
 - Genera ENTRE 10 y 25, numeradas.
 
 ESQUEMA (exacto, con títulos en negrita):
@@ -323,13 +301,13 @@ ESQUEMA (exacto, con títulos en negrita):
 **9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO**
 
 CIERRE OBLIGATORIO:
-Termina con **DISCLAIMER** seguido de: "${disclaimerText}"
+Termina con **DISCLAIMER** seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional"
 Luego, en una nueva línea, escribe exactamente: FIN DEL INFORME
 
 ${protocolo}
 
 **DISCLAIMER**
-${disclaimerText}
+Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional
 FIN DEL INFORME`;
   }
 
