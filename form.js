@@ -261,7 +261,18 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
+    const disclaimerText = "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico clínico definitivo de forma aislada y deben ser supervisados por un profesional";
+
     return `${header}
+OBJETIVO Y LÍMITES DE FUENTES (OBLIGATORIO):
+- La interpretación y el análisis deben ceñirse EXCLUSIVAMENTE a la bibliografía aportada y señalada por el usuario (en la sección “BIBLIOGRAFÍA APORTADA”).
+- Si algún concepto NO está cubierto por esa bibliografía, NO lo inventes: indica “No consta en la bibliografía aportada” y continúa con lo que sí consta.
+- NO uses conocimiento general externo, “sentido común clínico”, ni otras fuentes implícitas. No alucines.
+- NO inventes datos del protocolo. Si haces inferencias, decláralas como inferencias y que derivan únicamente del protocolo y de la bibliografía aportada.
+
+BIBLIOGRAFÍA APORTADA:
+(El usuario la aportará. Si no hay bibliografía en esta sección, debes indicar que no es posible realizar el análisis solicitado sin bibliografía aportada.)
+
 Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar explícitamente los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
 
 FORMATO OBLIGATORIO:
@@ -286,7 +297,7 @@ CUESTIONES RELEVANTES (MUY IMPORTANTE):
 - NO son preguntas para hacerle al paciente.
 - Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿Cómo se articula…?”, “¿Qué revela…?”).
 - Deben estar RESPONDIDAS con un párrafo inmediatamente después.
-- Deben sostenerse en MARCOS TEÓRICOS/BIBLIOGRAFÍA CLÍNICA (p.ej., Freud, Klein, mecanismos de defensa, técnica desiderativa, ADL), SIN necesidad de listar bibliografía ni poner referencias formales.
+- Deben sostenerse EXCLUSIVAMENTE en la bibliografía aportada (sin sumar fuentes externas).
 - Genera ENTRE 10 y 25, numeradas.
 
 ESQUEMA (exacto, con títulos en negrita):
@@ -301,13 +312,13 @@ ESQUEMA (exacto, con títulos en negrita):
 **9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO**
 
 CIERRE OBLIGATORIO:
-Termina con **DISCLAIMER** seguido de: "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional"
+Termina con **DISCLAIMER** seguido de: "${disclaimerText}"
 Luego, en una nueva línea, escribe exactamente: FIN DEL INFORME
 
 ${protocolo}
 
 **DISCLAIMER**
-Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico médico definitivo de forma aislada y deben ser supervisados por un profesional
+${disclaimerText}
 FIN DEL INFORME`;
   }
 
