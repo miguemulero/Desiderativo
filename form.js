@@ -187,80 +187,85 @@ document.addEventListener("DOMContentLoaded", () => {
       p.informacion || "-"
     ].join("\n");
 
+    const disclaimerText =
+      "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico clínico definitivo de forma aislada y deben ser supervisados por un profesional";
+
     return `INSTRUCCIONES INTEGRALES PARA ANÁLISIS DEL CUESTIONARIO DESIDERATIVO
 
-Usa EXCLUSIVAMENTE las fuentes del Cuestionario/Test Desiderativo cargadas (Ocampo, Arzeno, Grassano, Celener, Maladesky, manuales y artículos afines).
+REGLA CRÍTICA (FUENTES):
+- Basa el análisis EXCLUSIVAMENTE en la bibliografía adjunta (archivos) + el protocolo.
+- NO uses conocimiento general externo ni otras fuentes implícitas.
+- NO inventes teoría, autores, nomenclaturas ni citas.
+- Si una afirmación no puede sostenerse en bibliografía adjunta, escribe literalmente: "No consta en la bibliografía aportada" y no la desarrolles.
 
-NO inventes teoría ni nomenclaturas nuevas. Si algo no se fundamenta en las fuentes, indícalo como hipótesis clínica y márcalo como tal.
+ESTILO (OBLIGATORIO):
+- El informe debe seguir el mismo estilo del ejemplo ACR aportado por el usuario: redacción clínica, explicativa, cohesionada, con subapartados en **negrita** dentro de cada sección.
+- Escribe en PÁRRAFOS. Evita listas con viñetas (“-”, “*”) en el cuerpo del informe.
+- Solo se permiten listas numeradas en el bloque final "CUESTIONES RELEVANTES:" (ver abajo).
 
-Trabaja siempre a partir del protocolo que te daré: símbolos, racionalizaciones, tiempos de reacción, implementaciones, conducta observada.
+TRABAJA SIEMPRE A PARTIR DEL PROTOCOLO:
+- Símbolos, racionalizaciones/justificaciones, tiempos de reacción, observaciones y cambios de símbolo si existen.
+- Conecta explícitamente cada interpretación con evidencias del protocolo (citas textuales breves + TR).
 
-Tu tarea es realizar un análisis clínico INTEGRAL del Cuestionario Desiderativo, con el MÁXIMO nivel de profundidad y rigor posible, abarcando TODAS las variables clásicas de la técnica.
+DEBES EXPLICITAR SIEMPRE (en el texto, no como viñetas):
+(1) el dato del protocolo que tomas,
+(2) el concepto teórico que aplicas (con autor/año solo si consta en bibliografía adjunta),
+(3) la inferencia clínica resultante.
 
-Explicita SIEMPRE:
-- Los datos del protocolo que tomas
-- El concepto teórico que aplicas (citando autor y fuente)
-- La inferencia clínica que extraes
+FORMATO DEL INFORME (OBLIGATORIO):
+- Empieza exactamente con el encabezado:
+**INFORME DE ANÁLISIS DEL CUESTIONARIO DESIDERATIVO**
+**Nombre/ID:** ...
+**Edad:** ...
+**Sexo:** ...
+**Nivel educativo:** ...
+**Fecha:** ...
+**Modalidad:** ...
 
-ESTRUCTURA DEL INFORME:
+- Mantén exactamente los títulos y numeración del ESQUEMA (1 a 9) con títulos en **negrita**.
 
-1. IMPLEMENTACIÓN Y ENCUADRE
-- Cómo se administró: forma estándar/guiada, aclaraciones, cambios, resistencias
-- Comprensión de consigna: "muerte como humano", función metafórica
-- Indicadores de fortaleza/debilidad yoica en implementación
+ESQUEMA (exacto):
+**1. IMPLEMENTACIÓN Y ENCUADRE**
+**2. MECANISMOS INSTRUMENTALES**
+**3. ANSIEDAD**
+**4. REINOS Y FANTASÍAS DE MUERTE**
+**5. ANÁLISIS ESTRUCTURAL: ELLO - YO – SUPERYÓ**
+**6. POSICIÓN RESPECTO DEL OTRO**
+**7. DEFENSAS Y RECURSOS**
+**8. PERSPECTIVA ADL (Algoritmo David Liberman)**
+**9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO**
 
-2. MECANISMOS INSTRUMENTALES
-- Primera disociación: capacidad de convertirse en símbolo
-- Segunda disociación: discriminación positivo/negativo
-- Identificación al símbolo: distancia vs ecuación simbólica
-- Racionalización: coherencia, idealización/peyorización, clichés
+REQUISITOS ESPECÍFICOS:
+- En ANSIEDAD: analiza shocks por acortamiento (<10s) y alargamiento (>30s) y su sentido defensivo.
+- En REINOS: clasifica el reino de cada símbolo (Animal / Vegetal / Objeto / Otro/Indeterminado) y analiza secuencias y variaciones.
+- En ADL: incluye 8.1 a 8.6 (erotismos, lenguaje, defensas, trayectoria pulsional, articulación con Yo/Superyó/Otro, síntesis).
+- En la hipótesis estructural, fundamenta PRINCIPALMENTE en defensas predominantes y su nivel.
 
-3. ANSIEDAD (análisis integral según Ocampo y otros autores)
-- Catexia por catexia: tipo e intensidad (persecutoria/depresiva)
-- Tiempos de reacción y shocks: relación con defensas
-- Curva global: clasificación tipos 1-6 de Ocampo, evolución
-- Capacidad de reconocer, tolerar, transformar y simbolizar ansiedad
+BLOQUE FINAL OBLIGATORIO:
+Tras la sección 9, agrega exactamente:
+CUESTIONES RELEVANTES:
+- Genera entre 10 y 25 ítems numerados.
+- Cada ítem debe contener:
+  1) una pregunta interpretativa (NO para el paciente),
+  2) inmediatamente debajo, su respuesta en un párrafo (sin viñetas).
+- Si no consta en bibliografía adjunta: "No consta en la bibliografía aportada".
 
-4. REINOS Y FANTASÍAS DE MUERTE
-- Secuencia de reinos: orden y variaciones (Animal-Vegetal-Objeto)
-- Significado de elecciones: fortaleza/debilidad, esquema corporal
-- Fantasías de muerte: aniquilación vs permanencia/legado/reparación
-
-5. ANÁLISIS ESTRUCTURAL: ELLO - YO - SUPERYÓ
-- Ello: pulsiones predominantes, grado de ligadura simbólica
-- Yo: fortaleza, juicio de realidad, flexibilidad, función sintetizadora
-- Superyó/Ideal del Yo: exigencias, culpa, perfeccionismo
-
-6. POSICIÓN RESPECTO DEL OTRO
-- Tipo de vínculos: cuidado, sometimiento, dominio, dependencia
-- Lugar del sujeto: útil, víctima, perseguidor, protector
-- Articulación con ansiedad y Superyó
-
-7. DEFENSAS Y RECURSOS
-- Defensas predominantes: represión, negación, proyección, etc.
-- Eficacia: momentos de tramitación vs fracaso
-- Recursos yoicos: insight, humor, simbolización, reparación
-
-8. PERSPECTIVA ADL (Algoritmo David Liberman)
-8.1. Identificación de erotismos por catexias (oral primario/secundario, anal primario/secundario, fálico-uretral, fálico-genital)
-8.2. Registro del lenguaje: narrativo, descriptivo, argumentativo, modal
-8.3. Defensas según ADL y eficacia
-8.4. Trayectoria pulsional a lo largo del protocolo
-8.5. Articulación ADL con Yo, Superyó y posición frente al Otro
-8.6. Síntesis ADL: aporte al diagnóstico y pronóstico
-
-9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO
-- Hipótesis estructural fundamentada en todos los ejes
-- Pronóstico: fortaleza yoica, flexibilidad defensiva, capacidad de simbolización
-
-Al finalizar, escribe: "FIN DEL INFORME"
+CIERRE OBLIGATORIO:
+Al final del todo, escribe exactamente:
+**DISCLAIMER**
+${disclaimerText}
+FIN DEL INFORME
 
 ═══════════════════════════════════════════════════════════
 
 PROTOCOLO A ANALIZAR:
 Nombre/ID: ${p.nombre}
 
-${protocolo}`;
+${protocolo}
+
+**DISCLAIMER**
+${disclaimerText}
+FIN DEL INFORME`;
   }
 
   function validateForm(protocolo) {
@@ -331,6 +336,10 @@ ${protocolo}`;
       throw new Error("Falta ACCESS TOKEN.");
     }
 
+    if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
+      throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
+    }
+
     const response = await fetch(WORKER_URL, {
       method: "POST",
       headers: {
@@ -356,6 +365,12 @@ ${protocolo}`;
     }
 
     const data = await response.json();
+
+    // Tu Worker actual devuelve { text }, pero por si aún tienes una versión antigua,
+    // soportamos ambos formatos:
+    if (data && typeof data.text === "string" && data.text.trim()) {
+      return data.text;
+    }
 
     if (!data.candidates || data.candidates.length === 0) {
       throw new Error("No se recibió respuesta de Gemini");
