@@ -1,5 +1,5 @@
 :root{
-  --bg:#0b1220;
+  --bg:#000000;
   --card:#0f1a2f;
   --border:#24324d;
   --text:#eaf0ff;
@@ -16,7 +16,7 @@
 body{
   margin:0;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background: radial-gradient(1200px 600px at 20% 0%, #15254a 0%, var(--bg) 55%);
+  background: var(--bg);
   color:var(--text);
 }
 
@@ -40,20 +40,25 @@ body{
   gap: 12px;
 }
 
+/* ✅ Icono más grande y con proporción 1/3 del espacio del header */
 .app-icon{
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: clamp(84px, 28vw, 140px);
+  height: clamp(84px, 28vw, 140px);
+  border-radius: 14px;
   box-shadow: 0 10px 20px rgba(0,0,0,.35);
+  flex: 0 0 33%;
+  object-fit: contain;
 }
 
+/* ✅ Bloque de textos ocupa ~2/3 */
 .app-title{
   margin:0;
   font-family: "Fraunces", ui-serif, Georgia, "Times New Roman", Times, serif;
   font-size: 26px;
   letter-spacing: .2px;
   font-weight: 700;
-  text-align:center;
+  text-align:left;
+  flex: 0 0 67%;
 }
 
 .subtitle{
@@ -61,7 +66,7 @@ body{
   color:var(--muted);
   font-size: 13px;
   font-weight: 500;
-  text-align:center;
+  text-align:left;
 }
 
 /* Sections */
@@ -112,7 +117,6 @@ input, select, textarea{
   outline: none;
 }
 
-/* Regla general (se mantiene para el resto de textareas) */
 textarea{ resize: vertical; }
 
 input:focus, select:focus, textarea:focus{
@@ -202,7 +206,6 @@ input:focus, select:focus, textarea:focus{
   margin-bottom: 10px;
 }
 
-/* === CAMBIO (clave): fuerza que este textarea NO tenga scroll NI resize manual === */
 textarea.result-textarea{
   width: 100%;
   min-height: 240px;
@@ -215,8 +218,6 @@ textarea.result-textarea{
   overflow: hidden;
   overflow-y: hidden;
   resize: none !important;
-
-  /* evita límites heredados si algún estilo externo los metió */
   max-height: none;
 }
 
@@ -316,6 +317,11 @@ textarea.result-textarea{
   .extra-response{ grid-template-columns: 1fr; }
   .form-actions{ justify-content: stretch; flex-direction: column; }
   .btn{ justify-content: center; }
+
+  /* Mantener proporción icono/texto en pantallas pequeñas */
+  .header-title{
+    justify-content: flex-start;
+  }
 }
 
 /* Print */
