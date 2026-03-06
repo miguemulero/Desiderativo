@@ -15,29 +15,97 @@ document.addEventListener("DOMContentLoaded", () => {
   const WORKER_URL = "https://desiderativo-proxy.migue-mulero.workers.dev";
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
- const BIBLIOGRAFIA_FILES = [
-  "files/sx8z883fd448",  // ANaLISIS_DE_LAS_RESPUESTAS_AL_CUESTIONAR.pdf
-  "files/7w1gyfqjkp72",  // bullying.pdf
-  "files/hrxrdmhp49hv",  // CASO JADE.pdf
-  "files/0qgcgnydvcc8",  // CASOS.pdf
-  "files/hwqelyy1l2ba",  // CD DIANA.pdf
-  "files/8ngmft44byvr",  // CD Graciela Celener.pdf
-  "files/1rsi50nq8clu",  // CD pulsiones y defensas en patologías desvalimiento.pdf
-  "files/gl7ay2skq13f",  // criterios de interpretación.pdf
-  "files/iv30eav88tni",  // Cuadro proye - Catexias positivas y negativas.pdf
-  "files/u2mmmc39z9dg",  // Cuestionario desiderativo aplicado a niños2.pdf
-  "files/iddnbkcevyww",  // Cuestionario desiderativo-Sneiderman3.pdf
-  "files/fgqxehf8xx55",  // Indicadores-Psicopatologicos - CD.pdf
-  "files/4abrxt47sqxg",  // niños latentes.pdf
-  "files/iau8g20l0mdc",  // Ocampo Arzeno - CD.pdf
-  "files/lknb4hybbw6a",  // O_questionario_desiderativo_fundamentos.pdf
-  "files/rjl1r8pux2mm",  // Preconsciente y su relación con el lenguaje.pdf
-  "files/swbkkonmnvip",  // Psicodiagnostico Clinico 93-117.pdf
-  "files/gvh0x372su95",  // Sneiderman_2011-Cuestionario.pdf
-  "files/7ce8utmwh0jq",  // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
-  "files/jsu5rk4g3gvw",  // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
-  "files/f12bscbw3ysu",  // Vinculo hostil.pdf
-];
+  const BIBLIOGRAFIA_FILES = [
+    "files/sx8z883fd448", // ANaLISIS_DE_LAS_RESPUESTAS_AL_CUESTIONAR.pdf
+    "files/7w1gyfqjkp72", // bullying.pdf
+    "files/hrxrdmhp49hv", // CASO JADE.pdf
+    "files/0qgcgnydvcc8", // CASOS.pdf
+    "files/hwqelyy1l2ba", // CD DIANA.pdf
+    "files/8ngmft44byvr", // CD Graciela Celener.pdf
+    "files/1rsi50nq8clu", // CD pulsiones y defensas en patologías desvalimiento.pdf
+    "files/gl7ay2skq13f", // criterios de interpretación.pdf
+    "files/iv30eav88tni", // Cuadro proye - Catexias positivas y negativas.pdf
+    "files/u2mmmc39z9dg", // Cuestionario desiderativo aplicado a niños2.pdf
+    "files/iddnbkcevyww", // Cuestionario desiderativo-Sneiderman3.pdf
+    "files/fgqxehf8xx55", // Indicadores-Psicopatologicos - CD.pdf
+    "files/4abrxt47sqxg", // niños latentes.pdf
+    "files/iau8g20l0mdc", // Ocampo Arzeno - CD.pdf
+    "files/lknb4hybbw6a", // O_questionario_desiderativo_fundamentos.pdf
+    "files/rjl1r8pux2mm", // Preconsciente y su relación con el lenguaje.pdf
+    "files/swbkkonmnvip", // Psicodiagnostico Clinico 93-117.pdf
+    "files/gvh0x372su95", // Sneiderman_2011-Cuestionario.pdf
+    "files/7ce8utmwh0jq", // TEORÍA, TÉCNICA Y APLICACIÓN.pdf
+    "files/jsu5rk4g3gvw", // Una contribución a la interpretación del Cuestionario Desiderativo.pdf
+    "files/f12bscbw3ysu", // Vinculo hostil.pdf
+  ];
+
+  // ==========================================
+  // INSTRUCCIONES CLÍNICAS (ESQUEMA ADL) — PARA TEST DE FORMATO
+  // ==========================================
+  const INSTRUCCIONES_ANALISIS_ADL = `
+Este es el esquema del análisis clínico integral, estructural y dinámico del Cuestionario Desiderativo, detallado según las fuentes técnicas y la integración del Algoritmo David Liberman (ADL).
+
+I. Encuadre e Implementación
+Este apartado evalúa la adecuación de la técnica a la edad y nivel educativo del sujeto.
+
+    Implementación Estándar: Para sujetos con capacidad simbólica y operatoria consolidada (generalmente a partir de los 11-12 años).
+    Forma Guiada Abreviada: Se usa si hay fallos iniciales en la primera disociación; consiste en nombrar los reinos posibles.
+    Forma Guiada Extendida: En niños menores de 10 años, se abren las categorías en subcategorías (ej. animales que vuelan o nadan) para facilitar la clasificación.
+
+II. Mecanismos Instrumentales (Funcionamiento Yoico)
+Evalúan la fortaleza del Yo para resolver la tarea planteada.
+
+    Represión Fundante y 1° Disociación Instrumental: Capacidad de aceptar el "como sí" lúdico y desidentificarse de la condición humana para reidentificarse en un símbolo.
+    2° Disociación Instrumental: Capacidad de discriminar entre los aspectos valorados (+) y los rechazados (-) sin mezclarlos.
+    Identificación Proyectiva: Capacidad de depositar aspectos del sí mismo en un símbolo verbal manteniendo la distancia Yo/no-Yo (evitando ecuaciones simbólicas o símbolos disgregados).
+    Racionalización: Justificación lógica y formal de la elección, demostrando la adecuación del pensamiento a la realidad compartida.
+
+III. Manejo y Tipos de Ansiedad
+Analiza la respuesta emocional frente a la amenaza de "muerte" simbólica.
+
+    Tiempos de Reacción (TR): Se evalúan shocks por acortamiento (<10") —defensa maníaca/evacuativa— o por alargamiento (>30") —mecanismo evitativo/bloqueo—.
+    Cualidad de la Ansiedad:
+        Persecutoria: Vivida como una agresión al Yo (culpa persecutoria).
+        Depresiva: Vivida como agresión al vínculo con los objetos (culpa por la pérdida).
+    Tipos de Distribución de la Ansiedad (del 1 al 10): Determina la plasticidad del Yo según la variación de los TR a lo largo del protocolo (ej. Tipo 1: Yo débil que se reorganiza; Tipo 2: Yo con fortaleza y plasticidad).
+
+IV. Secuencia de Reinos y Fantasías de Muerte
+
+    Secuencia de Reinos: Evalúa el instinto de conservación. Lo esperado es Animal > Vegetal > Objeto en las positivas, y el orden inverso en las negativas.
+    Fantasías de Muerte: Cómo el sujeto procesa la finitud; si logra una reparación auténtica (identificación con objetos que trascienden) o sucumbe a la parálisis/aniquilación.
+
+V. Análisis Estructural (Ello, Yo y Superyó)
+
+    Ello: Integración de pulsiones de vida y muerte; distribución de la libido (narcisista vs. objetal) y localización de puntos de fijación (oral, anal, uretral, fálico).
+    Yo: Evaluación de las funciones (realidad, síntesis, control de impulsos) y el esquema corporal proyectado.
+    Superyó: Evaluación del Ideal del Yo y la conciencia moral (¿Es maduro y realista o primitivo y exigente?).
+
+VI. Perspectiva ADL (Algoritmo David Liberman)
+Este nivel profundiza en los deseos y defensas a través del lenguaje.
+
+    Niveles de Análisis:
+        Paraverbal: Ritmo, pausas y TR.
+        Actos del Habla (Frases): Cómo se posiciona el sujeto al enunciar su deseo.
+        Relatos (Escenas): Las historias o situaciones narradas en las racionalizaciones.
+    Deseos (Erogeneidades): Determinación de la fijación predominante: LI (libido intrasomática), O1 (oral primaria), O2 (sádico-oral), A1 (sádico-anal primaria), A2 (anal secundaria), FU (fálico-uretral) o FG (fálico-genital).
+    Defensas y su Estado:
+        Defensas: Represión, desmentida, desestimación del afecto, formación reactiva, aislamiento, etc.
+        Estado de la defensa: Evaluar si es exitosa (el afecto es tramitado), fracasada (irrumpe la angustia o el síntoma), inhibida o sublimatoria.
+
+VII. Hipótesis Diagnóstica y Pronóstico
+
+    Cuadros Clínicos: Diferenciación entre Estructura Neurótica (simbolización preservada), Estructura Psicótica (ecuaciones simbólicas, fracaso de disociación) o Psicopatía (seudosímbolos, identificación proyectiva inductora).
+    Posición respecto al Otro: Tipo de vínculo fantaseado (dependiente, hostil, hostil, protector, etc.).
+    Pronóstico: Basado en la capacidad de aprendizaje durante la prueba, la riqueza de los símbolos y la plasticidad del Yo para recuperar el vínculo.
+`.trim();
+
+  const REGLAS_SALIDA_ADL_TEST = `
+MODO TEST DE FORMATO (aunque no cargue bibliografía):
+- Integra el contenido del protocolo en el esquema ADL (I a VII).
+- Tu salida DEBE incluir los 7 apartados I–VII (con esos títulos exactos) además de las secciones 1–9 pedidas abajo.
+- Si faltan datos para algún punto, escribe literalmente: "DATOS INSUFICIENTES EN PROTOCOLO".
+- No inventes datos fuera del protocolo.
+`.trim();
 
   // ==========================================
 
@@ -57,13 +125,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (nivelEl) nivelEl.value = "primario";
     if (fechaEl) fechaEl.value = "2026-01-20";
     if (modalidadEl) modalidadEl.value = "estandar";
-    if (infoEl) infoEl.value = "padres separados con custodia compartida y alto nivel de conflicto. Tiene dos hermanos mayores que él y otro mellizo.";
+    if (infoEl)
+      infoEl.value =
+        "padres separados con custodia compartida y alto nivel de conflicto. Tiene dos hermanos mayores que él y otro mellizo.";
     if (recuerdoEl) recuerdoEl.value = "navidades abriendo regalos con la familia";
 
     console.log("✓ Protocolo ACR cargado");
   }, 100);
 
-  function createCatexiaFija(num, simbolo = "", tr = 0, justificacion = "", observaciones = "") {
+  function createCatexiaFija(
+    num,
+    simbolo = "",
+    tr = 0,
+    justificacion = "",
+    observaciones = ""
+  ) {
     const div = document.createElement("div");
     div.className = "catexia-item";
     const uniqueId = `cambio-${num}-${Date.now()}`;
@@ -128,25 +204,61 @@ document.addEventListener("DOMContentLoaded", () => {
     return div;
   }
 
-  positivasContainer.appendChild(createCatexiaFija(1, "AGAPORNI", 3, "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia", ""));
-  positivasContainer.appendChild(createCatexiaFija(2, "GIRASOL", 6, "porque le doy pipas a la gente, a veces gratis, a veces no", ""));
-  positivasContainer.appendChild(createCatexiaFija(3, "CARNE", 10, "porque estaría buena y disfrutarían comiendo", ""));
+  positivasContainer.appendChild(
+    createCatexiaFija(
+      1,
+      "AGAPORNI",
+      3,
+      "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia",
+      ""
+    )
+  );
+  positivasContainer.appendChild(
+    createCatexiaFija(
+      2,
+      "GIRASOL",
+      6,
+      "porque le doy pipas a la gente, a veces gratis, a veces no",
+      ""
+    )
+  );
+  positivasContainer.appendChild(
+    createCatexiaFija(3, "CARNE", 10, "porque estaría buena y disfrutarían comiendo", "")
+  );
 
-  negativasContainer.appendChild(createCatexiaFija(1, "MAPACHE", 1, "porque huelen mal, me pueden tirar a la basura y matar", ""));
-  negativasContainer.appendChild(createCatexiaFija(2, "UN ORDENADOR", 4, "porque me usarían y cuando se acabe la batería no podría respirar", ""));
-  negativasContainer.appendChild(createCatexiaFija(3, "UNA ROSA", 10, "porque me arrancarían, me quitarían las espinas y tendría mucho dolor", ""));
+  negativasContainer.appendChild(
+    createCatexiaFija(1, "MAPACHE", 1, "porque huelen mal, me pueden tirar a la basura y matar", "")
+  );
+  negativasContainer.appendChild(
+    createCatexiaFija(
+      2,
+      "UN ORDENADOR",
+      4,
+      "porque me usarían y cuando se acabe la batería no podría respirar",
+      ""
+    )
+  );
+  negativasContainer.appendChild(
+    createCatexiaFija(
+      3,
+      "UNA ROSA",
+      10,
+      "porque me arrancarían, me quitarían las espinas y tendría mucho dolor",
+      ""
+    )
+  );
 
   function readCatexias(container) {
     const items = Array.from(container.querySelectorAll(".catexia-item"));
-    return items.map(item => {
+    return items.map((item) => {
       const simbolo = item.querySelector(".simbolo")?.value?.trim() || "";
       const tr = Number(item.querySelector(".tr")?.value || 0);
       const justificacion = item.querySelector(".justificacion")?.value?.trim() || "";
       const observaciones = item.querySelector(".observaciones")?.value?.trim() || "";
 
-      const extras = Array.from(item.querySelectorAll(".extra-response")).map(ex => ({
-        simbolo: ex.querySelector(".extra-simbolo")?.value?.trim() || "";
-        tr: Number(ex.querySelector(".extra-tr")?.value || 0)
+      const extras = Array.from(item.querySelectorAll(".extra-response")).map((ex) => ({
+        simbolo: ex.querySelector(".extra-simbolo")?.value?.trim() || "",
+        tr: Number(ex.querySelector(".extra-tr")?.value || 0),
       }));
 
       return { simbolo, tr, justificacion, observaciones, extras };
@@ -193,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
       p.recuerdo || "-",
       "",
       "Información contextual relevante:",
-      p.informacion || "-"
+      p.informacion || "-",
     ].join("\n");
 
     const disclaimerText =
@@ -209,6 +321,10 @@ Párrafo introductorio breve conectando modalidad y TR global.
 `;
 
     return `
+${INSTRUCCIONES_ANALISIS_ADL}
+
+${REGLAS_SALIDA_ADL_TEST}
+
 ${styleAnchor}
 
 REGLA CRÍTICA (FUENTES):
@@ -317,10 +433,11 @@ ${protocolo}
     let token = getAccessToken();
     if (token) return token;
 
-    token = window.prompt(
-      "Introduce el ACCESS TOKEN para usar el análisis (se guardará en este navegador):",
-      ""
-    ) || "";
+    token =
+      window.prompt(
+        "Introduce el ACCESS TOKEN para usar el análisis (se guardará en este navegador):",
+        ""
+      ) || "";
 
     token = token.trim();
     if (token) {
@@ -347,13 +464,13 @@ ${protocolo}
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Access-Token": token
+        "X-Access-Token": token,
       },
       body: JSON.stringify({
         model: "gemini-2.5-flash",
         prompt,
-        fileIds: BIBLIOGRAFIA_FILES
-      })
+        fileIds: BIBLIOGRAFIA_FILES,
+      }),
     });
 
     if (response.status === 401) {
@@ -394,7 +511,7 @@ ${protocolo}
       positivas: readCatexias(positivasContainer),
       negativas: readCatexias(negativasContainer),
       asociaciones: document.getElementById("asociaciones").value.trim(),
-      recuerdo: document.getElementById("recuerdo").value.trim()
+      recuerdo: document.getElementById("recuerdo").value.trim(),
     };
 
     const validationError = validateForm(protocolo);
@@ -423,19 +540,20 @@ ${protocolo}
         setBusy(false);
         setStatus("✅ Análisis completado correctamente");
         showResult(reportText);
-
       } catch (error) {
         console.error(`Error en intento ${intentos + 1}:`, error);
         intentos++;
 
         if (intentos < maxIntentos) {
           setStatus(`Error. Reintentando en 3 segundos... (${intentos}/${maxIntentos})`);
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise((resolve) => setTimeout(resolve, 3000));
           return intentarAnalisis();
         } else {
           setBusy(false);
           setStatus("Error tras 3 intentos");
-          alert(`Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`);
+          alert(
+            `Error: ${error.message}\n\nSugerencias:\n1. Verifica tu conexión WiFi\n2. Recarga la página\n3. Si persiste, revisa el Worker y sus Secrets (GEMINI_API_KEY / ACCESS_TOKEN)`
+          );
         }
       }
     }
