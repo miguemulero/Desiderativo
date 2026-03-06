@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const observaciones = item.querySelector(".observaciones")?.value?.trim() || "";
 
       const extras = Array.from(item.querySelectorAll(".extra-response")).map(ex => ({
-        simbolo: ex.querySelector(".extra-simbolo")?.value?.trim() || "",
+        simbolo: ex.querySelector(".extra-simbolo")?.value?.trim() || "";
         tr: Number(ex.querySelector(".extra-tr")?.value || 0)
       }));
 
@@ -151,69 +151,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildPrompt(p) {
     const formatCatexia = (cat, idx) => {
-      let text = `${idx + 1}. Símbolo: ${cat.simbolo} | TR(s): ${cat.tr}\n   Justificación: ${cat.justificacion}\n   Observaciones: ${cat.observaciones}`;
+      let text =
+        `${idx + 1}. Símbolo: ${cat.simbolo || "-"} | TR(s): ${Number(cat.tr || 0)}\n` +
+        `   Justificación: ${cat.justificacion || "-"}\n` +
+        `   Observaciones: ${cat.observaciones || "-"}`;
+
       if (cat.extras && cat.extras.length > 0) {
         text += "\n   Cambios de símbolo:";
         cat.extras.forEach((ex, i) => {
-          text += `\n      ${i + 1}. Símbolo descartado: ${ex.simbolo} | TR(s): ${ex.tr}`;
+          text += `\n      ${i + 1}. Símbolo descartado: ${ex.simbolo || "-"} | TR(s): ${Number(ex.tr || 0)}`;
         });
       }
       return text;
     };
 
-    const listPos = p.positivas.map((c, i) => formatCatexia(c, i)).join("\n\n");
-    const listNeg = p.negativas.map((c, i) => formatCatexia(c, i)).join("\n\n");
+    const listPos = (p.positivas || []).map((c, i) => formatCatexia(c, i)).join("\n\n");
+    const listNeg = (p.negativas || []).map((c, i) => formatCatexia(c, i)).join("\n\n");
 
     const protocolo = [
-      "Edad: " + p.edad,
-      "Sexo: " + p.genero,
-      "Nivel educativo: " + p.nivel_educativo,
-      "Fecha: " + p.fecha,
-      "Modalidad: " + p.modalidad,
+      `**Nombre/ID:** ${p.nombre || "-"}`,
+      `**Edad:** ${p.edad || "-"}`,
+      `**Sexo:** ${p.genero || "-"}`,
+      `**Nivel educativo:** ${p.nivel_educativo || "-"}`,
+      `**Fecha:** ${p.fecha || "-"}`,
+      `**Modalidad:** ${p.modalidad || "-"}`,
       "",
-      "CATEXIAS POSITIVAS:",
-      listPos,
+      "CATÉXIAS POSITIVAS:",
+      listPos || "(sin datos)",
       "",
-      "CATEXIAS NEGATIVAS:",
-      listNeg,
+      "CATÉXIAS NEGATIVAS:",
+      listNeg || "(sin datos)",
       "",
-      "Asociaciones:",
+      "Asociaciones espontáneas:",
       p.asociaciones || "-",
       "",
       "Recuerdo positivo:",
       p.recuerdo || "-",
       "",
-      "Información relevante:",
+      "Información contextual relevante:",
       p.informacion || "-"
     ].join("\n");
 
     const disclaimerText =
       "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico clínico definitivo de forma aislada y deben ser supervisados por un profesional";
 
-    return `INSTRUCCIONES INTEGRALES PARA ANÁLISIS DEL CUESTIONARIO DESIDERATIVO
+    const styleAnchor = `
+EJEMPLO DE ESTILO (SOLO FORMATO, NO COPIAR CONTENIDO):
+**1. IMPLEMENTACIÓN Y ENCUADRE**
+Párrafo introductorio breve conectando modalidad y TR global.
+
+**Comprensión de consigna:** Párrafo en prosa (sin viñetas) describiendo comprensión y posibles resistencias, citando 1 dato del protocolo.
+**Indicadores de fortaleza/debilidad yoica en implementación:** Párrafo en prosa, con TR y una cita textual breve del protocolo como evidencia.
+`;
+
+    return `
+${styleAnchor}
 
 REGLA CRÍTICA (FUENTES):
-- Basa el análisis EXCLUSIVAMENTE en la bibliografía adjunta (archivos) + el protocolo.
-- NO uses conocimiento general externo ni otras fuentes implícitas.
-- NO inventes teoría, autores, nomenclaturas ni citas.
-- Si una afirmación no puede sostenerse en bibliografía adjunta, escribe literalmente: "No consta en la bibliografía aportada" y no la desarrolles.
+- Basa TODO el análisis EXCLUSIVAMENTE en la bibliografía adjunta (archivos) + el protocolo.
+- NO uses conocimiento general externo, ni “sentido común clínico”, ni otras fuentes implícitas.
+- NO inventes autores/teoría/citas. Solo cita (Autor, año) si consta en los archivos adjuntos.
+- Si algo no puede fundamentarse, escribe literalmente: "No consta en la bibliografía aportada".
 
-ESTILO (OBLIGATORIO):
-- El informe debe seguir el mismo estilo del ejemplo ACR aportado por el usuario: redacción clínica, explicativa, cohesionada, con subapartados en **negrita** dentro de cada sección.
-- Escribe en PÁRRAFOS. Evita listas con viñetas (“-”, “*”) en el cuerpo del informe.
-- Solo se permiten listas numeradas en el bloque final "CUESTIONES RELEVANTES:" (ver abajo).
+OBJETIVO:
+Generar un informe que reproduzca el estilo del ejemplo ACR: prosa clínica, cohesionada, con subapartados en **negrita** dentro de cada sección, conectando TR + símbolos + justificaciones + contexto.
 
-TRABAJA SIEMPRE A PARTIR DEL PROTOCOLO:
-- Símbolos, racionalizaciones/justificaciones, tiempos de reacción, observaciones y cambios de símbolo si existen.
-- Conecta explícitamente cada interpretación con evidencias del protocolo (citas textuales breves + TR).
-
-DEBES EXPLICITAR SIEMPRE (en el texto, no como viñetas):
-(1) el dato del protocolo que tomas,
-(2) el concepto teórico que aplicas (con autor/año solo si consta en bibliografía adjunta),
-(3) la inferencia clínica resultante.
-
-FORMATO DEL INFORME (OBLIGATORIO):
-- Empieza exactamente con el encabezado:
+REGLAS DE SALIDA (MUY ESTRICTAS):
+- Empieza EXACTAMENTE con:
 **INFORME DE ANÁLISIS DEL CUESTIONARIO DESIDERATIVO**
 **Nombre/ID:** ...
 **Edad:** ...
@@ -222,9 +226,7 @@ FORMATO DEL INFORME (OBLIGATORIO):
 **Fecha:** ...
 **Modalidad:** ...
 
-- Mantén exactamente los títulos y numeración del ESQUEMA (1 a 9) con títulos en **negrita**.
-
-ESQUEMA (exacto):
+- Luego escribe SOLO las secciones 1 a 9 con estos títulos EXACTOS (en negrita):
 **1. IMPLEMENTACIÓN Y ENCUADRE**
 **2. MECANISMOS INSTRUMENTALES**
 **3. ANSIEDAD**
@@ -235,37 +237,34 @@ ESQUEMA (exacto):
 **8. PERSPECTIVA ADL (Algoritmo David Liberman)**
 **9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO**
 
-REQUISITOS ESPECÍFICOS:
-- En ANSIEDAD: analiza shocks por acortamiento (<10s) y alargamiento (>30s) y su sentido defensivo.
-- En REINOS: clasifica el reino de cada símbolo (Animal / Vegetal / Objeto / Otro/Indeterminado) y analiza secuencias y variaciones.
-- En ADL: incluye 8.1 a 8.6 (erotismos, lenguaje, defensas, trayectoria pulsional, articulación con Yo/Superyó/Otro, síntesis).
-- En la hipótesis estructural, fundamenta PRINCIPALMENTE en defensas predominantes y su nivel.
+- En cada sección (1 a 9) incluye subapartados en **negrita** (como en el ejemplo) y escribe en PÁRRAFOS.
+- PROHIBIDO: listas con viñetas '-' o '*', excepto dentro de "CUESTIONES RELEVANTES:" (numeradas).
+- EVIDENCIA OBLIGATORIA: en cada sección cita al menos 2 evidencias del protocolo (símbolo, TR, o frase literal breve).
+- No inventes datos fuera del protocolo.
+
+REQUISITOS CLAVE:
+- ANSIEDAD: shocks por acortamiento (<10s) y alargamiento (>30s), sentido defensivo, y curva global si procede.
+- REINOS: clasifica reino de cada símbolo y analiza secuencia/variaciones.
+- ADL: 8.1 a 8.6 (erotismos LI/O1/O2/A1/A2/FU/FG, registro del lenguaje, defensas, trayectoria pulsional, articulación y síntesis).
+- HIPÓTESIS ESTRUCTURAL: fundamenta PRINCIPALMENTE en defensas predominantes y su nivel; luego apoya con el resto.
 
 BLOQUE FINAL OBLIGATORIO:
-Tras la sección 9, agrega exactamente:
+Tras la sección 9, escribe EXACTAMENTE:
 CUESTIONES RELEVANTES:
-- Genera entre 10 y 25 ítems numerados.
-- Cada ítem debe contener:
-  1) una pregunta interpretativa (NO para el paciente),
-  2) inmediatamente debajo, su respuesta en un párrafo (sin viñetas).
-- Si no consta en bibliografía adjunta: "No consta en la bibliografía aportada".
 
-CIERRE OBLIGATORIO:
-Al final del todo, escribe exactamente:
+Genera entre 10 y 25 ítems numerados. Cada ítem debe tener:
+- una pregunta interpretativa (NO para el paciente),
+- y debajo, un párrafo respondiendo (sin viñetas).
+Si no consta en bibliografía: "No consta en la bibliografía aportada".
+
+CIERRE OBLIGATORIO (exacto):
 **DISCLAIMER**
 ${disclaimerText}
 FIN DEL INFORME
 
-═══════════════════════════════════════════════════════════
-
-PROTOCOLO A ANALIZAR:
-Nombre/ID: ${p.nombre}
-
+PROTOCOLO A ANALIZAR (no inventes nada fuera de esto):
 ${protocolo}
-
-**DISCLAIMER**
-${disclaimerText}
-FIN DEL INFORME`;
+`.trim();
   }
 
   function validateForm(protocolo) {
@@ -366,8 +365,6 @@ FIN DEL INFORME`;
 
     const data = await response.json();
 
-    // Tu Worker actual devuelve { text }, pero por si aún tienes una versión antigua,
-    // soportamos ambos formatos:
     if (data && typeof data.text === "string" && data.text.trim()) {
       return data.text;
     }
