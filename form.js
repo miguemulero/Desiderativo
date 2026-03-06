@@ -286,7 +286,7 @@ CUESTIONES RELEVANTES (MUY IMPORTANTE):
 - NO son preguntas para hacerle al paciente.
 - Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿Cómo se articula…?”, “¿Qué revela…?”).
 - Deben estar RESPONDIDAS con un párrafo inmediatamente después.
-- Deben sostenerse en MARCOS TEÓRICOS/BIBLIOGRAFÍA CLÍNICA (p.ej., Freud, Klein, mecanismos de defensa, técnica desiderativa, ADL), SIN necesidad de listar bibliografía ni poner referencias formales.
+- Deben sostenerse en MARCOS TEÓRICOS/BIBLIOGRAFÍA CLÍNICA (por ejemplo, aludiendo a modelos como Klein, Freud, mecanismos de defensa, técnica desiderativa, ADL, etc.), SIN necesidad de listar bibliografía ni poner referencias formales.
 - Genera ENTRE 10 y 25, numeradas.
 
 ESQUEMA (exacto, con títulos en negrita):
