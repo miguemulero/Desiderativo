@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ACCESS_TOKEN_STORAGE_KEY = "desiderativo_access_token";
 
   const BIBLIOGRAFIA_FILES = [
-   "fileId": "files/wsd4dpqu0915",
+    "fileId": "files/wsd4dpqu0915",
       "fileId": "files/jrdon4rz8pl9",
       "fileId": "files/u8idv98iefwy",
       "fileId": "files/l8147ymu4bv4",
@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "fileId": "files/3c216nwlmv3u",
       "fileId": "files/ek8k1ef3d4h9",
       "fileId": "files/kkwwdhpgzwjw",
+];
   ];
 
   // ==========================================
