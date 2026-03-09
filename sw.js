@@ -1,16 +1,17 @@
-const CACHE_VERSION = "2026-03-09-hotfix-networkfirst-js-1";
+// SOLO CAMBIO NECESARIO: subir la versión para invalidar caché (no cambia funcionamiento)
+const CACHE_VERSION = "2026-03-05-past-ui-2";
 const CACHE_NAME = `desiderativo-${CACHE_VERSION}`;
 
 const STATIC_ASSETS = [
-  "./",
-  "./index.html",
-  "./form.css",
-  "./form.js",
-  "./app-config.js",
-  "./manifest.json",
-  "./icon.png",
-  "./icon-192.png",
-  "./icon-512.png",
+  "/Desiderativo/",
+  "/Desiderativo/index.html",
+  "/Desiderativo/form.css",
+  "/Desiderativo/form.js",
+  "/Desiderativo/app-config.js",
+  "/Desiderativo/manifest.json",
+  "/Desiderativo/icon.png",
+  "/Desiderativo/icon-192.png",
+  "/Desiderativo/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -30,31 +31,21 @@ self.addEventListener("activate", (event) => {
   })());
 });
 
-async function networkFirst(event) {
-  try {
-    const res = await fetch(event.request);
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(event.request, res.clone());
-    return res;
-  } catch {
-    return (await caches.match(event.request));
-  }
-}
-
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
   event.respondWith((async () => {
-    // Network-first para HTML + JS crítico (evita UI vieja)
-    if (
-      url.pathname.endsWith("/Desiderativo/") ||
-      url.pathname.endsWith("/Desiderativo/index.html") ||
-      url.pathname.endsWith("/Desiderativo/form.js") ||
-      url.pathname.endsWith("/Desiderativo/app-config.js")
-    ) {
-      const res = await networkFirst(event);
-      return res || (await caches.match("./index.html"));
+    // Network-first para HTML (evita quedarse con UI vieja)
+    if (url.pathname === "/Desiderativo/" || url.pathname.endsWith("/index.html")) {
+      try {
+        const res = await fetch(event.request);
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(event.request, res.clone());
+        return res;
+      } catch {
+        return (await caches.match(event.request)) || (await caches.match("/Desiderativo/index.html"));
+      }
     }
 
     // Cache-first para el resto
