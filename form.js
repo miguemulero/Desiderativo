@@ -1,8 +1,8 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
 /**
- * Bibliografía (Files API) a adjuntar SIEMPRE al worker.
- * IMPORTANTE: deben ser strings (ids tipo "files/xxxx").
+ * 1) File IDs (Files API) que tú ya tienes cargados en Gemini.
+ *    Estos NO se adjuntan directamente al análisis; antes se “resuelven” a fileUri una sola vez.
  */
 const BIBLIOGRAFIA_FILES = [
   "files/wsd4dpqu0915",
@@ -29,8 +29,26 @@ const BIBLIOGRAFIA_FILES = [
 ];
 
 /**
- * Lista exacta de títulos que deben poder aparecer en negrita (y que tu worker forzará en systemInstruction).
- * Aquí la usamos para reforzar el prompt desde el frontend también.
+ * 2) Dónde guardamos el resultado del “resolve”:
+ *    files: [{fileId, fileUri, mimeType}]
+ */
+const BIBLIOGRAFIA_RESOLVED_STORAGE_KEY = "desiderativo.bibliografia.resolved.v1";
+
+/**
+ * Si tu WORKER_URL es la raíz, esto es correcto.
+ * Si WORKER_URL ya incluye un path, dímelo y lo ajusto.
+ */
+function workerResolveUrl() {
+  return `${String(WORKER_URL).replace(/\/+$/, "")}/resolve`;
+}
+function workerAnalyzeUrl() {
+  // Analiza en raíz o en /analyze. En el worker que te di, sirve en root también,
+  // pero dejo /analyze por claridad; si no lo tienes configurado, usa WORKER_URL sin /analyze.
+  return `${String(WORKER_URL).replace(/\/+$/, "")}/analyze`;
+}
+
+/**
+ * Títulos permitidos (refuerzo en prompt; el worker ya lo fuerza también).
  */
 const TITULOS_PERMITIDOS = [
   "I. Encuadre e Implementación",
@@ -112,15 +130,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return token;
   }
 
-  /**
-   * Wrap adicional (defensa en profundidad):
-   * - Aunque el worker ya impone reglas vía systemInstruction, reforzamos también desde el prompt.
-   * - Esto ayuda si algún día se cambia el worker o se desactiva systemInstruction.
-   */
   function wrapPromptForStrictBibliography(promptBase) {
     return `
 REGLAS CRÍTICAS (OBLIGATORIO):
-- Basarte EXCLUSIVAMENTE en la bibliografía adjunta (fileIds). Prohibido usar conocimiento externo.
+- Basarte EXCLUSIVAMENTE en la bibliografía adjunta (archivos).
 - Si algo no consta en la bibliografía, escribe EXACTAMENTE: "NO CONSTA EN LA BIBLIOGRAFÍA".
 - Cada afirmación relevante debe terminar con cita en este formato: [fuente: <fileId>]
 - El informe debe estar en Markdown.
@@ -132,26 +145,85 @@ ${promptBase}
 `.trim();
   }
 
-  async function callGeminiViaWorker(prompt) {
-    const token = ensureAccessToken();
-    if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
+  function loadResolvedBibliografia() {
+    const raw = localStorage.getItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
 
-    // Asegurar bibliografía cargada (estricto)
+  function saveResolvedBibliografia(files) {
+    localStorage.setItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY, JSON.stringify(files));
+  }
+
+  /**
+   * Resuelve fileIds -> files[{fileId,fileUri,mimeType}] UNA VEZ.
+   * Si ya está resuelto en localStorage, no llama al worker.
+   */
+  async function resolveBibliografiaOnce() {
+    const cached = loadResolvedBibliografia();
+    if (Array.isArray(cached) && cached.length > 0) return cached;
+
     if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
       throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
     }
 
-    const res = await fetch(WORKER_URL, {
+    const token = ensureAccessToken();
+    if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
+
+    setStatus("Preparando bibliografía (resolviendo fileIds a fileUri)...");
+
+    const res = await fetch(workerResolveUrl(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Access-Token": token
       },
-      body: JSON.stringify({
-        model: GEMINI_MODEL,
-        prompt,
-        fileIds: BIBLIOGRAFIA_FILES
-      })
+      body: JSON.stringify({ fileIds: BIBLIOGRAFIA_FILES })
+    });
+
+    const data = await res.json().catch(async () => {
+      const t = await res.text();
+      throw new Error(`Respuesta no-JSON del Worker (${res.status}): ${t}`);
+    });
+
+    if (!res.ok) throw new Error(data?.error || `Error Worker (${res.status})`);
+
+    const files = data?.files;
+    if (!Array.isArray(files) || files.length === 0) {
+      throw new Error("Resolve no devolvió 'files' (bibliografía resuelta).");
+    }
+
+    // Validación mínima
+    for (const f of files) {
+      if (!f?.fileUri || typeof f.fileUri !== "string") throw new Error("Resolve devolvió files con fileUri inválido.");
+      if (!f?.fileId || typeof f.fileId !== "string") throw new Error("Resolve devolvió files con fileId inválido.");
+    }
+
+    saveResolvedBibliografia(files);
+    return files;
+  }
+
+  async function callGeminiViaWorker(prompt) {
+    const token = ensureAccessToken();
+    if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
+
+    // 1) obtener bibliografía resuelta (solo la primera vez llama /resolve)
+    const files = await resolveBibliografiaOnce();
+
+    // 2) analizar (ya no mandamos fileIds; mandamos files con fileUri)
+    const res = await fetch(workerAnalyzeUrl(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Access-Token": token
+      },
+      body: JSON.stringify({ model: GEMINI_MODEL, prompt, files })
     });
 
     const data = await res.json().catch(async () => {
@@ -472,6 +544,7 @@ FIN DEL INFORME`;
       alert(String(e?.message || e));
     } finally {
       setBusy(false);
+      setStatus("");
     }
   });
 
