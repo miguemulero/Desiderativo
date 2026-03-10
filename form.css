@@ -1,15 +1,371 @@
-/* --- AÑADIR AL FINAL (o cerca de Status) --- */
-
-/* Cuando estamos en modo "analizando con barra": el spinner circular no se usa */
-.spinner.spinner--progress{
-  width: 100%;
-  height: auto;
-  border: none;
-  border-radius: 0;
-  animation: none;
+:root{
+  --bg:#000000;
+  --card:#0f1a2f;
+  --border:#24324d;
+  --text:#eaf0ff;
+  --muted:#a9b6d3;
+  --primary:#2563eb;
+  --primary-2:#1d4ed8;
+  --success:#10b981;
+  --danger:#ef4444;
+  --shadow: rgba(0,0,0,0.35);
 }
 
-/* Barra indeterminada */
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: var(--bg);
+  color:var(--text);
+}
+
+.container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 22px 18px 28px;
+}
+
+/* Header */
+.app-header{
+  padding: 14px 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  margin-bottom: 18px;
+}
+
+.header-title{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 14px;
+}
+
+/* 1/3 icono, 2/3 textos */
+.app-icon{
+  width: clamp(92px, 28vw, 160px);
+  height: clamp(92px, 28vw, 160px);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.35);
+  flex: 0 0 33%;
+  object-fit: contain;
+}
+
+.header-text{
+  flex: 0 0 67%;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  min-width: 0;
+}
+
+.app-title{
+  margin:0;
+  font-family: "Fraunces", ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-size: 34px; /* más grande en escritorio */
+  letter-spacing: .2px;
+  font-weight: 700;
+  text-align:left;
+  line-height: 1.1;
+}
+
+.subtitle{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-align:left;
+}
+
+/* Sections */
+.form-section{
+  background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 14px 30px var(--shadow);
+}
+
+.form-section h2{
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Datos: un poco menos de altura (menos padding + menos margen del título) */
+.form-section--datos{
+  padding: 12px 14px;
+}
+.form-section--datos h2{
+  margin: 0 0 8px;
+}
+
+.section-description{
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group{ margin-bottom: 10px; }
+
+label{
+  display:block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+input, select, textarea{
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(3, 7, 18, .35);
+  color: var(--text);
+  padding: 10px 11px;
+  font-size: 13px;
+  outline: none;
+}
+
+textarea{ resize: vertical; }
+
+input:focus, select:focus, textarea:focus{
+  border-color: rgba(37,99,235,.8);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+}
+
+/* Catexias en 2 columnas */
+.catexias-two-col{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* Botones */
+.form-actions{
+  display:flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: 14px 0 6px;
+}
+
+.btn{
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 650;
+  cursor: pointer;
+  display: inline-flex;
+  align-items:center;
+  gap: 8px;
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+}
+
+.btn-primary{
+  border: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+}
+.btn-secondary{ background: rgba(255,255,255,.04); }
+.btn-success{
+  border: 0;
+  background: linear-gradient(135deg, #16a34a 0%, #10b981 100%);
+}
+.btn-danger{
+  border: 0;
+  background: var(--danger);
+  color: white;
+}
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* Status */
+.status-container{
+  min-height: 34px;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.spinner{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.15);
+  border-top-color: var(--primary);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Resultado */
+.result-section{
+  background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.02) 100%), var(--card);
+  border: 1px solid rgba(16,185,129,.45);
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 12px;
+  box-shadow: 0 14px 30px var(--shadow);
+}
+
+.result-header{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+textarea.result-textarea{
+  width: 100%;
+  min-height: 240px;
+  height: auto;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  line-height: 1.45;
+  white-space: pre-wrap;
+
+  overflow: hidden;
+  overflow-y: hidden;
+  resize: none !important;
+  max-height: none;
+}
+
+/* Catexias */
+#positivas-container, #negativas-container{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+.catexia-item{
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(3,7,18,.22);
+}
+
+.catexia-header{
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.catexia-main{
+  display:grid;
+  grid-template-columns: 1fr 150px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.catexia-texts{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.catexia-texts textarea{ min-height: 64px; }
+
+.checkbox-row{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  margin: 6px 0 8px;
+}
+
+.checkbox-row input[type="checkbox"]{
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.add-btn{
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,.18);
+  background: rgba(255,255,255,.03);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.extras-container{
+  margin-top: 10px;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+.extra-response{
+  display:grid;
+  grid-template-columns: 1fr 140px 44px;
+  gap: 10px;
+  align-items:center;
+}
+
+.remove-btn{
+  width: 44px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0;
+}
+
+/* Responsive */
+@media (max-width: 900px){
+  .catexias-two-col{ grid-template-columns: 1fr; }
+}
+
+/* iPhone / pantallas pequeñas: título algo más chico para que respire */
+@media (max-width: 820px){
+  .form-row{ grid-template-columns: 1fr; }
+  .catexia-main{ grid-template-columns: 1fr; }
+  .catexia-texts{ grid-template-columns: 1fr; }
+  .extra-response{ grid-template-columns: 1fr; }
+  .form-actions{ justify-content: stretch; flex-direction: column; }
+  .btn{ justify-content: center; }
+
+  .header-title{
+    justify-content: flex-start;
+  }
+
+  .app-title{
+    font-size: 26px;
+  }
+}
+
+/* Print (ORIGINAL) */
+@media print{
+  body{ background: white; color: black; }
+  .app-header, .form-actions, .status-container{ display:none !important; }
+  .form-section{ box-shadow:none; border: 1px solid #999; }
+  .result-section{ border: none; box-shadow:none; }
+  textarea, input, select{ color: black; background: white; border: 1px solid #666; }
+  .result-textarea{ overflow: visible; }
+}
+
+/* Footer oculto */
+.app-footer{ display:none; }
+
+
+/* =========================================================
+   CAMBIOS PEDIDOS (AÑADIDOS) - sin tocar el resto del CSS
+   1) Durante análisis: barra de progreso (indeterminada)
+   2) Imprimir: que el protocolo ocupe 1 página (compactar)
+   ========================================================= */
+
+/* 1) Barra de progreso (se muestra dentro del status-container) */
 .progress-bar{
   width: min(520px, 100%);
   height: 10px;
@@ -32,32 +388,40 @@
   100%{ transform: translateX(320%); }
 }
 
-/* Requisito: durante el análisis, el único texto es "Analizando".
-   Esto ya lo garantiza el JS porque borra status al terminar y no pone otros.
-   Si quieres "silencio total" extra, puedes ocultar subtítulos, etc., aquí NO lo hago. */
-
-
-/* --- PRINT: protocolo 1 página --- */
+/* 2) Print: compactar el formulario para que no “explote” en páginas.
+   - No cambiamos tu lógica, solo reducimos densidad para impresión.
+   - Mantengo visible el formulario (a diferencia de ocultarlo), pero lo comprimo.
+*/
 @media print{
-  body{ background: white; color: black; }
-  .app-header, .form-actions, .status-container, #guardar-imprimir{ display:none !important; }
+  /* Reduce tipografía para que entre */
+  body{ font-size: 10pt; }
+  label{ font-size: 9pt; margin-bottom: 2px; }
+  input, select, textarea{ font-size: 9pt; padding: 4px 6px; border-radius: 6px; }
 
-  /* En impresión, NO imprimimos el formulario completo (es lo que ocupa 5-6 páginas).
-     Imprimimos solo el informe (result-section) */
-  #desiderativo-form{ display:none !important; }
+  /* Reduce espacios */
+  .container{ max-width: none; padding: 0; }
+  .form-section{ padding: 8px; margin-bottom: 8px; }
+  .catexia-item{ padding: 6px; }
+  .catexia-header{ margin-bottom: 4px; font-size: 10pt; }
+  .catexia-main{ gap: 6px; margin-bottom: 6px; }
+  .catexia-texts{ gap: 6px; margin-bottom: 4px; }
 
-  .result-section{ border: none; box-shadow:none; margin-top: 0; padding-top: 0; }
-  textarea, input, select{ color: black; background: white; border: 1px solid #666; }
+  /* Evitar que textareas ocupen demasiado alto al imprimir */
+  textarea{ resize: none !important; overflow: hidden !important; }
+  #informacion{ max-height: 4.5cm; }
+  #asociaciones{ max-height: 3.8cm; }
+  #recuerdo{ max-height: 2.2cm; }
+  .catexia-texts textarea{ max-height: 2.2cm; min-height: 0; }
 
-  textarea.result-textarea{
-    overflow: visible !important;
-    height: auto !important;
-    max-height: none !important;
-    white-space: pre-wrap;
-  }
+  /* Evita saltos innecesarios dentro de items */
+  .catexia-item{ page-break-inside: avoid; break-inside: avoid; }
 
-  @page{
-    size: A4;
-    margin: 12mm;
-  }
+  /* Objetivo: que el protocolo sea 1 página.
+     Esto fuerza el formulario a caber; si aún no cupiera por demasiadas catexias,
+     la única forma garantizada es crear una "vista de impresión compacta".
+  */
+  #desiderativo-form{ page-break-inside: avoid; break-inside: avoid; }
+
+  /* El informe puede ir después (página siguiente si hace falta) */
+  #result-section{ page-break-before: always; break-before: page; }
 }
