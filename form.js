@@ -1,5 +1,63 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
+/**
+ * Bibliografía (Files API) a adjuntar SIEMPRE al worker.
+ * IMPORTANTE: deben ser strings (ids tipo "files/xxxx").
+ */
+const BIBLIOGRAFIA_FILES = [
+  "files/wsd4dpqu0915",
+  "files/jrdon4rz8pl9",
+  "files/u8idv98iefwy",
+  "files/l8147ymu4bv4",
+  "files/yt6fwxwb8b22",
+  "files/5faj6dpyrw46",
+  "files/m8p1ukasexv2",
+  "files/rvu2ta74ibd5",
+  "files/8uvxi4aoos2f",
+  "files/3yazxmiktsnk",
+  "files/obvszki5yfvg",
+  "files/octw6e79ydld",
+  "files/q67v0mpvtzrn",
+  "files/b1jkg2r87ru7",
+  "files/1jh9xs4w2n50",
+  "files/3it225iwkey2",
+  "files/z5aru2ozop9k",
+  "files/zm0iyz8zwldy",
+  "files/3c216nwlmv3u",
+  "files/ek8k1ef3d4h9",
+  "files/kkwwdhpgzwjw",
+];
+
+/**
+ * Lista exacta de títulos que deben poder aparecer en negrita (y que tu worker forzará en systemInstruction).
+ * Aquí la usamos para reforzar el prompt desde el frontend también.
+ */
+const TITULOS_PERMITIDOS = [
+  "I. Encuadre e Implementación",
+  "II. Mecanismos Instrumentales",
+  "II. Mecanismos Instrumentales.",
+  "1. Represión Fundante y 1° Disociación Instrumental",
+  "1. Represión Fundante y 1º Disociación Instrumental",
+  "Represión Fundante y Primera Disociación Instrumental",
+  "Represión Fundante y Primera Disociación Instrumental.",
+  "2. 2° Disociación Instrumental",
+  "2. 2º Disociación Instrumental",
+  "Segunda Disociación Instrumental",
+  "Segunda Disociación Instrumental.",
+  "3. Identificación Proyectiva",
+  "Identificación Proyectiva",
+  "4. Racionalización",
+  "Racionalización",
+  "III. Manejo y Tipos de Ansiedad",
+  "III. Manejo y Tipos de Ansiedad.",
+  "IV. Secuencia de Reinos y Fantasías de Muerte",
+  "Fantasías de Muerte",
+  "V. Análisis Estructural (Ello, Yo y Superyó)",
+  "VI. Perspectiva ADL",
+  "VII. Hipótesis Diagnóstica y Pronóstico",
+  "DISCLAIMER",
+];
+
 document.addEventListener("DOMContentLoaded", () => {
   const formEl = document.getElementById("desiderativo-form");
   const positivasContainer = document.getElementById("positivas-container");
@@ -54,9 +112,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return token;
   }
 
+  /**
+   * Wrap adicional (defensa en profundidad):
+   * - Aunque el worker ya impone reglas vía systemInstruction, reforzamos también desde el prompt.
+   * - Esto ayuda si algún día se cambia el worker o se desactiva systemInstruction.
+   */
+  function wrapPromptForStrictBibliography(promptBase) {
+    return `
+REGLAS CRÍTICAS (OBLIGATORIO):
+- Basarte EXCLUSIVAMENTE en la bibliografía adjunta (fileIds). Prohibido usar conocimiento externo.
+- Si algo no consta en la bibliografía, escribe EXACTAMENTE: "NO CONSTA EN LA BIBLIOGRAFÍA".
+- Cada afirmación relevante debe terminar con cita en este formato: [fuente: <fileId>]
+- El informe debe estar en Markdown.
+- Los títulos que uses deben estar en **negrita** y deben pertenecer a la siguiente lista (no inventes otros títulos):
+${TITULOS_PERMITIDOS.map((t) => `- ${t}`).join("\n")}
+
+=== INSTRUCCIÓN PRINCIPAL ===
+${promptBase}
+`.trim();
+  }
+
   async function callGeminiViaWorker(prompt) {
     const token = ensureAccessToken();
     if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
+
+    // Asegurar bibliografía cargada (estricto)
+    if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
+      throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
+    }
 
     const res = await fetch(WORKER_URL, {
       method: "POST",
@@ -64,7 +147,11 @@ document.addEventListener("DOMContentLoaded", () => {
         "Content-Type": "application/json",
         "X-Access-Token": token
       },
-      body: JSON.stringify({ model: GEMINI_MODEL, prompt })
+      body: JSON.stringify({
+        model: GEMINI_MODEL,
+        prompt,
+        fileIds: BIBLIOGRAFIA_FILES
+      })
     });
 
     const data = await res.json().catch(async () => {
@@ -372,7 +459,8 @@ FIN DEL INFORME`;
     const validationError = validateForm(protocolo);
     if (validationError) return alert(validationError);
 
-    const prompt = buildPrompt(protocolo);
+    const promptBase = buildPrompt(protocolo);
+    const prompt = wrapPromptForStrictBibliography(promptBase);
 
     setBusy(true);
     hideResult();
