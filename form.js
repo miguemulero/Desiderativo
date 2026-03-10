@@ -11,35 +11,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  // ===== Progreso (barra indeterminada) dentro del spinner =====
-  // Reutilizamos el div #spinner como contenedor (ya existe).
+  // ===== AÑADIDO: barra de progreso (indeterminada) =====
+  // Se inserta en el DOM una sola vez y se muestra/oculta en setBusy().
   const progressBar = document.createElement("div");
   progressBar.className = "progress-bar";
   progressBar.innerHTML = `<div class="progress-bar__fill"></div>`;
   progressBar.hidden = true;
-  spinner.appendChild(progressBar);
+
+  // La ponemos en el status-container, después del texto.
+  const statusContainer = document.querySelector(".status-container");
+  if (statusContainer) statusContainer.appendChild(progressBar);
 
   function setStatus(text) {
     statusText.textContent = text || "";
   }
 
   function setBusy(isBusy) {
-    // Requisito: “Mientras está realizando el análisis quiero que el único texto sea 'Analizando' y que haya una barra de progreso.”
-    // - Mostramos SOLO "Analizando" (sin puntos)
-    // - Ocultamos el spinner circular (por CSS) y mostramos barra
-    // - Deshabilitamos el botón
+    // Requisito: mientras analiza, el ÚNICO texto debe ser "Analizando"
+    spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
 
     if (isBusy) {
       setStatus("Analizando");
-      spinner.hidden = false;
-      spinner.classList.add("spinner--progress");
       progressBar.hidden = false;
     } else {
       setStatus("");
       progressBar.hidden = true;
-      spinner.classList.remove("spinner--progress");
-      spinner.hidden = true;
     }
   }
 
