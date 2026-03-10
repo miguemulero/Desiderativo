@@ -1,8 +1,5 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
-// (tu BIBLIOGRAFIA_FILES y lógica /resolve-/analyze van aparte; aquí me centro en UI+print)
-// Si quieres que lo integre con el worker nuevo por rutas /resolve y /analyze, dímelo y lo unifico.
-
 document.addEventListener("DOMContentLoaded", () => {
   const formEl = document.getElementById("desiderativo-form");
   const positivasContainer = document.getElementById("positivas-container");
@@ -14,52 +11,42 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  // Barra de progreso (indeterminada)
-  // Si existe un #progressBar en el HTML lo usa; si no, lo crea dentro de spinner.
-  let progressEl = document.getElementById("progressBar");
-  if (!progressEl) {
-    progressEl = document.createElement("progress");
-    progressEl.id = "progressBar";
-    progressEl.max = 100;
-    progressEl.value = 0;
-    progressEl.style.width = "100%";
-    progressEl.style.height = "18px";
-    progressEl.hidden = true;
-
-    // Si spinner existe, metemos la barra dentro; si no, al final del body
-    if (spinner) spinner.appendChild(progressEl);
-    else document.body.appendChild(progressEl);
-  }
+  // ===== Progreso (barra indeterminada) dentro del spinner =====
+  // Reutilizamos el div #spinner como contenedor (ya existe).
+  const progressBar = document.createElement("div");
+  progressBar.className = "progress-bar";
+  progressBar.innerHTML = `<div class="progress-bar__fill"></div>`;
+  progressBar.hidden = true;
+  spinner.appendChild(progressBar);
 
   function setStatus(text) {
     statusText.textContent = text || "";
   }
 
   function setBusy(isBusy) {
-    // Requisito: “mientras analiza, el único texto sea Analizando”
-    // - No mostramos otros mensajes.
-    // - Deshabilitamos botón.
-    // - Mostramos barra (indeterminada) y ocultamos el resto.
+    // Requisito: “Mientras está realizando el análisis quiero que el único texto sea 'Analizando' y que haya una barra de progreso.”
+    // - Mostramos SOLO "Analizando" (sin puntos)
+    // - Ocultamos el spinner circular (por CSS) y mostramos barra
+    // - Deshabilitamos el botón
     analizarBtn.disabled = isBusy;
 
     if (isBusy) {
       setStatus("Analizando");
-      if (spinner) spinner.hidden = false;
-      progressEl.hidden = false;
-
-      // Barra indeterminada: si no ponemos value, algunos browsers la muestran animada.
-      progressEl.removeAttribute("value");
+      spinner.hidden = false;
+      spinner.classList.add("spinner--progress");
+      progressBar.hidden = false;
     } else {
       setStatus("");
-      if (spinner) spinner.hidden = true;
-      progressEl.hidden = true;
-      progressEl.value = 0;
+      progressBar.hidden = true;
+      spinner.classList.remove("spinner--progress");
+      spinner.hidden = true;
     }
   }
 
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
+    // Forzar reflow para cálculo estable de scrollHeight
     // eslint-disable-next-line no-unused-expressions
     textarea.offsetHeight;
     textarea.style.height = (textarea.scrollHeight + 8) + "px";
