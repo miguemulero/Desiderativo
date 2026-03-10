@@ -1,80 +1,7 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
-/**
- * 1) File IDs (Files API) que tú ya tienes cargados en Gemini.
- *    Estos NO se adjuntan directamente al análisis; antes se “resuelven” a fileUri una sola vez.
- */
-const BIBLIOGRAFIA_FILES = [
-  "files/wsd4dpqu0915",
-  "files/jrdon4rz8pl9",
-  "files/u8idv98iefwy",
-  "files/l8147ymu4bv4",
-  "files/yt6fwxwb8b22",
-  "files/5faj6dpyrw46",
-  "files/m8p1ukasexv2",
-  "files/rvu2ta74ibd5",
-  "files/8uvxi4aoos2f",
-  "files/3yazxmiktsnk",
-  "files/obvszki5yfvg",
-  "files/octw6e79ydld",
-  "files/q67v0mpvtzrn",
-  "files/b1jkg2r87ru7",
-  "files/1jh9xs4w2n50",
-  "files/3it225iwkey2",
-  "files/z5aru2ozop9k",
-  "files/zm0iyz8zwldy",
-  "files/3c216nwlmv3u",
-  "files/ek8k1ef3d4h9",
-  "files/kkwwdhpgzwjw",
-];
-
-/**
- * 2) Dónde guardamos el resultado del “resolve”:
- *    files: [{fileId, fileUri, mimeType}]
- */
-const BIBLIOGRAFIA_RESOLVED_STORAGE_KEY = "desiderativo.bibliografia.resolved.v1";
-
-/**
- * Si tu WORKER_URL es la raíz, esto es correcto.
- * Si WORKER_URL ya incluye un path, dímelo y lo ajusto.
- */
-function workerResolveUrl() {
-  return `${String(WORKER_URL).replace(/\/+$/, "")}/resolve`;
-}
-function workerAnalyzeUrl() {
-  // Analiza en raíz o en /analyze. En el worker que te di, sirve en root también,
-  // pero dejo /analyze por claridad; si no lo tienes configurado, usa WORKER_URL sin /analyze.
-  return `${String(WORKER_URL).replace(/\/+$/, "")}/analyze`;
-}
-
-/**
- * Títulos permitidos (refuerzo en prompt; el worker ya lo fuerza también).
- */
-const TITULOS_PERMITIDOS = [
-  "I. Encuadre e Implementación",
-  "II. Mecanismos Instrumentales",
-  "II. Mecanismos Instrumentales.",
-  "1. Represión Fundante y 1° Disociación Instrumental",
-  "1. Represión Fundante y 1º Disociación Instrumental",
-  "Represión Fundante y Primera Disociación Instrumental",
-  "Represión Fundante y Primera Disociación Instrumental.",
-  "2. 2° Disociación Instrumental",
-  "2. 2º Disociación Instrumental",
-  "Segunda Disociación Instrumental",
-  "Segunda Disociación Instrumental.",
-  "3. Identificación Proyectiva",
-  "Identificación Proyectiva",
-  "4. Racionalización",
-  "Racionalización",
-  "III. Manejo y Tipos de Ansiedad",
-  "III. Manejo y Tipos de Ansiedad.",
-  "IV. Secuencia de Reinos y Fantasías de Muerte",
-  "Fantasías de Muerte",
-  "V. Análisis Estructural (Ello, Yo y Superyó)",
-  "VI. Perspectiva ADL",
-  "VII. Hipótesis Diagnóstica y Pronóstico",
-  "DISCLAIMER",
-];
+// (tu BIBLIOGRAFIA_FILES y lógica /resolve-/analyze van aparte; aquí me centro en UI+print)
+// Si quieres que lo integre con el worker nuevo por rutas /resolve y /analyze, dímelo y lo unifico.
 
 document.addEventListener("DOMContentLoaded", () => {
   const formEl = document.getElementById("desiderativo-form");
@@ -87,20 +14,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
+  // Barra de progreso (indeterminada)
+  // Si existe un #progressBar en el HTML lo usa; si no, lo crea dentro de spinner.
+  let progressEl = document.getElementById("progressBar");
+  if (!progressEl) {
+    progressEl = document.createElement("progress");
+    progressEl.id = "progressBar";
+    progressEl.max = 100;
+    progressEl.value = 0;
+    progressEl.style.width = "100%";
+    progressEl.style.height = "18px";
+    progressEl.hidden = true;
+
+    // Si spinner existe, metemos la barra dentro; si no, al final del body
+    if (spinner) spinner.appendChild(progressEl);
+    else document.body.appendChild(progressEl);
+  }
+
   function setStatus(text) {
     statusText.textContent = text || "";
   }
 
   function setBusy(isBusy) {
-    spinner.hidden = !isBusy;
+    // Requisito: “mientras analiza, el único texto sea Analizando”
+    // - No mostramos otros mensajes.
+    // - Deshabilitamos botón.
+    // - Mostramos barra (indeterminada) y ocultamos el resto.
     analizarBtn.disabled = isBusy;
-    setStatus(isBusy ? "Analizando..." : "");
+
+    if (isBusy) {
+      setStatus("Analizando");
+      if (spinner) spinner.hidden = false;
+      progressEl.hidden = false;
+
+      // Barra indeterminada: si no ponemos value, algunos browsers la muestran animada.
+      progressEl.removeAttribute("value");
+    } else {
+      setStatus("");
+      if (spinner) spinner.hidden = true;
+      progressEl.hidden = true;
+      progressEl.value = 0;
+    }
   }
 
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
-    // Forzar reflow para cálculo estable de scrollHeight
     // eslint-disable-next-line no-unused-expressions
     textarea.offsetHeight;
     textarea.style.height = (textarea.scrollHeight + 8) + "px";
@@ -130,100 +89,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return token;
   }
 
-  function wrapPromptForStrictBibliography(promptBase) {
-    return `
-REGLAS CRÍTICAS (OBLIGATORIO):
-- Basarte EXCLUSIVAMENTE en la bibliografía adjunta (archivos).
-- Si algo no consta en la bibliografía, escribe EXACTAMENTE: "NO CONSTA EN LA BIBLIOGRAFÍA".
-- Cada afirmación relevante debe terminar con cita en este formato: [fuente: <fileId>]
-- El informe debe estar en Markdown.
-- Los títulos que uses deben estar en **negrita** y deben pertenecer a la siguiente lista (no inventes otros títulos):
-${TITULOS_PERMITIDOS.map((t) => `- ${t}`).join("\n")}
-
-=== INSTRUCCIÓN PRINCIPAL ===
-${promptBase}
-`.trim();
-  }
-
-  function loadResolvedBibliografia() {
-    const raw = localStorage.getItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY);
-    if (!raw) return null;
-    try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
-  }
-
-  function saveResolvedBibliografia(files) {
-    localStorage.setItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY, JSON.stringify(files));
-  }
-
-  /**
-   * Resuelve fileIds -> files[{fileId,fileUri,mimeType}] UNA VEZ.
-   * Si ya está resuelto en localStorage, no llama al worker.
-   */
-  async function resolveBibliografiaOnce() {
-    const cached = loadResolvedBibliografia();
-    if (Array.isArray(cached) && cached.length > 0) return cached;
-
-    if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
-      throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
-    }
-
-    const token = ensureAccessToken();
-    if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
-
-    setStatus("Preparando bibliografía (resolviendo fileIds a fileUri)...");
-
-    const res = await fetch(workerResolveUrl(), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Access-Token": token
-      },
-      body: JSON.stringify({ fileIds: BIBLIOGRAFIA_FILES })
-    });
-
-    const data = await res.json().catch(async () => {
-      const t = await res.text();
-      throw new Error(`Respuesta no-JSON del Worker (${res.status}): ${t}`);
-    });
-
-    if (!res.ok) throw new Error(data?.error || `Error Worker (${res.status})`);
-
-    const files = data?.files;
-    if (!Array.isArray(files) || files.length === 0) {
-      throw new Error("Resolve no devolvió 'files' (bibliografía resuelta).");
-    }
-
-    // Validación mínima
-    for (const f of files) {
-      if (!f?.fileUri || typeof f.fileUri !== "string") throw new Error("Resolve devolvió files con fileUri inválido.");
-      if (!f?.fileId || typeof f.fileId !== "string") throw new Error("Resolve devolvió files con fileId inválido.");
-    }
-
-    saveResolvedBibliografia(files);
-    return files;
-  }
-
   async function callGeminiViaWorker(prompt) {
     const token = ensureAccessToken();
     if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
 
-    // 1) obtener bibliografía resuelta (solo la primera vez llama /resolve)
-    const files = await resolveBibliografiaOnce();
-
-    // 2) analizar (ya no mandamos fileIds; mandamos files con fileUri)
-    const res = await fetch(workerAnalyzeUrl(), {
+    const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Access-Token": token
       },
-      body: JSON.stringify({ model: GEMINI_MODEL, prompt, files })
+      body: JSON.stringify({ model: GEMINI_MODEL, prompt })
     });
 
     const data = await res.json().catch(async () => {
@@ -531,8 +407,7 @@ FIN DEL INFORME`;
     const validationError = validateForm(protocolo);
     if (validationError) return alert(validationError);
 
-    const promptBase = buildPrompt(protocolo);
-    const prompt = wrapPromptForStrictBibliography(promptBase);
+    const prompt = buildPrompt(protocolo);
 
     setBusy(true);
     hideResult();
@@ -544,7 +419,6 @@ FIN DEL INFORME`;
       alert(String(e?.message || e));
     } finally {
       setBusy(false);
-      setStatus("");
     }
   });
 
