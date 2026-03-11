@@ -4,7 +4,6 @@ const BIBLIOGRAFIA_FILES = [
   "files/wsd4dpqu0915",
   "files/jrdon4rz8pl9",
   "files/u8idv98iefwy",
-  "files/l8147ymu4bv4",
   "files/yt6fwxwb8b22",
   "files/5faj6dpyrw46",
   "files/m8p1ukasexv2",
