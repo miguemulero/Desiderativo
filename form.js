@@ -1,37 +1,29 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
-const BIBLIOGRAFIA_FILES = [
-  "files/wsd4dpqu0915",
-  "files/jrdon4rz8pl9",
-  "files/u8idv98iefwy",
-  "files/l8147ymu4bv4",
-  "files/yt6fwxwb8b22",
-  "files/5faj6dpyrw46",
-  "files/m8p1ukasexv2",
-  "files/rvu2ta74ibd5",
-  "files/8uvxi4aoos2f",
-  "files/3yazxmiktsnk",
-  "files/obvszki5yfvg",
-  "files/octw6e79ydld",
-  "files/q67v0mpvtzrn",
-  "files/b1jkg2r87ru7",
-  "files/1jh9xs4w2n50",
-  "files/3it225iwkey2",
-  "files/z5aru2ozop9k",
-  "files/zm0iyz8zwldy",
-  "files/3c216nwlmv3u",
-  "files/ek8k1ef3d4h9",
-  "files/kkwwdhpgzwjw",
+// Bibliografía YA RESUELTA (de tu uploaded_files.json)
+const BIBLIOGRAFIA_RESOLVED = [
+  { fileId: "files/t549z7ht66rm", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/t549z7ht66rm", mimeType: "application/pdf" },
+  { fileId: "files/gz8k0126y7a6", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/gz8k0126y7a6", mimeType: "application/pdf" },
+  { fileId: "files/6dz48r8mndei", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/6dz48r8mndei", mimeType: "application/pdf" },
+  { fileId: "files/nba7pztpxuk8", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/nba7pztpxuk8", mimeType: "application/pdf" },
+  { fileId: "files/p8shplqsvq1t", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/p8shplqsvq1t", mimeType: "application/pdf" },
+  { fileId: "files/rdfk0g1urj0r", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/rdfk0g1urj0r", mimeType: "application/pdf" },
+  { fileId: "files/liz8ph5ykm35", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/liz8ph5ykm35", mimeType: "application/pdf" },
+  { fileId: "files/ypdqo00ppn1r", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/ypdqo00ppn1r", mimeType: "application/pdf" },
+  { fileId: "files/72lrsd488auc", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/72lrsd488auc", mimeType: "application/pdf" },
+  { fileId: "files/9hvqjysd8kxb", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/9hvqjysd8kxb", mimeType: "application/pdf" },
+  { fileId: "files/mp0wuzb0evk5", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/mp0wuzb0evk5", mimeType: "application/pdf" },
+  { fileId: "files/nhv9ph457tqb", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/nhv9ph457tqb", mimeType: "application/pdf" },
+  { fileId: "files/z1uoz10z6ko1", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/z1uoz10z6ko1", mimeType: "application/pdf" },
+  { fileId: "files/d156wf8hj48z", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/d156wf8hj48z", mimeType: "application/pdf" },
+  { fileId: "files/kiz4re1qjgyn", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/kiz4re1qjgyn", mimeType: "application/pdf" },
+  { fileId: "files/sfbzceroane5", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/sfbzceroane5", mimeType: "application/pdf" },
+  { fileId: "files/ta94jpwif7oo", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/ta94jpwif7oo", mimeType: "application/pdf" },
+  { fileId: "files/hcnloscsx6ao", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/hcnloscsx6ao", mimeType: "application/pdf" },
+  { fileId: "files/zhumdhpz8owu", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/zhumdhpz8owu", mimeType: "application/pdf" },
+  { fileId: "files/p36r6dwr72i2", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/p36r6dwr72i2", mimeType: "application/pdf" },
+  { fileId: "files/rwg8lz7qt0t0", fileUri: "https://generativelanguage.googleapis.com/v1beta/files/rwg8lz7qt0t0", mimeType: "application/pdf" },
 ];
-
-const BIBLIOGRAFIA_RESOLVED_STORAGE_KEY = "desiderativo.bibliografia.resolved.v1";
-
-function workerResolveUrl() {
-  return `${String(WORKER_URL).replace(/\/+$/, "")}/resolve`;
-}
-function workerAnalyzeUrl() {
-  return `${String(WORKER_URL).replace(/\/+$/, "")}/analyze`;
-}
 
 const TITULOS_PERMITIDOS = [
   "I. Encuadre e Implementación",
@@ -85,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function setBusy(isBusy) {
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
-
     if (isBusy) {
       setStatus("Analizando");
       progressBar.hidden = false;
@@ -107,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
     resultText.value = processText(reportText);
     autoResizeTextarea(resultText);
     requestAnimationFrame(() => autoResizeTextarea(resultText));
-
     resultSection.style.display = "block";
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -121,84 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function ensureAccessToken() {
     let token = localStorage.getItem(WORKER_TOKEN_STORAGE_KEY) || "";
     if (token) return token;
-
     token = (window.prompt("Introduce el ACCESS TOKEN del Worker:", "") || "").trim();
     if (token) localStorage.setItem(WORKER_TOKEN_STORAGE_KEY, token);
     return token;
-  }
-
-  function loadResolvedBibliografia() {
-    const raw = localStorage.getItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY);
-    if (!raw) return null;
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : null;
-    } catch {
-      return null;
-    }
-  }
-
-  function saveResolvedBibliografia(files) {
-    localStorage.setItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY, JSON.stringify(files));
-  }
-
-  /**
-   * /resolve por lotes (batch) para evitar 524 y límites de subrequests.
-   * - Pide 3 IDs por request (ajustable).
-   */
-  async function resolveBibliografiaOnce() {
-    const cached = loadResolvedBibliografia();
-    if (Array.isArray(cached) && cached.length > 0) return cached;
-
-    if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
-      throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
-    }
-
-    const token = ensureAccessToken();
-    if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
-
-    const allFiles = [];
-    let offset = 0;
-
-    const LIMIT = 3; // 1..5 (recomendado 3 para ir seguro)
-
-    while (offset !== null) {
-      const res = await fetch(workerResolveUrl(), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Access-Token": token
-        },
-        body: JSON.stringify({
-          fileIds: BIBLIOGRAFIA_FILES,
-          offset,
-          limit: LIMIT
-        })
-      });
-
-      const data = await res.json().catch(async () => {
-        const t = await res.text();
-        throw new Error(`Respuesta no-JSON del Worker (${res.status}): ${t}`);
-      });
-
-      if (!res.ok) throw new Error(data?.error || `Error Worker (${res.status})`);
-
-      const batch = data?.files;
-      if (!Array.isArray(batch) || batch.length === 0) {
-        throw new Error("Resolve (batch) no devolvió 'files'.");
-      }
-
-      for (const f of batch) {
-        if (!f?.fileId || typeof f.fileId !== "string") throw new Error("Resolve devolvió fileId inválido.");
-        if (!f?.fileUri || typeof f.fileUri !== "string") throw new Error("Resolve devolvió fileUri inválido.");
-        allFiles.push(f);
-      }
-
-      offset = data?.nextOffset ?? null;
-    }
-
-    saveResolvedBibliografia(allFiles);
-    return allFiles;
   }
 
   function wrapPromptForStrictBibliography(promptBase) {
@@ -220,15 +135,14 @@ ${promptBase}
     const token = ensureAccessToken();
     if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
 
-    const files = await resolveBibliografiaOnce();
-
-    const res = await fetch(workerAnalyzeUrl(), {
+    // IMPORTANTE: aquí mandamos "files" ya resuelto, sin /resolve.
+    const res = await fetch(`${String(WORKER_URL).replace(/\/+$/, "")}/analyze`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Access-Token": token
       },
-      body: JSON.stringify({ model: GEMINI_MODEL, prompt, files })
+      body: JSON.stringify({ model: GEMINI_MODEL, prompt, files: BIBLIOGRAFIA_RESOLVED })
     });
 
     const data = await res.json().catch(async () => {
@@ -426,26 +340,6 @@ ${promptBase}
     const disclaimerText = "Los resultados aquí expuestos no deben considerarse bajo ningún concepto como un diagnóstico clínico definitivo de forma aislada y deben ser supervisados por un profesional";
 
     return `${header}
-OBJETIVO Y LÍMITES DE FUENTES (OBLIGATORIO):
-- La interpretación y el análisis deben ceñirse EXCLUSIVAMENTE a la bibliografía aportada.
-- Si algún concepto NO está cubierto por esa bibliografía, NO lo inventes: indica “NO CONSTA EN LA BIBLIOGRAFÍA”.
-- NO uses conocimiento general externo.
-
-ESQUEMA (exacto, con títulos en negrita):
-**1. IMPLEMENTACIÓN Y ENCUADRE**
-**2. MECANISMOS INSTRUMENTALES**
-**3. ANSIEDAD**
-**4. REINOS Y FANTASÍAS DE MUERTE**
-**5. ANÁLISIS ESTRUCTURAL: ELLO - YO – SUPERYÓ**
-**6. POSICIÓN RESPECTO DEL OTRO**
-**7. DEFENSAS Y RECURSOS**
-**8. PERSPECTIVA ADL (Algoritmo David Liberman)**
-**9. HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO**
-
-CIERRE OBLIGATORIO:
-Termina con **DISCLAIMER** seguido de: "${disclaimerText}"
-Luego, en una nueva línea, escribe exactamente: FIN DEL INFORME
-
 ${protocolo}
 
 **DISCLAIMER**
