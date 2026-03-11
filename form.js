@@ -1,9 +1,5 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
-/**
- * Bibliografía: fileIds (Files API)
- * Se resuelven 1 vez a fileUri vía /resolve y luego se usa /analyze con {files:[...]}.
- */
 const BIBLIOGRAFIA_FILES = [
   "files/wsd4dpqu0915",
   "files/jrdon4rz8pl9",
@@ -28,16 +24,8 @@ const BIBLIOGRAFIA_FILES = [
   "files/kkwwdhpgzwjw",
 ];
 
-// Cache local de la bibliografía resuelta (fileId -> fileUri)
 const BIBLIOGRAFIA_RESOLVED_STORAGE_KEY = "desiderativo.bibliografia.resolved.v1";
 
-/**
- * IMPORTANTE:
- * WORKER_URL en tu caso es: https://desiderativo-proxy.migue-mulero.workers.dev/
- * Estas helpers generan:
- * - /resolve
- * - /analyze
- */
 function workerResolveUrl() {
   return `${String(WORKER_URL).replace(/\/+$/, "")}/resolve`;
 }
@@ -45,10 +33,6 @@ function workerAnalyzeUrl() {
   return `${String(WORKER_URL).replace(/\/+$/, "")}/analyze`;
 }
 
-/**
- * Lista exacta de títulos que deben estar en negrita (refuerzo en prompt).
- * (El worker también lo fuerza por systemInstruction si lo tienes desplegado así.)
- */
 const TITULOS_PERMITIDOS = [
   "I. Encuadre e Implementación",
   "II. Mecanismos Instrumentales",
@@ -86,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  // ===== Barra de progreso (indeterminada) - añadida sin tocar tu HTML =====
+  // Barra de progreso (indeterminada)
   const progressBar = document.createElement("div");
   progressBar.className = "progress-bar";
   progressBar.innerHTML = `<div class="progress-bar__fill"></div>`;
@@ -99,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setBusy(isBusy) {
-    // Requisito: mientras analiza, el único texto debe ser "Analizando"
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
 
@@ -115,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = "auto";
-    // Forzar reflow para cálculo estable de scrollHeight
     // eslint-disable-next-line no-unused-expressions
     textarea.offsetHeight;
     textarea.style.height = (textarea.scrollHeight + 8) + "px";
@@ -161,8 +143,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Resuelve fileIds -> files[{fileId,fileUri,mimeType}] SOLO si no está en cache local.
-   * Esto es crítico para no chocar con límites de subrequests en cada análisis.
+   * /resolve por lotes (batch) para evitar 524 y límites de subrequests.
+   * - Pide 3 IDs por request (ajustable).
    */
   async function resolveBibliografiaOnce() {
     const cached = loadResolvedBibliografia();
@@ -175,41 +157,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = ensureAccessToken();
     if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
 
-    // Durante resolve, igual mantenemos "Analizando" (tu requisito).
-    // No añadimos otros textos visibles.
-    const res = await fetch(workerResolveUrl(), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Access-Token": token
-      },
-      body: JSON.stringify({ fileIds: BIBLIOGRAFIA_FILES })
-    });
+    const allFiles = [];
+    let offset = 0;
 
-    const data = await res.json().catch(async () => {
-      const t = await res.text();
-      throw new Error(`Respuesta no-JSON del Worker (${res.status}): ${t}`);
-    });
+    const LIMIT = 3; // 1..5 (recomendado 3 para ir seguro)
 
-    if (!res.ok) throw new Error(data?.error || `Error Worker (${res.status})`);
+    while (offset !== null) {
+      const res = await fetch(workerResolveUrl(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Access-Token": token
+        },
+        body: JSON.stringify({
+          fileIds: BIBLIOGRAFIA_FILES,
+          offset,
+          limit: LIMIT
+        })
+      });
 
-    const files = data?.files;
-    if (!Array.isArray(files) || files.length === 0) {
-      throw new Error("Resolve no devolvió 'files'.");
+      const data = await res.json().catch(async () => {
+        const t = await res.text();
+        throw new Error(`Respuesta no-JSON del Worker (${res.status}): ${t}`);
+      });
+
+      if (!res.ok) throw new Error(data?.error || `Error Worker (${res.status})`);
+
+      const batch = data?.files;
+      if (!Array.isArray(batch) || batch.length === 0) {
+        throw new Error("Resolve (batch) no devolvió 'files'.");
+      }
+
+      for (const f of batch) {
+        if (!f?.fileId || typeof f.fileId !== "string") throw new Error("Resolve devolvió fileId inválido.");
+        if (!f?.fileUri || typeof f.fileUri !== "string") throw new Error("Resolve devolvió fileUri inválido.");
+        allFiles.push(f);
+      }
+
+      offset = data?.nextOffset ?? null;
     }
 
-    // Validación mínima de shape
-    for (const f of files) {
-      if (!f?.fileId || typeof f.fileId !== "string") throw new Error("Resolve devolvió files con fileId inválido.");
-      if (!f?.fileUri || typeof f.fileUri !== "string") throw new Error("Resolve devolvió files con fileUri inválido.");
-    }
-
-    saveResolvedBibliografia(files);
-    return files;
+    saveResolvedBibliografia(allFiles);
+    return allFiles;
   }
 
   function wrapPromptForStrictBibliography(promptBase) {
-    // Refuerzo desde el prompt (defensa en profundidad).
     return `
 REGLAS CRÍTICAS (OBLIGATORIO):
 - Basarte EXCLUSIVAMENTE en la bibliografía adjunta.
@@ -348,7 +340,6 @@ ${promptBase}
     positivasContainer.innerHTML = "";
     negativasContainer.innerHTML = "";
 
-    // Positivas
     positivasContainer.appendChild(createCatexiaFija(
       1, "AGAPORNI", 3,
       "porque puede volar, estar en el suelo, ir donde quiera... lo puede adoptar una familia", ""
@@ -362,7 +353,6 @@ ${promptBase}
       "porque estaría buena y disfrutarían comiendo", ""
     ));
 
-    // Negativas
     negativasContainer.appendChild(createCatexiaFija(
       1, "MAPACHE", 1,
       "porque huelen mal, me pueden tirar a la basura y matar", ""
@@ -437,40 +427,9 @@ ${promptBase}
 
     return `${header}
 OBJETIVO Y LÍMITES DE FUENTES (OBLIGATORIO):
-- La interpretación y el análisis deben ceñirse EXCLUSIVAMENTE a la bibliografía aportada y señalada por el usuario (en la sección “BIBLIOGRAFÍA APORTADA”).
-- Si algún concepto NO está cubierto por esa bibliografía, NO lo inventes: indica “No consta en la bibliografía aportada” y continúa con lo que sí consta.
-- NO uses conocimiento general externo, “sentido común clínico”, ni otras fuentes implícitas. No alucines.
-- NO inventes datos del protocolo. Si haces inferencias, decláralas como inferencias y que derivan únicamente del protocolo y de la bibliografía aportada.
-
-BIBLIOGRAFÍA APORTADA:
-(La bibliografía está adjunta por archivos; NO debes pedirla.)
-
-Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar explícitamente los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
-
-FORMATO OBLIGATORIO:
-- Mantén exactamente los títulos y numeración que se indican en el ESQUEMA (1 a 9) con títulos en **negrita**.
-- Redacta con PÁRRAFOS (no listas largas).
-- Incluye ejemplos textuales concretos del protocolo (símbolos, frases de justificación, TR) para sostener cada afirmación.
-- Debes CLASIFICAR el REINO de cada símbolo (Animal / Vegetal / Objeto / Otro/Indeterminado) sin pedir información adicional.
-- En “ANSIEDAD”: analiza shocks por acortamiento (<10s) y alargamiento (>30s) y su sentido defensivo.
-- En “PERSPECTIVA ADL”: debe ser completa e incluir:
-  (a) erotismos por catexia (LI, O1, O2, A1, A2, FU, FG),
-  (b) registro del lenguaje (narrativo/descriptivo/argumentativo/modal; uso de pronombres, “me”, “pueden”, etc.),
-  (c) defensas según ADL y eficacia,
-  (d) trayectoria pulsional,
-  (e) articulación con Yo/Superyó y posición frente al Otro,
-  (f) síntesis ADL.
-  Para el nivel paraverbal: usa TR y lo consignado en “Observaciones”.
-- En “HIPÓTESIS DIAGNÓSTICA Y PRONÓSTICO”: formula compatibilidad entre estructura neurótica / psicótica / perversa DESCRIBIENDO INDICADORES.
-  CRUCIAL: basa la hipótesis estructural FUNDAMENTALMENTE en los MECANISMOS DE DEFENSA PREDOMINANTES y su nivel (más neuróticos vs más primitivos), y luego apóyala con el resto de indicadores.
-  Si predomina la compatibilidad neurótica, indica si es más compatible con organización obsesiva o histérica (indicadores).
-
-CUESTIONES RELEVANTES (MUY IMPORTANTE):
-- NO son preguntas para hacerle al paciente.
-- Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿C��mo se articula…?”, “¿Qué revela…?”).
-- Deben estar RESPONDIDAS con un párrafo inmediatamente después.
-- Deben sostenerse EXCLUSIVAMENTE en la bibliografía aportada.
-- Genera ENTRE 10 y 25, numeradas.
+- La interpretación y el análisis deben ceñirse EXCLUSIVAMENTE a la bibliografía aportada.
+- Si algún concepto NO está cubierto por esa bibliografía, NO lo inventes: indica “NO CONSTA EN LA BIBLIOGRAFÍA”.
+- NO uses conocimiento general externo.
 
 ESQUEMA (exacto, con títulos en negrita):
 **1. IMPLEMENTACIÓN Y ENCUADRE**
