@@ -1,5 +1,80 @@
 import { WORKER_URL, GEMINI_MODEL, WORKER_TOKEN_STORAGE_KEY } from "./app-config.js";
 
+/**
+ * Bibliografía: fileIds (Files API)
+ * Se resuelven 1 vez a fileUri vía /resolve y luego se usa /analyze con {files:[...]}.
+ */
+const BIBLIOGRAFIA_FILES = [
+  "files/wsd4dpqu0915",
+  "files/jrdon4rz8pl9",
+  "files/u8idv98iefwy",
+  "files/l8147ymu4bv4",
+  "files/yt6fwxwb8b22",
+  "files/5faj6dpyrw46",
+  "files/m8p1ukasexv2",
+  "files/rvu2ta74ibd5",
+  "files/8uvxi4aoos2f",
+  "files/3yazxmiktsnk",
+  "files/obvszki5yfvg",
+  "files/octw6e79ydld",
+  "files/q67v0mpvtzrn",
+  "files/b1jkg2r87ru7",
+  "files/1jh9xs4w2n50",
+  "files/3it225iwkey2",
+  "files/z5aru2ozop9k",
+  "files/zm0iyz8zwldy",
+  "files/3c216nwlmv3u",
+  "files/ek8k1ef3d4h9",
+  "files/kkwwdhpgzwjw",
+];
+
+// Cache local de la bibliografía resuelta (fileId -> fileUri)
+const BIBLIOGRAFIA_RESOLVED_STORAGE_KEY = "desiderativo.bibliografia.resolved.v1";
+
+/**
+ * IMPORTANTE:
+ * WORKER_URL en tu caso es: https://desiderativo-proxy.migue-mulero.workers.dev/
+ * Estas helpers generan:
+ * - /resolve
+ * - /analyze
+ */
+function workerResolveUrl() {
+  return `${String(WORKER_URL).replace(/\/+$/, "")}/resolve`;
+}
+function workerAnalyzeUrl() {
+  return `${String(WORKER_URL).replace(/\/+$/, "")}/analyze`;
+}
+
+/**
+ * Lista exacta de títulos que deben estar en negrita (refuerzo en prompt).
+ * (El worker también lo fuerza por systemInstruction si lo tienes desplegado así.)
+ */
+const TITULOS_PERMITIDOS = [
+  "I. Encuadre e Implementación",
+  "II. Mecanismos Instrumentales",
+  "II. Mecanismos Instrumentales.",
+  "1. Represión Fundante y 1° Disociación Instrumental",
+  "1. Represión Fundante y 1º Disociación Instrumental",
+  "Represión Fundante y Primera Disociación Instrumental",
+  "Represión Fundante y Primera Disociación Instrumental.",
+  "2. 2° Disociación Instrumental",
+  "2. 2º Disociación Instrumental",
+  "Segunda Disociación Instrumental",
+  "Segunda Disociación Instrumental.",
+  "3. Identificación Proyectiva",
+  "Identificación Proyectiva",
+  "4. Racionalización",
+  "Racionalización",
+  "III. Manejo y Tipos de Ansiedad",
+  "III. Manejo y Tipos de Ansiedad.",
+  "IV. Secuencia de Reinos y Fantasías de Muerte",
+  "Fantasías de Muerte",
+  "V. Análisis Estructural (Ello, Yo y Superyó)",
+  "VI. Perspectiva ADL",
+  "VII. Hipótesis Diagnóstica y Pronóstico",
+  "DISCLAIMER",
+];
+
 document.addEventListener("DOMContentLoaded", () => {
   const formEl = document.getElementById("desiderativo-form");
   const positivasContainer = document.getElementById("positivas-container");
@@ -11,14 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultText = document.getElementById("result-text");
   const guardarImprimirBtn = document.getElementById("guardar-imprimir");
 
-  // ===== AÑADIDO: barra de progreso (indeterminada) =====
-  // Se inserta en el DOM una sola vez y se muestra/oculta en setBusy().
+  // ===== Barra de progreso (indeterminada) - añadida sin tocar tu HTML =====
   const progressBar = document.createElement("div");
   progressBar.className = "progress-bar";
   progressBar.innerHTML = `<div class="progress-bar__fill"></div>`;
   progressBar.hidden = true;
-
-  // La ponemos en el status-container, después del texto.
   const statusContainer = document.querySelector(".status-container");
   if (statusContainer) statusContainer.appendChild(progressBar);
 
@@ -27,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setBusy(isBusy) {
-    // Requisito: mientras analiza, el ÚNICO texto debe ser "Analizando"
+    // Requisito: mientras analiza, el único texto debe ser "Analizando"
     spinner.hidden = !isBusy;
     analizarBtn.disabled = isBusy;
 
@@ -73,17 +145,98 @@ document.addEventListener("DOMContentLoaded", () => {
     return token;
   }
 
-  async function callGeminiViaWorker(prompt) {
+  function loadResolvedBibliografia() {
+    const raw = localStorage.getItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveResolvedBibliografia(files) {
+    localStorage.setItem(BIBLIOGRAFIA_RESOLVED_STORAGE_KEY, JSON.stringify(files));
+  }
+
+  /**
+   * Resuelve fileIds -> files[{fileId,fileUri,mimeType}] SOLO si no está en cache local.
+   * Esto es crítico para no chocar con límites de subrequests en cada análisis.
+   */
+  async function resolveBibliografiaOnce() {
+    const cached = loadResolvedBibliografia();
+    if (Array.isArray(cached) && cached.length > 0) return cached;
+
+    if (!Array.isArray(BIBLIOGRAFIA_FILES) || BIBLIOGRAFIA_FILES.length === 0) {
+      throw new Error("No hay bibliografía cargada (BIBLIOGRAFIA_FILES está vacío).");
+    }
+
     const token = ensureAccessToken();
     if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
 
-    const res = await fetch(WORKER_URL, {
+    // Durante resolve, igual mantenemos "Analizando" (tu requisito).
+    // No añadimos otros textos visibles.
+    const res = await fetch(workerResolveUrl(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Access-Token": token
       },
-      body: JSON.stringify({ model: GEMINI_MODEL, prompt })
+      body: JSON.stringify({ fileIds: BIBLIOGRAFIA_FILES })
+    });
+
+    const data = await res.json().catch(async () => {
+      const t = await res.text();
+      throw new Error(`Respuesta no-JSON del Worker (${res.status}): ${t}`);
+    });
+
+    if (!res.ok) throw new Error(data?.error || `Error Worker (${res.status})`);
+
+    const files = data?.files;
+    if (!Array.isArray(files) || files.length === 0) {
+      throw new Error("Resolve no devolvió 'files'.");
+    }
+
+    // Validación mínima de shape
+    for (const f of files) {
+      if (!f?.fileId || typeof f.fileId !== "string") throw new Error("Resolve devolvió files con fileId inválido.");
+      if (!f?.fileUri || typeof f.fileUri !== "string") throw new Error("Resolve devolvió files con fileUri inválido.");
+    }
+
+    saveResolvedBibliografia(files);
+    return files;
+  }
+
+  function wrapPromptForStrictBibliography(promptBase) {
+    // Refuerzo desde el prompt (defensa en profundidad).
+    return `
+REGLAS CRÍTICAS (OBLIGATORIO):
+- Basarte EXCLUSIVAMENTE en la bibliografía adjunta.
+- Si algo no consta en la bibliografía, escribe EXACTAMENTE: "NO CONSTA EN LA BIBLIOGRAFÍA".
+- Cada afirmación relevante debe terminar con cita en este formato: [fuente: <fileId>]
+- El informe debe estar en Markdown.
+- Los títulos que uses deben estar en **negrita** y deben pertenecer a la siguiente lista (no inventes otros títulos):
+${TITULOS_PERMITIDOS.map((t) => `- ${t}`).join("\n")}
+
+=== INSTRUCCIÓN PRINCIPAL ===
+${promptBase}
+`.trim();
+  }
+
+  async function callGeminiViaWorker(prompt) {
+    const token = ensureAccessToken();
+    if (!token) throw new Error("Falta ACCESS TOKEN del Worker.");
+
+    const files = await resolveBibliografiaOnce();
+
+    const res = await fetch(workerAnalyzeUrl(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Access-Token": token
+      },
+      body: JSON.stringify({ model: GEMINI_MODEL, prompt, files })
     });
 
     const data = await res.json().catch(async () => {
@@ -290,7 +443,7 @@ OBJETIVO Y LÍMITES DE FUENTES (OBLIGATORIO):
 - NO inventes datos del protocolo. Si haces inferencias, decláralas como inferencias y que derivan únicamente del protocolo y de la bibliografía aportada.
 
 BIBLIOGRAFÍA APORTADA:
-(El usuario la aportará. Si no hay bibliografía en esta sección, debes indicar que no es posible realizar el análisis solicitado sin bibliografía aportada.)
+(La bibliografía está adjunta por archivos; NO debes pedirla.)
 
 Redacta un informe clínico integral y dinámico del Cuestionario Desiderativo. Debes conectar explícitamente los datos del sujeto, el contexto relevante, las catexias (positivas y negativas), los TR, las justificaciones, las observaciones y los cambios (si existen). No inventes datos. Si haces inferencias, decláralas como inferencias clínicas.
 
@@ -314,9 +467,9 @@ FORMATO OBLIGATORIO:
 
 CUESTIONES RELEVANTES (MUY IMPORTANTE):
 - NO son preguntas para hacerle al paciente.
-- Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿Cómo se articula…?”, “¿Qué revela…?”).
+- Deben ser preguntas interpretativas sobre el SENTIDO de sus respuestas y su dinámica psíquica (como “¿Qué nos indica…?”, “¿C��mo se articula…?”, “¿Qué revela…?”).
 - Deben estar RESPONDIDAS con un párrafo inmediatamente después.
-- Deben sostenerse EXCLUSIVAMENTE en la bibliografía aportada (sin sumar fuentes externas).
+- Deben sostenerse EXCLUSIVAMENTE en la bibliografía aportada.
 - Genera ENTRE 10 y 25, numeradas.
 
 ESQUEMA (exacto, con títulos en negrita):
@@ -391,7 +544,8 @@ FIN DEL INFORME`;
     const validationError = validateForm(protocolo);
     if (validationError) return alert(validationError);
 
-    const prompt = buildPrompt(protocolo);
+    const promptBase = buildPrompt(protocolo);
+    const prompt = wrapPromptForStrictBibliography(promptBase);
 
     setBusy(true);
     hideResult();
